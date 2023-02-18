@@ -13,42 +13,90 @@ knitr::opts_chunk$set(
 )
 ```
 
-# asmss2023
+__Welcome__ to 
 
-<!-- badges: start -->
-<!-- badges: end -->
+[751-7602-00L  Applied Statistical Methods in Animal Sciences](https://www.vvz.ethz.ch/Vorlesungsverzeichnis/lerneinheit.view?semkez=2023S&ansicht=ALLE&lerneinheitId=168899&lang=en)
 
-The goal of asmss2023 is to ...
 
-## Installation
+## Topics for Master Theses
+Topics for Master Theses at Qualitas AG together with ETH will follow here ...
 
-You can install the development version of asmss2023 like so:
 
-``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+## Information
+- Lecturer: Peter von Rohr
+- Date: Montag 8-10
+- Mode: hybrid - in person and via zoom
+- Room: LFW C11 
+
+
+### Exercise Platform
+- The exercise platform can be found at: 
+- The password was sent by e-mail
+- The username is: rstudio
+
+
+### Exam
+- Written exam
+- Date: 22.05.2023 - 08:15 - 10:00
+- Room: LFW C 11
+
+
+## Description
+The following descriptions are taken from the course catalog
+
+### Applied Statistical Methods in Animal Science
+Genomic selection is currently the method of choice for improving the genetic potential of selection candidates in livestock breeding programs. This lecture introduces the reason why regression cannot be used in genomic selection. Alternatives to regression analysis that are suitable for genomic selection are presented. The concepts introduced are illustrated by excersises in R.
+
+The students are familiar with the properties of multiple linear regression and they are able to analyse simple data sets using regression methods. The students know why multiple linear regression cannot be used for genomic selection. The students know the statistical methods used in genomic selection, such as BLUP-based approaches, Bayesian procedures and LASSO. The students are able to solve simple exercise problems using the statistical framework R.
+
+
+## Questions
+Questions can be asked during the lecture and during the exercise hour or via e-mail: 
+
+- Peter von Rohr (peter.vonrohr `at` usys.ethz.ch)
+
+
+## Lecture Program
+```{r CourseProgram, echo=FALSE, results='asis'}
+### # header names of tables
+vecTableHeaders <- c("Week", "Date", "Topic")
+# define course start date
+dCourseStart <- as.Date("2023/02/20")
+# set number of weeks in semester
+nNrSemesterWeeks <- 15
+# define columns for weaks, dates, and subjects
+Week <- 1:nNrSemesterWeeks
+Date <- format(seq(dCourseStart, by = "week", length.out = nNrSemesterWeeks), "%d.%m")
+Topic <- vector(mode = "character", length = nNrSemesterWeeks)
+# subjects per week
+Topic[1] <- "Introduction to Applied Statistical Methods in Animal Science"
+Topic[2] <- "Linear Regression Models"
+Topic[3] <- "Linear Fixed Effect Models"
+Topic[4] <- "Model Selection"
+Topic[5] <- "Pedigree BLUP"
+Topic[6] <- "Variance Components"
+Topic[7] <- "GBLUP - Marker-Effects Models"
+Topic[8] <- "__Easter Monday__ (Ostermontag)"
+Topic[9] <- "GBLUP - Breeding Value Models"
+Topic[10] <- "Lasso"
+Topic[11] <- "__Labor Day__ (Tag der Arbeit)" 
+Topic[12] <- "SVM"
+Topic[13] <- "Bayesian Approaches in Linear Mixed Effects Models"
+Topic[14] <- "Exams" 
+Topic[15] <- "Pentcote Monday (Pfingstmontag)"
+
+dfCnTable <- data.frame(Week, Date, Topic, stringsAsFactors = FALSE)
+colnames(dfCnTable) <- vecTableHeaders
+knitr::kable(dfCnTable)
 ```
 
-## Example
 
-This is a basic example which shows you how to solve a common problem:
+## License
 
-```{r example}
-library(asmss2023)
-## basic example code
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
+
+```{r latest-change, echo=FALSE, results='asis'}
+cat(rmdhelp::get_latest_change())
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
