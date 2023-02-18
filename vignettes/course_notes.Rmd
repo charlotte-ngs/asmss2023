@@ -1,0 +1,18 @@
+---
+title: "Course Notes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Course Notes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This page contains the list of links pointing to the different chapters in the course notes. 
+

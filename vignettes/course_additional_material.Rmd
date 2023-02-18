@@ -1,0 +1,17 @@
+---
+title: "Additional Material"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Additional Material}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This page contains additional material like links to slides, video recordings, ohp pictures, and more ...
