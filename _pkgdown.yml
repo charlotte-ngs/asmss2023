@@ -1,10 +1,10 @@
-title: Applied Statistical Methods in Animal Sciences
+title: ASM-SS2023
 
 url: https://charlotte-ngs.github.io/asmss2023/
 
 template:
   bootstrap: 5
-  bootswatch: materia
+  bootswatch: cosmo
 
 navbar:
   title:
