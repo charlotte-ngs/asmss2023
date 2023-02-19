@@ -82,7 +82,7 @@ Topic[10] <- "Lasso"
 Topic[11] <- "__Labor Day__ (Tag der Arbeit)" 
 Topic[12] <- "SVM"
 Topic[13] <- "Bayesian Approaches in Linear Mixed Effects Models"
-Topic[14] <- "Exams" 
+Topic[14] <- "Exam" 
 Topic[15] <- "Pentcote Monday (Pfingstmontag)"
 
 dfCnTable <- data.frame(Week, Date, Topic, stringsAsFactors = FALSE)

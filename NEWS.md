@@ -1,3 +1,7 @@
+# asmss2023 0.1.1
+
+* Slides l01 and l02
+
 # asmss2023 0.1.0
 
 * Chpt 1 and 2 of course notes
