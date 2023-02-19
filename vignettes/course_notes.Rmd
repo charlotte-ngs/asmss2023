@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This page contains the list of links pointing to the different chapters in the course notes. 
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 s_cn_url <- "https://charlotte-ngs.github.io/asmss2023/cn/"
 tbl_chpt <- tibble::tibble(Nr      = c(1, 2),
                            Date    = c(rep("2023-02-20",2)),
