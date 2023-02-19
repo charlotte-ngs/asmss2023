@@ -35,8 +35,8 @@ The complete story about the face recognition system is available under https://
 ## Feed Intake and Behavior Traits of Cows
 In the recent past technologies based on computer vision have been introduced into agricultural applications. Two examples of such applications are
 
-1. Estimation of feed intake of cows based on video data as described by `r met$add("Chizzotti2015")` or based on accelerometer sensors as shown by `r met$add("Carpinelli2019")`. The company Viking Genetics has developed the CFIT system which uses video camera data to measure cow individual feed intake on commercial farms (`r met$add("Lassen2018IndividualMO")`). 
-2. The EU-Interreg project "[SESAM](https://www.alpine-space.eu/projects/sesam/en/home)" aimed at predicting basic behavior traits from data obtained from sensors and from video recordings.
+1. Estimation of feed intake of cows based on video data as described by `r met$add("Chizzotti2015")` or based on accelerometer sensors as shown by `r met$add("Carpinelli2019")`. The company Viking Genetics has developed the CFIT system which uses video camera data to measure cow individual feed intake on commercial farms (`r met$add("Lassen2018IndividualMO")`). The CFIT system uses the `Time-of-Flight` (TOF) technology to estimate shapes of contours from both the cows for their identification and from the feed presented to get a volume estimate. The latter quantity together with density information of the feed presented to the cows allows to get an estimate of feed intake for every individual cow.
+2. The EU-Interreg project `SESAM` (`r met$add("Peikenkamp2021")` and `r met$add("Hehn2021")`) aimed at predicting basic behavior traits from data obtained from sensors and from video recordings.
 
 
 ## Conclusions from Examples
