@@ -27,6 +27,7 @@ Topics for Master Theses at Qualitas AG together with ETH will follow here ...
 - Date: Montag 8-10
 - Mode: hybrid - in person and via zoom
 - Room: LFW C11 
+- Zoom-link: https://ethz.zoom.us/j/67283527518
 
 
 ### Exercise Platform

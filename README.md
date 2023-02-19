@@ -17,6 +17,7 @@ here …
 - Date: Montag 8-10
 - Mode: hybrid - in person and via zoom
 - Room: LFW C11
+- Zoom-link: <https://ethz.zoom.us/j/67283527518>
 
 ### Exercise Platform
 
@@ -75,7 +76,7 @@ or via e-mail:
 |   11 | 01.05 | **Labor Day** (Tag der Arbeit)                                |
 |   12 | 08.05 | SVM                                                           |
 |   13 | 15.05 | Bayesian Approaches in Linear Mixed Effects Models            |
-|   14 | 22.05 | Exams                                                         |
+|   14 | 22.05 | Exam                                                          |
 |   15 | 29.05 | Pentcote Monday (Pfingstmontag)                               |
 
 ## License
@@ -87,4 +88,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-02-18 07:43:11 (pvr)*
+*Latest Changes: 2023-02-19 13:28:07 (pvr)*
