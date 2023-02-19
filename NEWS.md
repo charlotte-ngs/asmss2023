@@ -1,3 +1,7 @@
+# asmss2023 0.1.0
+
+* Chpt 1 and 2 of course notes
+
 # asmss2023 0.0.1
 
 * Initial version of website
