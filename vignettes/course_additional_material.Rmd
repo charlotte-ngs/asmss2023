@@ -45,3 +45,12 @@ knitr::kable(tbl_ohp)
 ```
 
 
+## Video
+
+```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
+tbl_video <- tibble::tibble(Nr = c(1),
+                            Date = c("2022-02-20"),
+                            Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)"))
+knitr::kable(tbl_video)
+```
+
