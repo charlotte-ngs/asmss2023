@@ -1,3 +1,7 @@
+# asmss2023 0.1.3
+
+* Link to video of l01
+
 # asmss2023 0.1.2
 
 * OHP Pictures for l01
