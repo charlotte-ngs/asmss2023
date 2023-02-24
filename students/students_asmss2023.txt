@@ -1,0 +1,7 @@
+maffentra,Affentranger,Moritz,19-929-975,maffentra@student.ethz.ch
+jdowse,Dowse,Jenny,19-933-779,jdowse@student.ethz.ch
+egliso,Egli,Sofie,19-914-985,egliso@student.ethz.ch
+esther.ewaoluwagbemiga,Ewaoluwagbemiga,Esther,19-901-321,Esther.Ewaoluwagbemiga@hest.ethz.ch
+lixiny,Li,Xinyang,21-956-743,lixiny@student.ethz.ch
+simoschl,Schlebusch,Simon,15-941-446,simoschl@student.ethz.ch
+nazimmermann,Zimmermann,Nadja,19-946-581,nazimmermann@student.ethz.ch
