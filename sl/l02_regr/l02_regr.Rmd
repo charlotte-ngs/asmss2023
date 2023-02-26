@@ -1,7 +1,7 @@
 ---
 title: Linear Regression
 author: Peter von Rohr
-date: "2023-02-20"
+date: "2023-02-27"
 output: beamer_presentation
 ---
 
@@ -132,4 +132,71 @@ and
 \end{equation}
 
 
-## 
+## The General Case
+Height as additional observation 
+
+```{r tab-bw-mult-reg, echo=FALSE}
+tbl_bw_ext <- dplyr::bind_cols(tbl_reg, 
+                               tibble::tibble(Height = c(161, 121, 157, 165, 136, 123, 163, 149, 143, 130)))
+knitr::kable(tbl_bw_ext,
+             booktabs = TRUE,
+             longtable = TRUE,
+             escape = FALSE)
+```
+
+
+## Extended Model
+Height is taken as additional predictor variable
+
+$$E(y) = b_0 + b_1x_1 + b_2x_2$$
+
+$$y_i = b_0 + b_1x_{i1} + b_2x_{i2} + e_i$$
+
+$\rightarrow$ additional parameter $b_2$
+
+
+## Matrix-Vector Notation
+
+```{r mat-vec-lm, echo=FALSE, results='asis'}
+mat_X <- matrix(c("x_{10}", "x_{11}", "x_{12}",
+                  "x_{20}", "x_{21}", "x_{22}",
+                  ".", ".", ".",
+                  ".", ".", ".",
+                  ".", ".", ".",
+                  "x_{N0}", "x_{N1}", "x_{N2}"), ncol = 3, byrow = TRUE)
+vec_y <- c("y_1", "y_2", ".", ".", ".", "y_N")
+vec_e <- c("e_1", "e_2", ".", ".", ".", "e_N")
+vec_b <- c("b_0", "b_1", "b_2")
+
+cat("$$\n")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_X, ps_name = "\\mathbf{X}"), collapse = ""), "\n")
+cat(", \\ \n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "\\mathbf{y}")))
+cat(", \\ \n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_e, ps_name = "\\mathbf{e}")))
+cat("\\text{ and }\n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name = "\\mathbf{b}")))
+cat("$$\n")
+```
+
+$$\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{e} \text{, with } E(\mathbf{y}) = \mathbf{X}\mathbf{b}$$
+
+## Parameter Estimate
+Minimize
+
+\begin{align}
+\mathbf{e}^T\mathbf{e} &= \left[\mathbf{y} - E(\mathbf{y}) \right]^T\left[\mathbf{y} - E(\mathbf{y}) \right] \notag \\
+                       &= \left[\mathbf{y} - \mathbf{Xb} \right]^T\left[\mathbf{y} - \mathbf{Xb} \right]\notag \\
+                       &= \mathbf{y}^T\mathbf{y} - 2 \mathbf{b}^T\mathbf{X}^T\mathbf{y} + \mathbf{b}^T\mathbf{X}^T\mathbf{X}\mathbf{b} \notag
+\end{align}
+
+Normal equation
+
+$$\mathbf{X}^T\mathbf{X}\hat{\mathbf{b}} = \mathbf{X}^T\mathbf{y}$$
+
+## Solution
+Provided $(\mathbf{X}^T\mathbf{X})$ can be inverted
+
+$$\hat{\mathbf{b}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$
+
+
