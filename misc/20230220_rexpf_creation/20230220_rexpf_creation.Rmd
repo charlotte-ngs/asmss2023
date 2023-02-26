@@ -37,20 +37,26 @@ mkdir -p $CRSDIR
 The dockerfile for `asmss2023` is created on 2-htz
 
 ```bash
+CRSNAME=asmss2023
 CRSDIR=/home/quagadmin/courses/$CRSNAME
 cd $CRSDIR
-mkdir -p dockerfile
+is [[ ! -d dockerfile ]];then mkdir -p dockerfile;fi
 cd dockerfile
 echo 'FROM rocker/verse' > Dockerfile
 echo >> Dockerfile
 echo 'LABEL maintainer="peter.vonrohr@usys.ethz.ch"' >> Dockerfile
 echo  >> Dockerfile
+echo 'RUN apt-get update -y;apt-get upgrade -y' >> Dockerfile
+echo 'RUN apt-get install python3-pip -y' >> Dockerfile
 echo 'RUN R -e "install.packages(c(\"pedigreemm\", \"kableExtra\", \"AlphaSimR\", dependencies = TRUE))"'  >> Dockerfile
 echo 'RUN R -e "remotes::install_github(repo = \"charlotte-ngs/rmdhelp\")"'  >> Dockerfile
 echo 'RUN R -e "remotes::install_github(repo = \"pvrqualitasag/rvcetools\")"'  >> Dockerfile
+# check
+cat Dockerfile
 
 # build docker image
-docker build -t $CRSNAME .
+TODAY=$(date +"%Y%m%d")
+docker build --pull --no-cache --tag ${CRSNAME}:$TODAY .
 
 ```
 
@@ -236,7 +242,7 @@ MAXPORT=0
 CRSNAME=asmss2023
 PRVCRS=lbgfs2022
 cd /home/quagadmin/courses/$CRSNAME
-for f in $(ls -1 /home/quagadmin/courses/${PRVCRS}/email_sent/*.txt)
+for f in $(ls -1 /home/quagadmin/courses/${PRVCRS}/email_sent/*.txt | grep -v 'vrohrp')
 do
   port=$(cat $f | grep 'Port' | cut -d ' ' -f2)
   echo " * Extract port: $port from $f ..."
@@ -258,7 +264,7 @@ cat students/students_${CRSNAME}.txt  | while read s
 do
   user=$(echo "$s" | cut -d ',' -f1)
   if [[ $(grep "$user" students_rexpf_ports.csv | wc -l) -eq 0 ]];then
-    echo " * Add new user: $user
+    echo " * Add new user: $user ..."
     echo "${user};$CURPORT" >> students_rexpf_ports.csv
     CURPORT=$((CURPORT+1))
   else
@@ -267,6 +273,105 @@ do
 done  
 ```
 
+Create student info db into csv-file
+
+```bash
+CRSNAME=asmss2023
+DBINFO=students/test_students_rexpf_db.csv
+cd /home/quagadmin/courses/$CRSNAME
+if [[ -f $DBINFO ]];then rm $DBINFO;fi
+cat test_students_rexpf_ports.csv | while read l
+do
+  user=$(echo $l | cut -d ';' -f1)
+  port=$(echo $l | cut -d ';' -f2)
+  echo " * User: $user ..."
+  echo " * Port: $port ..."
+  # generate new passwd
+  passwd=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c12)
+  echo " * Generated pwd: $passwd ..."
+  # write info to db-file
+  echo "${user},${passwd},$port" >> $DBINFO
+  echo
+  sleep 2
+done  
+
+DBINFO=students/students_rexpf_db.csv
+cd /home/quagadmin/courses/$CRSNAME
+if [[ -f $DBINFO ]];then rm $DBINFO;fi
+cat students_rexpf_ports.csv | while read l
+do
+  user=$(echo $l | cut -d ';' -f1)
+  port=$(echo $l | cut -d ';' -f2)
+  echo " * User: $user ..."
+  echo " * Port: $port ..."
+  # generate new passwd
+  passwd=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c12)
+  echo " * Generated pwd: $passwd ..."
+  # write info to db-file
+  echo "${user},${passwd},$port" >> $DBINFO
+  echo
+  sleep 2
+done  
+
+```
+
+Upload new docker start script
+
+```bash
+scp bash/docker_student_cnt_start.sh quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/asmss2023/bash
+```
+
+Test starting docker container
+
+```bash
+CRSNAME=asmss2023
+TODAY=$(date +"%Y%m%d")
+
+cd /home/quagadmin/courses/$CRSNAME
+cat students/test_students_rexpf_db.csv | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  passwd=$(echo $l | cut -d ',' -f2)
+  port=$(echo $l | cut -d ',' -f3)
+  ./bash/docker_student_cnt_start.sh -i ${CRSNAME}:$TODAY -p $port -u $user -w $passwd -v /home/quagadmin/courses/asmss2023/home/$user
+  sleep 2
+done
+
+CRSNAME=asmss2023
+TODAY=$(date +"%Y%m%d")
+cd /home/quagadmin/courses/$CRSNAME
+cat students/students_rexpf_db.csv | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  passwd=$(echo $l | cut -d ',' -f2)
+  port=$(echo $l | cut -d ',' -f3)
+  ./bash/docker_student_cnt_start.sh -i ${CRSNAME}:$TODAY -p $port -u $user -w $passwd -v /home/quagadmin/courses/asmss2023/home/$user
+  sleep 2
+done
+
+```
+
+Stop docker container
+
+```bash
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/test_students_rexpf_db.csv | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  docker stop ${user}_rstudio
+  sleep 2
+done
+
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/students_rexpf_db.csv | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  docker stop ${user}_rstudio
+  sleep 2
+done
+```
 
 
 ```
