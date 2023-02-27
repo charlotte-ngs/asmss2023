@@ -373,6 +373,103 @@ do
 done
 ```
 
+Send e-mail to students
+
+```bash
+CRSNAME=asmss2023
+DRYRUN='false'
+cd /home/quagadmin/courses/$CRSNAME
+cat students/test_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  email=$(echo $l | cut -d ',' -f5)
+  passwd=$(grep "$user" students/test_students_rexpf_db.csv | cut -d ',' -f2)
+  port=$(grep "$user" students/test_students_rexpf_db.csv | cut -d ',' -f3)
+  (echo "To: $email"
+  echo 'Subject: ASMSS2023 Exercise Platform'
+  echo "Dear $fname $lname"
+  echo 'This message contains the required information for the exercise platform.'
+  echo 
+  echo "Port: $port"
+  echo "Password: $passwd"
+  echo 
+  echo 'Best regards, Peter von Rohr') > ${user}_email.txt
+  if [[ $DRYRUN == 'false' ]];then
+    cat ${user}_email.txt | ssmtp $email
+  fi
+  sleep 2
+done
+
+CRSNAME=asmss2023
+DRYRUN='false'
+cd /home/quagadmin/courses/$CRSNAME
+cat students/students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  email=$(echo $l | cut -d ',' -f5)
+  passwd=$(grep "$user" students/students_rexpf_db.csv | cut -d ',' -f2)
+  port=$(grep "$user" students/students_rexpf_db.csv | cut -d ',' -f3)
+  (echo "To: $email"
+  echo 'Subject: ASMSS2023 Exercise Platform'
+  echo "Dear $fname $lname"
+  echo 'This message contains the required information for the exercise platform.'
+  echo 
+  echo "Port: $port"
+  echo "Password: $passwd"
+  echo 
+  echo 'Best regards, Peter von Rohr'
+  echo ) > ${user}_email.txt
+  if [[ $DRYRUN == 'false' ]];then
+    cat ${user}_email.txt | ssmtp $email
+  fi
+  sleep 2
+done
+mv *.txt email_sent
+```
+
+Create a list with links
+
+```bash
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/test_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  port=$(grep "$user" students/test_students_rexpf_db.csv | cut -d ',' -f3)
+  echo "$fname $lname,2-htz.quagzws.com:${port}" >> test_students_rexpf_links.csv
+  sleep 2
+done
+
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  port=$(grep "$user" students/students_rexpf_db.csv | cut -d ',' -f3)
+  echo "$fname $lname,2-htz.quagzws.com:${port}" >> students_rexpf_links.csv
+  sleep 2
+done
+```
+
+Download list of links 
+
+```bash
+CRSNAME=asmss2023
+scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/test_students_rexpf_links.csv .
+scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/students_rexpf_links.csv .
+```
+
+Create an html page that contains the links
+
+
 
 ```
 CRSNAME=asmss2023
