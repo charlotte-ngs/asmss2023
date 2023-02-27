@@ -1,26 +1,24 @@
 ---
-title: Applied Statistical Methods - `r tools::toTitleCase(params$doctype)` 1
+title: Applied Statistical Methods - Notebook 1
 author: Peter von Rohr
-date: 2023-02-27
-output:
-  bookdown::pdf_document2:
-    toc: false
-    number_sections: false
-    keep_md: false
-    keep_tex: false
-header-includes:
- \usepackage{longtable}
- \usepackage{float}
+date: '2023-02-27'
+output: html_notebook
 params:
   doctype:
-    label: 'Document Type'
-    value: 'solution'
-    choices: ['exercise', 'solution', 'notebook']
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
   isonline:
-    label: 'Online (y/n)'
-    value: TRUE
-    choices: [TRUE, FALSE]
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
 ---
+
 
 
 ```{r setup, include=FALSE}
@@ -49,6 +47,12 @@ The data can be read from `r s_ex01_p01_path`. The additional columns contain da
 * Compute estimate for the regression coefficients in the model defined above.
 
 
+### Your Solution
+
+* Start by building the model which includes the decision of what type of components go into the vector $\mathbf{b}$. Then write down the model in matrix-vector notation.
+* Determine all the components of $\mathbf{X}$, $\mathbf{y}$, $\mathbf{b}$ and $\mathbf{e}$.
+* Compute the solution for $\hat{\mathbf{b}}
+
 
 
 
@@ -57,6 +61,18 @@ The data can be read from `r s_ex01_p01_path`. The additional columns contain da
 
 Use the same dataset as in Problem 1 and verify your results using the function `lm()` in R. 
 
+### Your Solution
+
+* Read the data into a dataframe
+* Use the `lm()` function which takes a formula to define the model and a dataframe
+* Use the function `summary()` on the result of `lm()` to show the results
 
 
-  
+
+ 
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 
