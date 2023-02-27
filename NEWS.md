@@ -1,3 +1,7 @@
+# asmss2023 0.2.0
+
+* link to R exercise student platform
+
 # asmss2023 0.1.3
 
 * Link to video of l01
