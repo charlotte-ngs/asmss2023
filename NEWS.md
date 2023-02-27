@@ -1,3 +1,7 @@
+# asmss2023 0.2.1
+
+* OHP pictures of l02 and link to video
+
 # asmss2023 0.2.0
 
 * link to R exercise student platform
