@@ -467,17 +467,60 @@ scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/test_students_r
 scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/students_rexpf_links.csv .
 ```
 
-Create an html page that contains the links
+Create an html page that contains the links. See 'misc/20230227_rexpf_student_links'
 
+Create branch for rexpf
 
-
+```bash
+cd ../..
+mkdir rexpf
+cd rexpf/
+git clone https://github.com/charlotte-ngs/asmss2023.git
+cd asmss2023/
+# switch branch
+git branch rexpf
+git checkout rexpf
+# remove un-needed material
+rm -rf DESCRIPTION NEWS.md R README.* _pkgdown.yml bash cn docs misc/ ohp/ sl students/ vignettes/
+rm .Rbuildignore 
+# remove build type from Rproj file
+mv asmss2023.Rproj asmss2023.Rproj.org
+cat asmss2023.Rproj.org | grep -v BuildType | grep -v WebsitePath > asmss2023.Rproj
+rm asmss2023.Rproj.org
+git add .
+git commit -m"First commit of rexpf branch"
+git push origin rexpf
 ```
+
+Clone material to user home directories
+
+```bash
 CRSNAME=asmss2023
-cd /home/quagadmin/courses/$CRSNAME/bash
-# test
-./docker_student_start.sh -f ../students/test_students_${CRSNAME}.txt -c /home/quagadmin/courses/${CRSNAME}/home -p 10187
-# real
-./docker_student_start.sh -f ../students/students_${CRSNAME}.txt -c /home/quagadmin/courses/${CRSNAME}/home
+export GITURI=https://github.com/charlotte-ngs/$CRSNAME.git
+export GELSRC=/home/quagadmin/courses/$CRSNAME
+export GELHOME=${GELSRC}/home
+cd $GELSRC
+# test student
+cat students/test_student_usernames_$CRSNAME.txt | while read s
+do
+  cd $GELHOME/$s
+  echo " * Cloning repo for $s ..."
+  git clone $GITURI -b rexpf
+  sleep 2
+done
+
+# students
+cd $GELSRC
+# real student
+cat students/student_usernames_$CRSNAME.txt | while read s
+do
+  cd $GELHOME/$s
+  echo " * Cloning repo for $s ..."
+  git clone $GITURI -b rexpf
+  sleep 2
+done
 ```
+
+
 
 
