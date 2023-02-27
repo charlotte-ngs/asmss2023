@@ -31,7 +31,7 @@ Topics for Master Theses at Qualitas AG together with ETH will follow here ...
 
 
 ### Exercise Platform
-- The exercise platform can be found at: 
+- The links to the exercise platform can be found [here](https://charlotte-ngs.github.io/asmss2023/misc/20230227_rexpf_student_links.html)
 - The password was sent by e-mail
 - The username is: rstudio
 

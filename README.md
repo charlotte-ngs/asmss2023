@@ -21,7 +21,8 @@ here …
 
 ### Exercise Platform
 
-- The exercise platform can be found at:
+- The links to the exercise platform can be found
+  [here](https://charlotte-ngs.github.io/asmss2023/misc/20230227_rexpf_student_links.html)
 - The password was sent by e-mail
 - The username is: rstudio
 
@@ -88,4 +89,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-02-19 13:28:07 (pvr)*
+*Latest Changes: 2023-02-27 07:41:25 (pvr)*
