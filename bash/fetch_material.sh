@@ -1,10 +1,11 @@
 #!/bin/bash
 # sq2h
-SCRIPTDIR=/home/quagadmin/courses/lbgfs2022/bash
+CRSNAME=asmss2023
+SCRIPTDIR=/home/quagadmin/courses/$CRSNAME/bash
 # DIRTOFETCH=ex/lbg_ex10
 DIRTOFETCH=sol/lbg_ex10
-TESTSTUDENT=/home/quagadmin/courses/lbgfs2022/students/test_student_usernames_lbgfs2022.txt
-STUDENTUSER=/home/quagadmin/courses/lbgfs2022/students/student_usernames_lbgfs2022.txt
+TESTSTUDENT=/home/quagadmin/courses/$CRSNAME/students/test_student_usernames_$CRSNAME.txt
+STUDENTUSER=/home/quagadmin/courses/$CRSNAME/students/student_usernames_$CRSNAME.txt
 #' fetch individual directory
 #' change to progdir
 cd $SCRIPTDIR
@@ -29,6 +30,6 @@ done
 cat $STUDENTUSER | while read s
 do
   echo " * Student: $s"
-  ls -l /home/quagadmin/courses/lbgfs2022/home/$s/lbgfs2022/$DIRTOFETCH
+  ls -l /home/quagadmin/courses/$CRSNAME/home/$s/$CRSNAME/$DIRTOFETCH
   sleep 2
 done
