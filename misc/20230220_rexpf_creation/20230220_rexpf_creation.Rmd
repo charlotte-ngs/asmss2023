@@ -522,5 +522,89 @@ done
 ```
 
 
+# Add New Students
+This is done by processing again the exported student list.
 
+```{r}
+vec_pkg <- c('openxlsx', 'dplyr', 'tidyr')
+if (!all(is.element(vec_pkg, installed.packages())))
+  install.packages(vec_pkg, dependencies = TRUE)
+
+# find the name of the xlsx student list
+s_xlsx_student_list <- "20230303_BelegungenLerneinheit_751760200L_Fruehjahrssemester_2023.xlsx"
+s_export_date <- unlist(strsplit(s_xlsx_student_list, "_"))[1]
+
+# read student list
+s_bl_path <- file.path(here::here(), 'students', s_xlsx_student_list)
+wb <- openxlsx::read.xlsx(xlsxFile = s_bl_path)
+```
+
+List of students with family names, first names and e-mail addresses
+
+```{r}
+library(dplyr)
+tbl_student_info <- wb %>% 
+    select(Familienname, Rufname, Nummer, `E-Mail`) %>%
+    mutate(UDName = `E-Mail`) %>%
+    tidyr::separate(UDName, c("Username", NA), sep = '@') %>%
+    select(Username, Familienname, Rufname, Nummer, `E-Mail`)
+tbl_student_info$Username <- tolower(tbl_student_info$Username)
+tbl_student_info
+```
+
+Write student info to a file
+
+```{r}
+student_dir <- file.path(here::here(), 'students')
+if (!dir.exists(student_dir)) fs::dir_create(path = student_dir)
+student_file_path <- file.path(student_dir, paste0(s_export_date, "_students_", course_name, ".txt", collapse = ""))
+readr::write_csv(tbl_student_info, file = student_file_path, col_names = FALSE)
+```
+
+
+Test student
+
+```{r}
+tbl_test_student_info <- tibble::tibble(Username     = c('vrohrp'),
+                                        Familienname = c('von Rohr'), 
+                                        Rufname      = c('Peter'), 
+                                        Nummer       = c('00-000-000') , 
+                                        `E-Mail`     = c('peter.vonrohr@usys.ethz.ch'))
+test_student_file_path <- file.path(student_dir, paste0(s_export_date, "test_students_", course_name, ".txt", collapse = ""))
+readr::write_csv(tbl_test_student_info, file = test_student_file_path, col_names = FALSE)
+
+```
+
+## Student Usernames
+From the e-mail addresses, we extract usernames as follows
+
+```{r}
+(tbl_student_username <- tbl_student_info %>% select(Username))
+```
+
+Write the usernames to a file
+
+```{r}
+user_file_path <- file.path(student_dir, paste0(s_export_date, "_student_usernames_", course_name, ".txt", collapse = ""))
+readr::write_csv(tbl_student_username, file = user_file_path, col_names = FALSE)
+```
+
+The username for the test-student is specified manually and is not extracted from the e-mail. 
+
+```{r}
+test_user_file_path <- file.path(student_dir, paste0(s_export_date, "_test_student_usernames_", course_name, ".txt", collapse = ""))
+tbl_test_student_username <- tbl_test_student_info %>% select(Username)
+readr::write_csv(tbl_test_student_username, file = test_user_file_path, col_names = FALSE)
+```
+
+
+# File Upload
+Upload the created files to the server
+
+```
+cd /Users/pvr/Data/Projects/GitHub/charlotte-ngs/${CRSNAME}_gh-root/main/${CRSNAME}
+TRGCRSPATH="/home/quagadmin/courses/$CRSNAME"
+scp -r students quagadmin@2-htz.quagzws.com:"$TRGCRSPATH"
+scp -r bash quagadmin@2-htz.quagzws.com:"$TRGCRSPATH"
+```
 
