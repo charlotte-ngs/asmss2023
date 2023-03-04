@@ -555,6 +555,7 @@ tbl_student_info
 Write student info to a file
 
 ```{r}
+course_name <- "asmss2023"
 student_dir <- file.path(here::here(), 'students')
 if (!dir.exists(student_dir)) fs::dir_create(path = student_dir)
 student_file_path <- file.path(student_dir, paste0(s_export_date, "_students_", course_name, ".txt", collapse = ""))
@@ -570,7 +571,7 @@ tbl_test_student_info <- tibble::tibble(Username     = c('vrohrp'),
                                         Rufname      = c('Peter'), 
                                         Nummer       = c('00-000-000') , 
                                         `E-Mail`     = c('peter.vonrohr@usys.ethz.ch'))
-test_student_file_path <- file.path(student_dir, paste0(s_export_date, "test_students_", course_name, ".txt", collapse = ""))
+test_student_file_path <- file.path(student_dir, paste0(s_export_date, "_test_students_", course_name, ".txt", collapse = ""))
 readr::write_csv(tbl_test_student_info, file = test_student_file_path, col_names = FALSE)
 
 ```
@@ -601,10 +602,302 @@ readr::write_csv(tbl_test_student_username, file = test_user_file_path, col_name
 # File Upload
 Upload the created files to the server
 
-```
+```bash
+CRSNAME=asmss2023
 cd /Users/pvr/Data/Projects/GitHub/charlotte-ngs/${CRSNAME}_gh-root/main/${CRSNAME}
 TRGCRSPATH="/home/quagadmin/courses/$CRSNAME"
 scp -r students quagadmin@2-htz.quagzws.com:"$TRGCRSPATH"
 scp -r bash quagadmin@2-htz.quagzws.com:"$TRGCRSPATH"
+```
+
+
+# New User on new port
+
+```bash
+MAXPORT=0
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+for f in $(ls -1 /home/quagadmin/courses/${CRSNAME}/email_sent/*.txt | grep -v 'vrohrp')
+do
+  port=$(cat $f | grep 'Port' | cut -d ' ' -f2)
+  echo " * Extract port: $port from $f ..."
+  if [[ $port -gt $MAXPORT ]];then
+    MAXPORT=$port
+    echo " * MAXPORT: $MAXPORT ..."
+  fi
+done
+echo "$((MAXPORT+1))" > start_port_${CRSNAME}.txt
+```
+
+Adding ports for new users
+
+```bash
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+CURPORT=$(cat start_port_${CRSNAME}.txt)
+cat students/20230303_students_${CRSNAME}.txt  | while read s
+do
+  user=$(echo "$s" | cut -d ',' -f1)
+  if [[ $(grep "$user" students/students_rexpf_ports.csv | wc -l) -eq 0 ]];then
+    echo " * Add new user: $user ..."
+    echo "${user};$CURPORT" >> students/students_rexpf_ports.csv
+    CURPORT=$((CURPORT+1))
+  else
+    echo " * Existing user: $user ..."
+  fi
+done  
+```
+
+Create student info db into csv-file
+
+```bash
+CRSNAME=asmss2023
+DBINFO=students/20230303_test_students_rexpf_db.csv
+PREVDBINFO=students/20230220_test_students_rexpf_db.csv
+PORTINFO=students/20230303_test_students_rexpf_ports.csv
+cd /home/quagadmin/courses/$CRSNAME
+if [[ -f $DBINFO ]];then rm $DBINFO;fi
+cat students/20230303_test_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo "$l" | cut -d ',' -f1)
+  echo " * User: $user ..."
+  # generate new passwd, if not found in PREVDBINFO
+  if [[ $(grep "$user" $PREVDBINFO | wc -l) -gt 0 ]];then
+    DBREC=$(grep "$user" $PREVDBINFO)
+    echo " * Found: $DBREC ..."
+  else
+    passwd=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c12)
+    port=$(grep "$user" $PORTINFO | cut -d ';' -f2)
+    echo " * Assigned port: $port ..."
+    DBREC="${user},${passwd},$port"
+    echo " * Generated pwd: $passwd ..."
+  fi
+  # write info to db-file
+  echo "$DBREC" >> $DBINFO
+  echo
+  sleep 2
+done  
+echo " * Check ..."
+cat $DBINFO
+
+CRSNAME=asmss2023
+DBINFO=students/20230303_students_rexpf_db.csv
+PREVDBINFO=students/20230220_students_rexpf_db.csv
+PORTINFO=students/20230303_students_rexpf_ports.csv
+cd /home/quagadmin/courses/$CRSNAME
+if [[ -f $DBINFO ]];then rm $DBINFO;fi
+cat students/20230303_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo "$l" | cut -d ',' -f1)
+  echo " * User: $user ..."
+  # generate new passwd, if not found in PREVDBINFO
+  if [[ $(grep "$user" $PREVDBINFO | wc -l) -gt 0 ]];then
+    DBREC=$(grep "$user" $PREVDBINFO)
+    echo " * Found: $DBREC ..."
+  else
+    passwd=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c12)
+    port=$(grep "$user" $PORTINFO | cut -d ';' -f2)
+    echo " * Assigned port: $port ..."
+    DBREC="${user},${passwd},$port"
+    echo " * Generated pwd: $passwd ..."
+  fi
+  # write info to db-file
+  echo "$DBREC" >> $DBINFO
+  echo
+  sleep 2
+done  
+echo " * Check ..."
+cat $DBINFO
+```
+
+Start images for all students, if they are not already running.
+
+Test starting docker container
+
+```bash
+CRSNAME=asmss2023
+TAG=20230226
+DBINFO=students/20230303_test_students_rexpf_db.csv
+cd /home/quagadmin/courses/$CRSNAME
+cat $DBINFO | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  passwd=$(echo $l | cut -d ',' -f2)
+  port=$(echo $l | cut -d ',' -f3)
+  if [[ $(docker ps -a | grep "$user" | wc -l) -eq 0 ]];then
+    echo " * Start docker container for $user ..."
+    ./bash/docker_student_cnt_start.sh -i ${CRSNAME}:$TAG -p $port -u $user -w $passwd -v /home/quagadmin/courses/asmss2023/home/$user
+  else
+    echo " * Docker container already running for $user ..."
+  fi
+  sleep 2
+done
+
+CRSNAME=asmss2023
+TAG=20230226
+DBINFO=students/20230303_students_rexpf_db.csv
+cd /home/quagadmin/courses/$CRSNAME
+cat $DBINFO | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  passwd=$(echo $l | cut -d ',' -f2)
+  port=$(echo $l | cut -d ',' -f3)
+  if [[ $(docker ps -a | grep "$user" | wc -l) -eq 0 ]];then
+    echo " * Start docker container for $user ..."
+    ./bash/docker_student_cnt_start.sh -i ${CRSNAME}:$TAG -p $port -u $user -w $passwd -v /home/quagadmin/courses/asmss2023/home/$user
+  else
+    echo " * Docker container already running for $user ..."
+  fi
+  sleep 2
+done
+```
+
+Send e-mail to students
+
+```bash
+CRSNAME=asmss2023
+DBINFO=students/20230303_test_students_rexpf_db.csv
+DRYRUN='false'
+SENTFOLDER=email_sent
+if [[ ! -d $SENTFOLDER ]];then mkdir -p $SENTFOLDER;fi
+cd /home/quagadmin/courses/$CRSNAME
+cat students/20230303_test_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  if [[ ! -f "$SENTFOLDER/${user}_email.txt" ]];then
+    echo " * Prepare e-mail to: $user ..."
+    lname=$(echo $l | cut -d ',' -f2)
+    fname=$(echo $l | cut -d ',' -f3)
+    email=$(echo $l | cut -d ',' -f5)
+    passwd=$(grep "$user" $DBINFO | cut -d ',' -f2)
+    (echo "To: $email"
+    echo 'Subject: ASMSS2023 Exercise Platform'
+    echo "Dear $fname $lname"
+    echo 'This message contains the required information for the exercise platform.'
+    echo 
+    echo "Password: $passwd"
+    echo 
+    echo 'Best regards, Peter von Rohr') > ${user}_email.txt
+    if [[ $DRYRUN == 'false' ]];then
+      echo " * Sending e-mail to: $user ..."
+      cat ${user}_email.txt | ssmtp $email
+      mv ${user}_email.txt email_sent
+    fi
+  else
+    echo " * E-mail already sent to: $user ..."
+  fi
+  sleep 2
+done
+
+CRSNAME=asmss2023
+DBINFO=students/20230303_students_rexpf_db.csv
+DRYRUN='false'
+SENTFOLDER=email_sent
+if [[ ! -d $SENTFOLDER ]];then mkdir -p $SENTFOLDER;fi
+cd /home/quagadmin/courses/$CRSNAME
+cat students/20230303_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  if [[ ! -f "$SENTFOLDER/${user}_email.txt" ]];then
+    echo " * Prepare e-mail to: $user ..."
+    lname=$(echo $l | cut -d ',' -f2)
+    fname=$(echo $l | cut -d ',' -f3)
+    email=$(echo $l | cut -d ',' -f5)
+    passwd=$(grep "$user" $DBINFO | cut -d ',' -f2)
+    (echo "To: $email"
+    echo 'Subject: ASMSS2023 Exercise Platform'
+    echo "Dear $fname $lname"
+    echo 'This message contains the required information for the exercise platform.'
+    echo 
+    echo "Password: $passwd"
+    echo 
+    echo 'Best regards, Peter von Rohr') > ${user}_email.txt
+    if [[ $DRYRUN == 'false' ]];then
+      echo " * Sending e-mail to: $user ..."
+      cat ${user}_email.txt | ssmtp $email
+      mv ${user}_email.txt email_sent
+    fi
+  else
+    echo " * E-mail already sent to: $user ..."
+  fi
+  sleep 2
+done
+```
+
+Create a list with links
+
+```bash
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/20230303_test_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  port=$(grep "$user" students/20230303_test_students_rexpf_db.csv | cut -d ',' -f3)
+  echo "$fname $lname,2-htz.quagzws.com:${port}" >> 20230303_test_students_rexpf_links.csv
+  sleep 2
+done
+
+CRSNAME=asmss2023
+cd /home/quagadmin/courses/$CRSNAME
+cat students/20230303_students_${CRSNAME}.txt | while read l
+do
+  user=$(echo $l | cut -d ',' -f1)
+  lname=$(echo $l | cut -d ',' -f2)
+  fname=$(echo $l | cut -d ',' -f3)
+  port=$(grep "$user" students/20230303_students_rexpf_db.csv | cut -d ',' -f3)
+  echo "$fname $lname,2-htz.quagzws.com:${port}" >> 20230303_students_rexpf_links.csv
+  sleep 2
+done
+```
+
+Download list of links 
+
+```bash
+CRSNAME=asmss2023
+scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/20230303_test_students_rexpf_links.csv .
+scp quagadmin@2-htz.quagzws.com:/home/quagadmin/courses/$CRSNAME/20230303_students_rexpf_links.csv .
+```
+
+Clone material to user home directories
+
+```bash
+CRSNAME=asmss2023
+export GITURI=https://github.com/charlotte-ngs/$CRSNAME.git
+export GELSRC=/home/quagadmin/courses/$CRSNAME
+export GELHOME=${GELSRC}/home
+cd $GELSRC
+# test student
+cat students/20230303_test_student_usernames_$CRSNAME.txt | while read s
+do
+  cd $GELHOME/$s
+  if [[ -d $CRSNAME ]];then
+    echo " * Repo already cloned for $s ..."
+  else  
+    echo " * Cloning repo for $s ..."
+    git clone $GITURI -b rexpf
+  fi  
+  sleep 2
+done
+
+# students
+CRSNAME=asmss2023
+export GITURI=https://github.com/charlotte-ngs/$CRSNAME.git
+export GELSRC=/home/quagadmin/courses/$CRSNAME
+export GELHOME=${GELSRC}/home
+cd $GELSRC
+# test student
+cat students/20230303_student_usernames_$CRSNAME.txt | while read s
+do
+  cd $GELHOME/$s
+  if [[ -d $CRSNAME ]];then
+    echo " * Repo already cloned for $s ..."
+  else  
+    echo " * Cloning repo for $s ..."
+    git clone $GITURI -b rexpf
+  fi  
+  sleep 2
+done
 ```
 
