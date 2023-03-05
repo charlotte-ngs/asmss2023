@@ -176,16 +176,40 @@ where
 
 
 ### Genomic Regression Analysis 
-Although, the predictor variables in the model shown in \@ref(eq:basisstatisticalmodel) are discrete genotypes which can take only three states, namely the three genotypes of a biallelic locus, it is still possible to model such genomic data with a regression model. The reason for this is that the chosen encoding of the three genotypes into values $-1$, $0$ and $1$ is biologically meaningful. This can be seen by looking at expectations of different phenotypic values. For reasons of simplicity, we assume that the phenotypic value $y$ is only affected by a single bi-allelic locus $G$. Hence for three animals with three different genotypes, the model \@ref(eq:basisstatisticalmodel) can be written as
+Although, the predictor variables in the model shown in \@ref(eq:basisstatisticalmodel) are discrete genotypes which can take only three states, namely the three genotypes of a biallelic locus, it is still possible to model such genomic data with a regression model. The reason for this is that the chosen encoding of the three genotypes into values $-1$, $0$ and $1$ is biologically meaningful. This can be seen by looking at expectations of different phenotypic values. For reasons of simplicity, we assume that the phenotypic value $y$ is only affected by a single bi-allelic locus $G$. Furthermore, locus $G$ has a purely additive effect on the observed phenotypic values. Hence the genotypic values of the three genotypes $G_1G_1$, $G_1G_2$ and $G_2G_2$ at locus $G$ are $a_G$, $0$ and $-a_G$, respectively. Hence for three animals with three different genotypes, the model \@ref(eq:basisstatisticalmodel) can be written as
 
 \begin{equation}
-\left .
-\begin{array}{c}
-\text{text}
+\left.
+\begin{array}{l}
+\text{Animal i with genotype } G_1G_1 \\
+\text{Animal j with genotype } G_1G_2 \\
+\text{Animal k with genotype } G_2G_2
+\end{array}
+\right\}
+\begin{array}{l}
+y_i = \mu + 1 * a_G + \epsilon_i \\
+y_j = \mu + 0 * a_G + \epsilon_j \\
+y_k = \mu + (-1) *a_G + \epsilon_k \\
+\end{array}
 \end{equation}
 
+From this we can see that the expected values of the phenotypic values can be written as 
+
+\begin{align}
+E(y_i) &= \mu + a_G \notag  \\
+E(y_j) &= \mu \notag \\
+E(y_k) &= \mu - a_G \notag
+\end{align}
+
+The differences between the expectations of the phenotypic values of animals with different genotypes can now be written as
+
+$$E(y_i) -  E(y_j) = E(y_j) - E(y_k) = a_G$$
+
+This difference corresponds to the allele substitution effect $a_G$ at locus $G$. Hence the chosen encoding of the genotypes $G_1G_1$, $G_1G_2$ and $G_2G_2$ as $1$, $0$ and $-1$ has an internal biological meaning and the regression coefficient of the observed phenotypic values on the encoded genotypes provides the allele substitution effect.
+
+
 ## Regression On Dummy Variables {#asm-flem-reg-dummy}
-In a regression model both the response variable and the predictor variables are continuous variables. Examples of such variables are `body weight` and `breast circumference` which are both measured and the measurements are expressed as real numbers. In contrast to such a regression model, the predictor variable `Breed` in the extended dataset given in Table \@ref(tab:tab-bw-breed-flem) is a discrete variable. That means, observations of such a variable can only take a certain number of values. These values are determined by the nature of the variable. For our example with the breeds of animals, the observed values can only come from the existing breeds of that species from which the observations were generated.
+In general, both the response variable and the predictor variables of a regression model are continuous variables. Examples of such variables are `body weight` and `breast circumference` which are both measured and the measurements are expressed as real numbers. In contrast to such a regression model, the predictor variable `Breed` in the extended dataset given in Table \@ref(tab:tab-bw-breed-flem) is a discrete variable. That means, observations of such a variable can only take a certain number of values. These values are determined by the nature of the variable. For our example with the breeds of animals, the observed values can only come from the existing breeds of that species from which the observations were generated.
 
 The discussion of regression on dummy variables is fascilitated by the notioon of __factors__ and __levels__. This terminology is adapted from the literature of experimental design. In the study of the influence of an animals breed on its body weight, we are interested in the extent to which each breed is associated to the body weight. Thus we want to see whether a group of animals from a particular breed show specific values for their body weights and whether these values are different from the body weights of animals from a different breed.
 
