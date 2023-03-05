@@ -1,3 +1,7 @@
+# asmss2023 0.3.0
+
+* Cn chapter 3 on FLEM
+
 # asmss2023 0.2.1
 
 * OHP pictures of l02 and link to video
