@@ -190,7 +190,7 @@ Minimize
                        &= \mathbf{y}^T\mathbf{y} - 2 \mathbf{b}^T\mathbf{X}^T\mathbf{y} + \mathbf{b}^T\mathbf{X}^T\mathbf{X}\mathbf{b} \notag
 \end{align}
 
-Normal equation
+Compute the gradient $\frac{\partial \ \mathbf{e}^T\mathbf{e}}{\mathbf{b}}$, set it to $\mathbf{0}$ to get the normal equations
 
 $$\mathbf{X}^T\mathbf{X}\hat{\mathbf{b}} = \mathbf{X}^T\mathbf{y}$$
 
@@ -199,4 +199,84 @@ Provided $(\mathbf{X}^T\mathbf{X})$ can be inverted
 
 $$\hat{\mathbf{b}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$
 
+
+## Obtain Parameter Estimates in R
+
+* Computations are tedious
+* Use R builtin functions
+* Assuming data is available in dataframe `tbl_reg` with columns `Body Weight` and `Breast Circumference`
+
+\vspace{3ex}
+
+```{r, echo=TRUE, eval=FALSE}
+lm_bw_bc <- lm(`Body Weight` ~ `Breast Circumference`, 
+               data = tbl_reg)
+summary(lm_bw_bc)
+```
+
+
+## Multiple Linear Regression Model
+
+\begin{equation}
+\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{e} \text{, with } E(\mathbf{y}) = \mathbf{X}\mathbf{b} \notag
+\end{equation}
+
+* General case with $k$ $x$-variables
+
+```{r mat-vec-general-lm, echo=FALSE, results='asis'}
+mat_X_gen <- matrix(c("x_{10}", "x_{11}", ".", "x_{1k}",
+                  "x_{20}", "x_{21}", ".", "x_{2k}",
+                  ".", ".", ".", ".",
+                  ".", ".", ".", ".",
+                  ".", ".", ".", ".",
+                  "x_{N0}", "x_{N1}", ".", "x_{Nk}"), ncol = 4, byrow = TRUE)
+vec_b_gen <- c("b_0", "b_1", ".", ".", "b_k")
+
+cat("$$\n")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_X_gen, ps_name = "\\mathbf{X}"), collapse = ""), "\n")
+cat(", \\ \n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b_gen, ps_name = "\\mathbf{b}")))
+cat("$$\n")
+```
+
+
+## Random Error Terms
+
+* Properties of random error terms in vector $\mathbf{e}$
+
+\begin{equation}
+E(\mathbf{e}) = \mathbf{0}  \notag
+\end{equation}
+
+\begin{equation}
+var(\mathbf{e}) = E\left[\mathbf{e} - E(\mathbf{e}) \right]\left[\mathbf{e} - E(\mathbf{e}) \right]^T 
+= E(\mathbf{e}\mathbf{e}^T) = \sigma^2 \mathbf{I}_N \notag
+\end{equation}
+
+
+## Least Squares Estimates
+
+\begin{align}
+\mathbf{e}^T\mathbf{e} &= \left[\mathbf{y} - E(\mathbf{y}) \right]^T\left[\mathbf{y} - E(\mathbf{y}) \right] \notag \\
+                       &= \left[\mathbf{y} - \mathbf{Xb} \right]^T\left[\mathbf{y} - \mathbf{Xb} \right]\notag \\
+                       &= \mathbf{y}^T\mathbf{y} - 2 \mathbf{b}^T\mathbf{X}^T\mathbf{y} + \mathbf{b}^T\mathbf{X}^T\mathbf{X}\mathbf{b} \notag
+\end{align}
+
+* Setting
+
+$$\frac{\partial \mathbf{e}^T\mathbf{e}}{\partial \mathbf{b}} = \mathbf{0}$$
+
+* yields least squares normal equations
+
+\begin{equation}
+\mathbf{X}^T\mathbf{X}\hat{\mathbf{b}} = \mathbf{X}^T\mathbf{y} \notag
+\end{equation}
+
+
+## Solution for Least Squares Estimators
+
+
+\begin{equation}
+\hat{\mathbf{b}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y} \notag
+\end{equation}
 
