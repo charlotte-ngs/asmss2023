@@ -1,3 +1,7 @@
+# asmss2023 0.3.2
+
+* Video for l03
+
 # asmss2023 0.3.1
 
 * Sl for l03
