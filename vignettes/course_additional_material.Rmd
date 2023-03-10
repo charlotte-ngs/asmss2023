@@ -52,11 +52,13 @@ knitr::kable(tbl_ohp)
 ## Video
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
-tbl_video <- tibble::tibble(Nr = c(1),
+tbl_video <- tibble::tibble(Nr = c(1, 2, 3),
                             Date = c("2022-02-20",
-                                     "2022-02-27"),
+                                     "2022-02-27",
+                                     "2022-03-06"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
-                                      "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)"))
+                                      "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
+                                      "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)"))
 knitr::kable(tbl_video)
 ```
 
