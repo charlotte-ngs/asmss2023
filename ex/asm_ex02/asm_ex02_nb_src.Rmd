@@ -1,0 +1,124 @@
+---
+title: Applied Statistical Methods - Notebook 2
+author: Peter von Rohr
+date: '2023-03-06'
+output: html_notebook
+params:
+  doctype:
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
+  isonline:
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
+---
+
+
+
+```{r ex02-p01-setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# define data directory depending on online status
+if (params$isonline){
+  s_data_dir <- "https://charlotte-ngs.github.io/asmss2023/data"
+} else {
+  s_data_dir <- file.path(here::here(), "docs", "data")
+}
+s_data_path <- file.path(s_data_dir, "asm_bw_mult_reg.csv")
+s_data_bw_bc_path <- file.path(s_data_dir, "asm_bw_bc_reg.csv")
+# write the default one variable regression, if we are not online
+if (!params$isonline){
+  tbl_mult <- readr::read_csv(file = s_data_path)
+  tbl_bw_bc <- dplyr::select(tbl_mult, Animal, `Breast Circumference`, `Body Weight`)
+  if (!fs::file_exists(path = s_data_bw_bc_path))
+    readr::write_csv(tbl_bw_bc, file = s_data_bw_bc_path)
+}
+tbl_bw_bc <- readr::read_csv(file = s_data_bw_bc_path)
+n_nr_obs <- nrow(tbl_bw_bc)
+```
+
+
+## Problem 1: Measurement Unit
+The measurement unit has an influence on the results of a regression model. This is demonstrated by changing the unit for `Breast Circumference` (BC) from centimeters to meters. 
+
+### Tasks
+
+* Read the original dataset with BC and BW for `r n_nr_obs` animals. The dataset is availble as csv-file under: `r s_data_bw_bc_path`
+* Convert all values of BC from centimeters to meters
+* Run the regression model using `lm()`
+* Compare the results with the results from the original model
+
+### Your Solution
+
+* Use the function `readr::read_csv()` to read the data
+
+```{r}
+
+```
+
+* Divide all values in column `Breast Circumference` by 100
+
+```{r}
+
+```
+
+* Run the regression using `lm()`
+
+```{r}
+
+```
+
+* Comparison of results
+
+
+
+
+
+## Problem 2: Significance Level
+Do the same type of comparison of regression modelling results when changing the measurement unit for the variable HEI in the complete dataset given in
+
+`https://charlotte-ngs.github.io/asmss2023/data/asm_bw_mult_reg.csv`. 
+
+### Tasks
+
+* Run the same regression model as in Problem 1 of Exercise 1
+* Convert the measurement unit for the variable HEI from centimeter to meter
+* Compare the results of the two regression models with a special focus on the significance level
+
+
+### Your Solution
+
+* The same regression model as in Problem 1 of Exercise 1
+
+```{r}
+
+```
+
+* Convert the values in column HEI from centimeter to meter
+
+```{r}
+
+```
+
+* Fit again a multiple regression model
+
+```{r}
+
+```
+
+* Compare the results
+
+
+
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 
