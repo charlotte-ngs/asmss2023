@@ -23,20 +23,9 @@ params:
 
 ```{r ex02-p01-setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 # define data directory depending on online status
-if (params$isonline){
-  s_data_dir <- "https://charlotte-ngs.github.io/asmss2023/data"
-} else {
-  s_data_dir <- file.path(here::here(), "docs", "data")
-}
+s_data_dir <- "https://charlotte-ngs.github.io/asmss2023/data"
 s_data_path <- file.path(s_data_dir, "asm_bw_mult_reg.csv")
 s_data_bw_bc_path <- file.path(s_data_dir, "asm_bw_bc_reg.csv")
-# write the default one variable regression, if we are not online
-if (!params$isonline){
-  tbl_mult <- readr::read_csv(file = s_data_path)
-  tbl_bw_bc <- dplyr::select(tbl_mult, Animal, `Breast Circumference`, `Body Weight`)
-  if (!fs::file_exists(path = s_data_bw_bc_path))
-    readr::write_csv(tbl_bw_bc, file = s_data_bw_bc_path)
-}
 tbl_bw_bc <- readr::read_csv(file = s_data_bw_bc_path)
 n_nr_obs <- nrow(tbl_bw_bc)
 ```
