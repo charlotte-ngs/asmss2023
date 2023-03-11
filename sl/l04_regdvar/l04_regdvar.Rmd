@@ -1,0 +1,130 @@
+---
+title: Regression On Dummy Variables
+author: Peter von Rohr
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# rmdhelp::show_knit_hook_call()
+knitr::knit_hooks$set(hook_convert_odg = rmdhelp::hook_convert_odg)
+```
+
+## Why
+
+* Discrete valued predictor variables like `Breed`
+* Assignment of numeric codes to different breeds creates dependencies between expected values of different breeds
+
+\begin{align}
+E(\text{BW Angus}) &= b_0 + b_1 \notag \\
+E(\text{BW Limousin}) &= b_0 + 2b_1 \notag \\
+E(\text{BW Simmental}) &= b_0 + 3b_1 \notag
+\end{align}
+
+* Only estimates are $b_0$ and $b_1$ 
+* Usually unreasonable, with one exception
+
+
+## Linear Regression in Genomic Analysis
+
+* Regression on the number of positive alleles
+* Estimate for slope $b_1$ corresponds to estimate of marker effect
+* Review single-locus model from Quantitative Genetics
+
+
+## Single Locus Model
+
+```{r single-locus-model, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/single-locus-model.odg")
+knitr::include_graphics(path = "odg/single-locus-model.png")
+```
+ 
+* Assuming $d=0$ $\rightarrow$ genotypic value of $G_1G_2$ between homozygotes
+* Shifting origin to genotypic value of $G_2G_2$
+
+
+## Modified Single Locus Model
+
+```{r mod-slm, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/mod-slm.odg")
+knitr::include_graphics(path = "odg/mod-slm.png")
+```
+
+* Transformation of regression on genotypes to regression on number of "positive" alleles ($G_1$)
+* Relationships imposed by regression are meaningful
+
+
+## Relationships
+
+* Expected value for observation for a given genotype
+
+\begin{align}
+E(G_2G_2) &= b_0 + 0 * b_1 \notag \\
+E(G_1G_2) &= b_0 + 1 * b_1 \notag \\
+E(G_1G_1) &= b_0 + 2 * b_1 \notag
+\end{align}
+
+* Differences
+
+$$E(G_1G_2) - E(G_2G_2) =  E(G_1G_1) - E(G_1G_2) = b_1$$
+$$E(G_1G_1) - E(G_2G_2) = 2b_1$$
+
+
+## Example Dataset
+
+* Exercise 3, Problem 1
+
+
+## Regression On Dummy Variables
+
+* Cases that are not like genomic data
+* Example with breeds
+* Discrete independent variables are called __Factors__ (e.g. Breed)
+* Different values that a factor can take are called __Levels__
+* Levels for our example factor `Breed` are: `Angus`, `Limousin` and `Simmental`
+
+
+## Levels To Independent Variables
+
+Use "separate" $x$-variable for each level, hence each of the breeds
+
+```{r asm-flem-breed-var-assign, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+s_data_dir <- file.path(here::here(), "docs", "data")
+s_flem_path <- file.path(s_data_dir, "asm_bw_flem.csv")
+tbl_flem <- readr::read_csv(file = s_flem_path)
+tbl_breed_assign <- tibble::tibble(Breed = c(unique(sort(tbl_flem$Breed))),
+                                   `Independent Variable`= c("$x_1$", "$x_2$", "$x_3$"))
+
+knitr::kable(tbl_breed_assign,
+             booktabs = TRUE,
+             longtable = TRUE,
+             escape = FALSE)
+```
+
+
+
+## Model
+
+* Observation $y_{ij}$ stands for birth weight for animal $j$ in breed $i$
+
+\begin{align} 
+y_{11} &= b_0 + b_1 * 1 + b_2 * 0 + b_3 * 0 + e_{11} \notag \\
+y_{12} &= b_0 + b_1 * 1 + b_2 * 0 + b_3 * 0 + e_{12} \notag \\
+\cdots &= \cdots \notag \\
+y_{33} &= b_0 + b_1 * 0 + b_2 * 0 + b_3 * 1 + e_{33} \notag
+\end{align} 
+
+* Sort animals according to breeds
+
+
+## Matrix - Vector Notation
+
+\begin{equation}
+\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{e} \notag
+\end{equation}
+
+
+
+
+
