@@ -1,3 +1,7 @@
+# asmss2023 0.3.3
+
+* Added exercise page
+
 # asmss2023 0.3.2
 
 * Video for l03
