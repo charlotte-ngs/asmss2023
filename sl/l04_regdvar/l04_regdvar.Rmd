@@ -60,15 +60,15 @@ knitr::include_graphics(path = "odg/mod-slm.png")
 * Expected value for observation for a given genotype
 
 \begin{align}
-E(G_2G_2) &= b_0 + 0 * b_1 \notag \\
-E(G_1G_2) &= b_0 + 1 * b_1 \notag \\
-E(G_1G_1) &= b_0 + 2 * b_1 \notag
+E(G_2G_2) &= b_0 + 0 * a_G \notag \\
+E(G_1G_2) &= b_0 + 1 * a_G \notag \\
+E(G_1G_1) &= b_0 + 2 * a_G \notag
 \end{align}
 
 * Differences
 
-$$E(G_1G_2) - E(G_2G_2) =  E(G_1G_1) - E(G_1G_2) = b_1$$
-$$E(G_1G_1) - E(G_2G_2) = 2b_1$$
+$$E(G_1G_2) - E(G_2G_2) =  E(G_1G_1) - E(G_1G_2) = a_G$$
+$$E(G_1G_1) - E(G_2G_2) = 2a_G$$
 
 
 ## Example Dataset
@@ -126,5 +126,202 @@ y_{33} &= b_0 + b_1 * 0 + b_2 * 0 + b_3 * 1 + e_{33} \notag
 
 
 
+## Models Not Of Full Rank
+
+* Model
+
+\begin{equation}
+\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{e} \notag
+\end{equation}
+
+* Least squares normal equations
+
+\begin{equation}
+\mathbf{X}^T\mathbf{X}\mathbf{b}^{(0)} = \mathbf{X}^T\mathbf{y} \notag
+\end{equation}
+
+
+## Solutions
+
+* matrix $\mathbf{X}$ not of full rank, use Matrix::rankMatrix() to check
+* $\mathbf{X}^T\mathbf{X}$ cannot be inverted
+* solution
+
+\begin{equation}
+  \mathbf{b}^{(0)} = (\mathbf{X}^T\mathbf{X})^-\mathbf{X}^T\mathbf{y} \notag
+\end{equation}
+
+where $(\mathbf{X}^T\mathbf{X})^-$ stands for a __generalized inverse__
+
+
+## Generalized Inverse
+
+* matrix $\mathbf{G}$ is a generalized inverse of matrix $\mathbf{A}$, if 
+
+$$\mathbf{AGA} = \mathbf{A}$$
+
+$$(\mathbf{AGA})^T = \mathbf{A}^T$$
+
+* Use `MASS::ginv()` in R
+
+
+## Systems of Equations
+
+* For a consistent system of equations
+
+$$Ax = y$$
+
+* Solution 
+
+$$x = Gy$$
+if $G$ is a generalized inverse of $A$. 
+
+$$x = Gy$$
+$$Ax = AGy$$
+$$Ax = AGAx$$
+
+
+## Non Uniqueness
+
+* Solution $x = Gy$ is not unique
+
+$$\tilde{\mathbf{x}} = \mathbf{Gy} + (\mathbf{GA} - \mathbf{I})\mathbf{z}$$
+yields a different solution for an arbitrary vector $\mathbf{z}$
+
+$$\mathbf{A}\tilde{\mathbf{x}} = \mathbf{A}\mathbf{Gy} + (\mathbf{A}\mathbf{GA} - \mathbf{A})\mathbf{z}$$
+
+## Least Squares Normal Equations
+
+* Instead of $Ax = y$, we have
+
+\begin{equation}
+\mathbf{X}^T\mathbf{X}\mathbf{b}^{(0)} = \mathbf{X}^T\mathbf{y} \notag
+\end{equation}
+
+* With generalized inverse $\mathbf{G}$ of $\mathbf{X}^T\mathbf{X}$
+
+\begin{equation}
+\mathbf{b}^{(0)} = \mathbf{G} \mathbf{X}^T\mathbf{y} \notag
+\end{equation}
+
+is a solution to the least squares normal equations
+
+
+## Parameter Estimator
+
+But $\mathbf{b}^{(0)}$ is not an estimator for the parameter $\mathbf{b}$, because
+
+* it is not unique
+* Expectation $E(\mathbf{b}^{(0)}) = E(\mathbf{G} \mathbf{X}^T\mathbf{y}) = \mathbf{G} \mathbf{X}^T \mathbf{Xb} \ne \mathbf{b}$
+
+
+## Estimable Functions
+
+```{r ex-estimable-function-data, echo=FALSE}
+n_nr_rec_est_fun <- 6
+tbl_est_fun <- tibble::tibble(Animal = c(1:n_nr_rec_est_fun),
+                              Breed  = c(rep("Angus", 3), rep("Simmental", 2), "Limousin"),
+                              Observation = c(16, 10, 19, 11, 13, 27))
+
+knitr::kable(tbl_est_fun,
+             booktabs = TRUE,
+             longtable = FALSE,
+             escape = FALSE)
+```
+
+
+## Model
+
+$$\mathbf{y} = \mathbf{Xb} + \mathbf{e}$$
+
+```{r, echo=FALSE, results='asis'}
+# design matrix X
+mat_x_est_fun <- matrix(c(1, 1, 0, 0,
+                          1, 1, 0, 0,
+                          1, 1, 0, 0,
+                          1, 0, 1, 0,
+                          1, 0, 1, 0,
+                          1, 0, 0, 1), ncol = 4, byrow = TRUE)
+# parameter vector b
+vec_b <- c("\\mu", "\\alpha_1", "\\alpha_2", "\\alpha_3")
+cat("$$\n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = tbl_est_fun$Observation, ps_name = "\\mathbf{y}"), collapse = '\n'))
+cat("\\text{, }")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_x_est_fun, ps_name = "\\mathbf{X}"), collapse = "\n"))
+cat("\\text{ and }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name =  "\\mathbf{b}"), collapse = "\n"), "\n")
+cat("$$\n")
+```
+
+
+## Normal Equations
+
+$$ X^TXb^0 = X^Ty$$
+
+```{r, echo=FALSE, results='asis'}
+mat_xtx_est_fun <- crossprod(mat_x_est_fun)
+mat_xty_est_fun <- crossprod(mat_x_est_fun, tbl_est_fun$Observation)
+vec_b0 <- c("\\mu^0", "\\alpha_1^0", "\\alpha_2^0", "\\alpha_3^0")
+cat("$$\n")
+cat(paste0(rmdhelp::bmatrix(mat_xtx_est_fun), collapse = '\n'))
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b0), collapse = '\n'))
+cat(" = ")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_xty_est_fun), collapse = '\n'))
+cat("$$\n")
+```
+
+
+## Solutions to Normal Equations
+
+```{r est-fun-sol, echo=FALSE}
+tbl_est_fun_sol <- tibble::tibble(`Elements of Solution` = c("$\\mu^0$", "$\\alpha_1^0$", "$\\alpha_2^0$", "$\\alpha_3^0$"),
+                                  `$b_1^0$` = c(16, -1, -4, 11),
+                                  `$b_2^0$` = c(14, 1, -2, 13),
+                                  `$b_3^0$` = c(27, -12, -15, 0),
+                                  `$b_4^0$` = c(-2982, 2997, 2994, 3009))
+knitr::kable(tbl_est_fun_sol,
+             booktabs = TRUE,
+             longtable = FALSE,
+             escape = FALSE)
+```
+
+
+## Functions of Solutions
+
+```{r lin-fun-sol, echo=FALSE}
+tbl_lin_fun_sol <- tibble::tibble(`Linear Function` = c("$\\alpha_1^0 - \\alpha_2^0$", "$\\mu^0 + \\alpha_1^0$", "$\\mu^0 + 1/2(\\alpha_2^0 + \\alpha_3^0)$"),
+                                  `$b_1^0$` = c(3, 15, 19.5),
+                                  `$b_2^0$` = c(3, 15, 19.5),
+                                  `$b_3^0$` = c(3, 15, 19.5),
+                                  `$b_4^0$` = c(3, 15, 19.5))
+knitr::kable(tbl_lin_fun_sol,
+             booktabs = TRUE,
+             longtable = FALSE,
+             escape = FALSE)
+```
+
+* $\alpha_1^0 - \alpha_2^0$: estimate of the difference between breed effects for Angus and Simmental
+* $\mu^0 + \alpha_1^0$: estimate of the general mean plus the breed effect of Angus
+* $\mu^0 + 1/2(\alpha_2^0 + \alpha_3^0)$: estimate of the general mean plus mean effect of breeds Simmental and Limousin
+
+
+## Definition of Estimable Functions 
+
+$$\mathbf{q}^T\mathbf{b} = \mathbf{t}^TE(\mathbf{y})$$
+
+* Example
+
+$$E(y_{1j}) = \mu + \alpha_1$$
+with $\mathbf{t}^T = \left[\begin{array}{cccccc} 1 & 1 & 1 & 0 & 0 & 0 \end{array}\right]$ and $\mathbf{q}^T = \left[\begin{array}{cccc} 1 & 1 & 0 & 0 \end{array} \right]$
+
+* Properties
+
+$$\mathbf{q}^t = \mathbf{t}^T\mathbf{X}$$
+
+* Test
+
+$$\mathbf{q}^T\mathbf{H} = \mathbf{q}^T$$
+
+with $\mathbf{H} = \mathbf{GX}^T\mathbf{X}$
 
 
