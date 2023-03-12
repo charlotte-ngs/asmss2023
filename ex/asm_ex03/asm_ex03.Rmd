@@ -1,0 +1,289 @@
+---
+title: Applied Statistical Methods - `r tools::toTitleCase(params$doctype)` 3
+author: Peter von Rohr
+date: 2023-03-12
+output:
+  bookdown::pdf_document2:
+    toc: false
+    number_sections: false
+    keep_md: false
+    keep_tex: false
+header-includes:
+ \usepackage{longtable}
+ \usepackage{float}
+params:
+  doctype:
+    label: 'Document Type'
+    value: 'solution'
+    choices: ['exercise', 'solution', 'notebook']
+  isonline:
+    label: 'Online (y/n)'
+    value: TRUE
+    choices: [TRUE, FALSE]
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r ex03p01-setup, echo=FALSE}
+s_ex03p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_flem_genomic_data.csv"
+```
+
+## Problem 1: Linear Regression on Genomic Information
+Use the following dataset which is also given in: 
+
+`r  s_ex03p01_data_path`
+
+to estimate marker effects for the single loci using a linear regression model.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tbl_ex03p01_data <- readr::read_csv(file = s_ex03p01_data_path)
+knitr::kable(tbl_ex03p01_data,
+             booktabs = TRUE,
+             longtable = FALSE,
+             escape = FALSE)
+```
+
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data using `read.csv()`
+
+* Re-code the genotypes to numeric values
+
+* Fit the multiple regression to the data
+
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data using `read.csv()`
+
+```{r, message=FALSE, warning=FALSE}
+s_ex03p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_flem_genomic_data.csv"
+tbl_ex03p01_data <- readr::read_csv(file = s_ex03p01_data_path)
+tbl_ex03p01_data
+```
+
+* Re-code the genotypes to numeric values
+
+```{r}
+tbl_ex03p01_data <- dplyr::mutate(tbl_ex03p01_data, 
+                                  `SNP G` = dplyr::recode(`SNP G`,
+                                                          "$G_2G_2$" = 0, 
+                                                          "$G_1G_2$" = 1,
+                                                          "$G_1G_1$" = 2))
+tbl_ex03p01_data <- dplyr::mutate(tbl_ex03p01_data, 
+                                  `SNP H` = dplyr::recode(`SNP H`,
+                                                          "$H_2H_2$" = 0, 
+                                                          "$H_1H_2$" = 1,
+                                                          "$H_1H_1$" = 2))
+
+tbl_ex03p01_data
+```
+
+* Fit the multiple regression to the data
+
+```{r}
+lm_mult_reg_genomic <- lm(formula = Observation ~ `SNP G` + `SNP H`, data = tbl_ex03p01_data)
+summary(lm_mult_reg_genomic)
+```
+
+The marker-effects for the two loci correspond to
+
+```{r}
+vec_coeff <- coefficients(lm_mult_reg_genomic)
+cat("\nMarker Effect for locus G: ", vec_coeff["`SNP G`"], "\n")
+cat("Marker Effect for locus H: ", vec_coeff["`SNP H`"], "\n")
+```
+
+<!-- master-solution-end -->
+
+
+## Problem 2: Regression On Dummy Variables
+Use the dataset with the breeds assigned to every animal and find out the influence of the breed on the response variable `body weight`. The data is available from
+
+```{r echo=FALSE}
+s_ex03p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+s_ex03p02_data_path
+```
+
+Start by fitting a linear model with `Breed` as the only factor in the model, hence ignore the independent variables such as `Breast Circumference`, `BCS` and `HEI`. 
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data
+
+* Fit a linear model with breed as the only factor
+
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data
+
+```{r}
+s_ex03p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_ex03p02_data <- readr::read_csv(file = s_ex03p02_data_path)
+tbl_ex03p02_data
+```
+
+* Fit a linear model including breed as a factor
+
+```{r}
+lm_reg_dummy_bw_breed <- lm(formula = `Body Weight` ~ Breed, data = tbl_ex03p02_data)
+summary(lm_reg_dummy_bw_breed)
+```
+
+<!-- master-solution-end -->
+
+
+## Problem 3: Estimable Function
+Use the matrix vector-notation to setup the model for a regression on dummy variable with the data on breeds and body weight as used in Problem 2. The aim of this problem is to find the estimable functions used in the output of `lm()`. 
+
+The model is given by 
+
+$$\mathbf{y} = \mathbf{Xb} + \mathbf{e}$$
+
+Setup the least squares normal equations. Find a solution for $\mathbf{b}^0$ and construct the estimable function that is used in the output `lm()`. 
+
+<!-- your-solution-start
+### Your Solution
+
+* Define elements of least squares normal equations
+
+* Find a solution for $\mathbf{b}^0$
+
+* Construct the estimable function. As a hint, assume the missing factor level in the output of `lm()` to be zero.
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Define elements of least squares normal equations
+
+The required elements are the vector $\mathbf{y}$ and the matrix $\mathbf{X}$. The are defined as follows
+
+```{r}
+s_ex03p03_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_ex03p03_data <- readr::read_csv(file = s_ex03p03_data_path)
+```
+
+In a first step, the records in our dataframe are sorted according to their breed.
+
+```{r}
+tbl_ex03p03_data <- tbl_ex03p03_data[order(tbl_ex03p03_data$Breed),]
+tbl_ex03p03_data
+```
+
+After the sorting process, the elements of the least squares normal equation can be extracted.
+
+```{r}
+vec_y <- tbl_ex03p03_data$`Body Weight`
+mat_X <- model.matrix(lm(`Body Weight` ~ 0 + Breed, data = tbl_ex03p03_data))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+rownames(mat_X) <- NULL
+mat_X <- cbind(matrix(1,nrow = nrow(mat_X), ncol = 1), mat_X)
+mat_X
+```
+
+
+Which corresponds to
+
+```{r, echo=FALSE, results='asis'}
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "\\mathbf{y}", ps_env = "$$")))
+cat(paste0(rmdhelp::bmatrix(pmat = mat_X, ps_name = "\\mathbf{X}", ps_env = "$$")))
+```
+
+
+* Find a solution for $\mathbf{b}^0$
+
+A solution for $\mathbf{b}^0$ can be found using a generalzed inverse. In R this can be done with 
+
+```{r}
+(mat_xtx <- crossprod(mat_X))
+```
+
+A generalized inverse is obtained by 
+
+```{r}
+(mat_xtx_ginv <- MASS::ginv(mat_xtx))
+```
+
+The solution for $\mathbf{b}^0$
+
+```{r}
+mat_xty <- crossprod(mat_X, vec_y)
+(mat_b0 <- crossprod(mat_xtx_ginv, mat_xty))
+```
+
+The first question is whether the elements in `mat_b0` are a solution to the least squares normal equation. This can be verified by inserting the solution back into the normal equations.
+
+```{r}
+crossprod(mat_xtx, mat_b0) - mat_xty
+```
+
+* Construct the estimable function. As a hint, assume the missing factor level in the output of `lm()` to be zero.
+
+The second question is what type of estimable function is used by the function `lm()` in R. Because there is no solution given for `BreedAngus`, it seams reasonable to assume that the effect for that level is set to $0$. The levels of the other breeds are just differences to the effect for the level `BreedAngus`. Such an estimable functions for the two breed effects for Limousin and Simmental would be expressed in terms of the following two vectors $q_L$ and $q_S$
+
+```{r, echo=FALSE, results='asis'}
+vec_q_l <- c(0, -1, 1, 0)
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_q_l, ps_name = "q_L", ps_env = "$$")))
+```
+
+We first have to very whether $q_L$ is an estimable function. This can be done by verifying whether 
+
+$$q_L^tH = q_L^T$$
+
+where $\mathbf{H} = \mathbf{GX}^T\mathbf{X}$ with $G$ being a generalized inverse of $(X^TX)$. 
+
+```{r}
+mat_H <- crossprod(mat_xtx_ginv, mat_xtx)
+mat_H
+```
+
+```{r}
+crossprod(vec_q_l, mat_H)
+```
+
+Similarly for $q_S$
+
+```{r}
+vec_q_s <- c(0, -1, 0, 1)
+crossprod(vec_q_s, mat_H)
+```
+
+Since both vectors $q_L$ and $q_S$ are valid estimable functions, their estimates are computed as follows. First for the effect of the breed Limousin
+
+```{r}
+crossprod(vec_q_l, mat_b0)
+```
+
+Next, the effect for the breed Simmental
+
+```{r}
+crossprod(vec_q_s, mat_b0)
+```
+
+
+<!-- master-solution-end -->
+ 
