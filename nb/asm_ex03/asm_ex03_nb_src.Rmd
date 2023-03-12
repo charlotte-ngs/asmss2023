@@ -1,0 +1,108 @@
+---
+title: Applied Statistical Methods - Notebook 3
+author: Peter von Rohr
+date: '2023-03-12'
+output: html_notebook
+params:
+  doctype:
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
+  isonline:
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r ex03p01-setup, echo=FALSE}
+s_ex03p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_flem_genomic_data.csv"
+```
+
+## Problem 1: Linear Regression on Genomic Information
+Use the following dataset which is also given in: 
+
+`r  s_ex03p01_data_path`
+
+to estimate marker effects for the single loci using a linear regression model.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tbl_ex03p01_data <- readr::read_csv(file = s_ex03p01_data_path)
+knitr::kable(tbl_ex03p01_data,
+             booktabs = TRUE,
+             longtable = FALSE,
+             escape = FALSE)
+```
+
+
+### Your Solution
+
+* Read the data using `read.csv()`
+
+* Re-code the genotypes to numeric values
+
+* Fit the multiple regression to the data
+
+
+
+
+
+
+## Problem 2: Regression On Dummy Variables
+Use the dataset with the breeds assigned to every animal and find out the influence of the breed on the response variable `body weight`. The data is available from
+
+```{r echo=FALSE}
+s_ex03p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+s_ex03p02_data_path
+```
+
+Start by fitting a linear model with `Breed` as the only factor in the model, hence ignore the independent variables such as `Breast Circumference`, `BCS` and `HEI`. 
+
+### Your Solution
+
+* Read the data
+
+* Fit a linear model with breed as the only factor
+
+
+
+
+
+
+## Problem 3: Estimable Function
+Use the matrix vector-notation to setup the model for a regression on dummy variable with the data on breeds and body weight as used in Problem 2. The aim of this problem is to find the estimable functions used in the output of `lm()`. 
+
+The model is given by 
+
+$$\mathbf{y} = \mathbf{Xb} + \mathbf{e}$$
+
+Setup the least squares normal equations. Find a solution for $\mathbf{b}^0$ and construct the estimable function that is used in the output `lm()`. 
+
+### Your Solution
+
+* Define elements of least squares normal equations
+
+* Find a solution for $\mathbf{b}^0$
+
+* Construct the estimable function. As a hint, assume the missing factor level in the output of `lm()` to be zero.
+
+
+
+ 
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 
