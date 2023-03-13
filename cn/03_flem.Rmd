@@ -424,7 +424,10 @@ $$\mathbf{X}^T\mathbf{Xb}^0 = \mathbf{X}^T\mathbf{y}$$
 is used for $\mathbf{b}^0$. This is because 
 
 $$\mathbf{q}^T\mathbf{b}^0 = \mathbf{t}^T\mathbf{Xb}^0 = \mathbf{t}^T\mathbf{XGX}^T\mathbf{y}$$
-where $\mathbf{G}$ is a generalized inverse of $\mathbf{X}^T\mathbf{X}$ and $\mathbf{XGX}^T$ is invariant to $\mathbf{G}$ which means that it is the same for any choice of $\mathbf{G}$. 
+where $\mathbf{G}$ is a generalized inverse of $\mathbf{X}^T\mathbf{X}$ and $\mathbf{XGX}^T$ is invariant to $\mathbf{G}$ which means that it is the same for any choice of $\mathbf{G}$. This can be seen by the definition of $G$ which has to satisfy that 
+
+$$\mathbf{X}^T\mathbf{X}\mathbf{G}\mathbf{X}^T\mathbf{X} = \mathbf{X}^T\mathbf{X}$$
+in order to be a generalised inverse of $\mathbf{X}^T\mathbf{X}$. Because $\mathbf{X}^T$ is not a null matrix, it follows that $\mathbf{X}\mathbf{G}\mathbf{X}^T\mathbf{X} = \mathbf{X}$. For any other generalised inverse matrix $\mathbf{F}$ of $\mathbf{X}^T\mathbf{X}$, we can write analogeously to above with the generalised inverse $\mathbf{G}$ that $\mathbf{X}^T\mathbf{X}\mathbf{F}\mathbf{X}^T\mathbf{X} = \mathbf{X}^T\mathbf{X}$ which implies that $\mathbf{X}\mathbf{F}\mathbf{X}^T = \mathbf{X}\mathbf{G}\mathbf{X}^T$. This can be shown to be true for any generalised inverse of $\mathbf{X}^T\mathbf{X}$
 
 
 #### Testing for Estimability
