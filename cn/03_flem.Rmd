@@ -451,18 +451,18 @@ BLUE stands for Best Linear Unbiased Estimation. The BLUE of the estimable funct
 
 where here the "hat" stands for "BLUE of". For a proof of \@ref(eq:asm-flem-blue-est-fun), it has to be shown that properties of BLUE hold. The __linearity__ holds because $\mathbf{q}^T\mathbf{b}^0$ is a linear function of the observations, because $\mathbf{q}^T\mathbf{b}^0 = \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{y}$. __Unbiasedness__ is checked by inspecting $E(\mathbf{q}^T\mathbf{b}^0)$
 
-$$E(\mathbf{q}^T\mathbf{b}^0) 
-= \mathbf{q}^TE(\mathbf{b}^0) 
-= \mathbf{q}^TE(\mathbf{G}\mathbf{X}^T\mathbf{y})
-= \mathbf{q}^T\mathbf{G}\mathbf{X}^TE(\mathbf{y})
-= \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{X}\mathbf{b}
-$$
+\begin{align}
+E(\mathbf{q}^T\mathbf{b}^0) 
+  &= \mathbf{q}^TE(\mathbf{b}^0)  \notag \\
+  &= \mathbf{q}^TE(\mathbf{G}\mathbf{X}^T\mathbf{y}) \notag \\
+  &= \mathbf{q}^T\mathbf{G}\mathbf{X}^TE(\mathbf{y}) \notag \\
+  &= \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{X}\mathbf{b} \notag \\
+  &= \mathbf{q}^T\mathbf{H}\mathbf{b} \notag \\
+  &= \mathbf{t}^T\mathbf{X}\mathbf{H}\mathbf{b} \notag \\
+  &= \mathbf{t}^T\mathbf{X}\mathbf{b} \notag \\
+  &= \mathbf{q}^T\mathbf{b} \notag
+\end{align}
 
-$$= \mathbf{q}^T\mathbf{H}\mathbf{b}
-= \mathbf{t}^T\mathbf{X}\mathbf{H}\mathbf{b}
-= \mathbf{t}^T\mathbf{X}\mathbf{b}
-= \mathbf{q}^T\mathbf{b}
-$$
 using $\mathbf{X} = \mathbf{X}\mathbf{H} = \mathbf{X}\mathbf{GX}^T\mathbf{X}$
 
 To show that $\mathbf{q}^T\mathbf{b}^0$ is the best estimator among all linear estimators, we need to show that it has minimum variance. The variance of $\mathbf{q}^T\mathbf{b}^0$ is 
@@ -487,11 +487,13 @@ $$
 
 Looking at the variance of the difference between $\mathbf{q}^T\mathbf{b}^0$ and $\mathbf{k}^T\mathbf{y}$
 
-$$var(\mathbf{q}^T\mathbf{b}^0 - \mathbf{k}^T\mathbf{y})
-= var(\mathbf{q}^T\mathbf{b}^0) + var(\mathbf{k}^T\mathbf{y}) - 2cov(\mathbf{q}^T\mathbf{b}^0, \mathbf{k}^T\mathbf{y})
-= var(\mathbf{k}^T\mathbf{y}) - \mathbf{q}^T\mathbf{G}\mathbf{q}\ \sigma^2 
-= var(\mathbf{k}^T\mathbf{y}) - var(\mathbf{q}^T\mathbf{b}^0) > 0
-$$
+\begin{align}
+var(\mathbf{q}^T\mathbf{b}^0 - \mathbf{k}^T\mathbf{y})
+ &= var(\mathbf{q}^T\mathbf{b}^0) + var(\mathbf{k}^T\mathbf{y}) - 2cov(\mathbf{q}^T\mathbf{b}^0, \mathbf{k}^T\mathbf{y}) \notag \\
+ &= var(\mathbf{k}^T\mathbf{y}) - \mathbf{q}^T\mathbf{G}\mathbf{q}\ \sigma^2  \notag \\
+ &= var(\mathbf{k}^T\mathbf{y}) - var(\mathbf{q}^T\mathbf{b}^0) > 0 \notag
+\end{align}
+
 because a variance has to be positive. Hence $var(\mathbf{k}^T\mathbf{y}) > var(\mathbf{q}^T\mathbf{b}^0)$ which can be shown for any linear unbiased estimator $\mathbf{k}^T\mathbf{y}$ and hence $\mathbf{q}^T\mathbf{b}^0$ is "best".
 
 
