@@ -87,7 +87,7 @@ As already mentioned in section \@ref(asm-flem-motivation), we are assuming that
 knitr::include_graphics(path = "odg/datastucturegbv.png")
 ```
  
-As can be seen from Figure \@ref(fig:datastucturegbv) each of the $N$ animals have known genotypes for all three SNP markers and they all have a phenotypic observation $y_i \quad (i = 1, \cdot, N)$. Because we are assuming each SNP marker to be bi-allelic, there are only three possible marker genotypes at every marker position. Hence marker genotypes are discrete entities with a fixed number of levels. Hence, in principle the marker genotypes occur in discrete levels such as the breed of an animal from dataset shown in Table \@ref(tab:tab-bw-breed-flem). Because we are interested in the maker-effect at each locus and the relationships shown in equation \@ref(eq:expvalbwdiffbreedflem) which are imposed by the use of a linear regression model on the discrete genotype variables, contain the marker effects, the regression model can be used for the analysis of genomic data. More details about the model will follow in section \@ref(asm-flem-model).
+As can be seen from Figure \@ref(fig:datastucturegbv) each of the $N$ animals have known genotypes for all three SNP markers and they all have a phenotypic observation $y_i \quad (i = 1, \ldots, N)$. Because we are assuming each SNP marker to be bi-allelic, there are only three possible marker genotypes at every marker position. Hence marker genotypes are discrete entities with a fixed number of levels. Hence, in principle the marker genotypes occur in discrete levels such as the breed of an animal from dataset shown in Table \@ref(tab:tab-bw-breed-flem). Because we are interested in the maker-effect at each locus and the relationships shown in equation \@ref(eq:expvalbwdiffbreedflem) which are imposed by the use of a linear regression model on the discrete genotype variables, contain the marker effects, the regression model can be used for the analysis of genomic data. More details about the model will follow in section \@ref(asm-flem-model).
 
 
 ### Model {#asm-flem-model}
@@ -120,7 +120,7 @@ The genetic component $g$ can be decomposed into contributions from the finite n
 
 where for our example $k$ is equal to three^[In reality $k$ can be $1.5*10^5$ for some commercial SNP chip platforms. When working with complete genomic sequences, $k$ can also be in the order of $3*10^7$.]. 
 
-Considering all SNP loci to be purely additive which means that we are ignoring any dominance effects, the genotypic values $g_j$ at any locus $j$ can just take one of the three values $-a_j$, $0$ or $+a_j$ where $a_j$ corresponds to the $a$ value from the mono-genic model (see Figure \@ref(fig:monogenicsnpmodel)). For our example dataset the genotypic value for each SNP genotype is given in the following table.
+Considering all SNP loci to be purely additive which means that we are ignoring any dominance effects, the genotypic values $g_j$ at any locus $j$ can just take one of the three values $-a_j$, $0$ or $+a_j$ where $a_j$ corresponds to the $a$ value from the mono-genic model. For our example dataset the genotypic value for each SNP genotype is given in the following table.
 
 ```{r 02-flem-genotypicvalue, echo=FALSE, results='asis'}
 tbl_genoval <- tibble::tibble(`SNP Locus` = c(rep("$SNP_1$", 3),
@@ -413,12 +413,16 @@ with $\mathbf{t}^T = \left[\begin{array}{cccccc} 1 & 1 & 1 & 0 & 0 & 0 \end{arra
 ### Properties of Estimable Functions
 Among the many properties we are here just listing the ones that are considered important. The complete list of properties can be found in `r met$add("Searle1971")`. 
 
-* _Form of estimable function_. If $\mathbf{q}^T\mathbf{b}$ is estimable, then $\mathbf{q}^T\mathbf{b} = \mathbf{t}^TE(\mathbf{y})$ for some $\mathbf{t}$. By definition $E(\mathbf{y}) = \mathbf{Xb}$ and therefore, $\mathbf{q}^T\mathbf{b} = \mathbf{t}^T\mathbf{Xb}$. Because estimability is not a concept that depends on $\mathbf{b}$, this result is true for all values of $\mathbf{b}$. Therefore 
+
+#### Form of Estimable Function 
+If $\mathbf{q}^T\mathbf{b}$ is estimable, then $\mathbf{q}^T\mathbf{b} = \mathbf{t}^TE(\mathbf{y})$ for some $\mathbf{t}$. By definition $E(\mathbf{y}) = \mathbf{Xb}$ and therefore, $\mathbf{q}^T\mathbf{b} = \mathbf{t}^T\mathbf{Xb}$. Because estimability is not a concept that depends on $\mathbf{b}$, this result is true for all values of $\mathbf{b}$. Therefore 
 
 $$\mathbf{q}^t = \mathbf{t}^T\mathbf{X}$$
 for some vector $\mathbf{t}$. 
 
-* _Invariance to solutions_ $\mathbf{b}^0$. If $\mathbf{q}^T\mathbf{b}$ is estimable, the linear function $\mathbf{q}^T\mathbf{b}^0$ is invariance to whatever solution of the normal equation
+
+#### Invariance to Solutions $\mathbf{b}^0$ 
+If $\mathbf{q}^T\mathbf{b}$ is estimable, the linear function $\mathbf{q}^T\mathbf{b}^0$ is invariance to whatever solution of the normal equation
 
 $$\mathbf{X}^T\mathbf{Xb}^0 = \mathbf{X}^T\mathbf{y}$$
 is used for $\mathbf{b}^0$. This is because 
@@ -434,12 +438,61 @@ in order to be a generalised inverse of $\mathbf{X}^T\mathbf{X}$. Because $\math
 A given function $\mathbf{q}^T\mathbf{b}$ is estimable, if some vector $\mathbf{t}$ can be found, such that $\mathbf{t}^T\mathbf{X} = \mathbf{q}^T$. For a known value of $\mathbf{q}$, it might not be easy to find a vector $\mathbf{t}$ satisfying $\mathbf{t}^T\mathbf{X}=\mathbf{q}^T$. Alternatively to finding a vector $\mathbf{t}$, estimability of $\mathbf{q}^T\mathbf{b}$ can also be investigated by seeing whether $\mathbf{q}$ has the property that 
 
 $$\mathbf{q}^T\mathbf{H} = \mathbf{q}^T$$
-
-with $\mathbf{H} = \mathbf{GX}^T\mathbf{X}$. A proof of that can be found in `r met$add("Searle1971")`. 
-
+with $\mathbf{H} = \mathbf{GX}^T\mathbf{X}$. This is proved by the fact that if $\mathbf{q}^T\mathbf{b}$ is estimable, then $\mathbf{q}^T = \mathbf{t}^T\mathbf{X}$ and $\mathbf{q}^T\mathbf{H} = \mathbf{t}^T\mathbf{X}\mathbf{H} = \mathbf{t}^T\mathbf{X}\mathbf{GX}^T\mathbf{X} = \mathbf{t}^T\mathbf{X}= \mathbf{q}^T$. 
 
 
+#### BLUE of Estimable Function
+BLUE stands for Best Linear Unbiased Estimation. The BLUE of the estimable function $\mathbf{q}^T\mathbf{b}$ is $\mathbf{q}^T\mathbf{b}^0$ that is 
 
+\begin{equation} 
+  \widehat{\mathbf{q}^T\mathbf{b}} = \mathbf{q}^T\mathbf{b}^0
+  (\#eq:asm-flem-blue-est-fun)
+\end{equation} 
+
+where here the "hat" stands for "BLUE of". For a proof of \@ref(eq:asm-flem-blue-est-fun), it has to be shown that properties of BLUE hold. The __linearity__ holds because $\mathbf{q}^T\mathbf{b}^0$ is a linear function of the observations, because $\mathbf{q}^T\mathbf{b}^0 = \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{y}$. __Unbiasedness__ is checked by inspecting $E(\mathbf{q}^T\mathbf{b}^0)$
+
+$$E(\mathbf{q}^T\mathbf{b}^0) 
+= \mathbf{q}^TE(\mathbf{b}^0) 
+= \mathbf{q}^TE(\mathbf{G}\mathbf{X}^T\mathbf{y})
+= \mathbf{q}^T\mathbf{G}\mathbf{X}^TE(\mathbf{y})
+= \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{X}\mathbf{b}
+$$
+
+$$= \mathbf{q}^T\mathbf{H}\mathbf{b}
+= \mathbf{t}^T\mathbf{X}\mathbf{H}\mathbf{b}
+= \mathbf{t}^T\mathbf{X}\mathbf{b}
+= \mathbf{q}^T\mathbf{b}
+$$
+using $\mathbf{X} = \mathbf{X}\mathbf{H} = \mathbf{X}\mathbf{GX}^T\mathbf{X}$
+
+To show that $\mathbf{q}^T\mathbf{b}^0$ is the best estimator among all linear estimators, we need to show that it has minimum variance. The variance of $\mathbf{q}^T\mathbf{b}^0$ is 
+
+\begin{align}
+var(\mathbf{q}^T\mathbf{b}^0) &= \mathbf{q}^T \cdot var(\mathbf{b}^0) \cdot \mathbf{q} \notag \\
+&= \mathbf{q}^T \cdot var(\mathbf{G}\mathbf{X}^T\mathbf{y}) \cdot \mathbf{q} \notag \\
+&= \mathbf{q}^T \mathbf{G}\mathbf{X}^T \cdot var(\mathbf{y}) \mathbf{X}\mathbf{G}^T\mathbf{q} \notag \\
+&= \mathbf{q}^T \mathbf{G}\mathbf{X}^T \mathbf{X}\mathbf{G}^T\mathbf{q} \sigma^2 \notag \\
+&= \mathbf{q}^T \mathbf{G}\mathbf{X}^T \mathbf{X}\mathbf{G}^T\mathbf{X}^T\mathbf{t} \sigma^2 \notag \\
+&= \mathbf{q}^T \mathbf{G} \mathbf{X}^T \mathbf{t} \sigma^2 \notag  \\
+&= \mathbf{q}^T \mathbf{G}\mathbf{q} \sigma^2
+\end{align}
+
+with $var(y) = \mathbf{I}\sigma^2$. Suppose $\mathbf{k}^T\mathbf{y}$ is some other linear unbiased estimator of $\mathbf{q}^T\mathbf{b}$ different from $\mathbf{q}^T\mathbf{b}^0$. Because $\mathbf{k}^T\mathbf{y}$ is unbiased $E(\mathbf{k}^T\mathbf{y}) = \mathbf{q}^T\mathbf{b}$ and so $\mathbf{k}^T\mathbf{X} = \mathbf{q}^T$. Therefore, 
+
+$$cov(\mathbf{q}^T\mathbf{b}^0, \mathbf{k}^T\mathbf{y}) 
+= cov(\mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{y}, \mathbf{k}^T\mathbf{y})
+= \mathbf{q}^T\mathbf{G}\mathbf{X}^T\mathbf{k}\ \sigma^2 
+=  \mathbf{q}^T\mathbf{G}\mathbf{q}\ \sigma^2 
+$$
+
+Looking at the variance of the difference between $\mathbf{q}^T\mathbf{b}^0$ and $\mathbf{k}^T\mathbf{y}$
+
+$$var(\mathbf{q}^T\mathbf{b}^0 - \mathbf{k}^T\mathbf{y})
+= var(\mathbf{q}^T\mathbf{b}^0) + var(\mathbf{k}^T\mathbf{y}) - 2cov(\mathbf{q}^T\mathbf{b}^0, \mathbf{k}^T\mathbf{y})
+= var(\mathbf{k}^T\mathbf{y}) - \mathbf{q}^T\mathbf{G}\mathbf{q}\ \sigma^2 
+= var(\mathbf{k}^T\mathbf{y}) - var(\mathbf{q}^T\mathbf{b}^0) > 0
+$$
+because a variance has to be positive. Hence $var(\mathbf{k}^T\mathbf{y}) > var(\mathbf{q}^T\mathbf{b}^0)$ which can be shown for any linear unbiased estimator $\mathbf{k}^T\mathbf{y}$ and hence $\mathbf{q}^T\mathbf{b}^0$ is "best".
 
 
 
