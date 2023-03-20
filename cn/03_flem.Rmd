@@ -496,6 +496,124 @@ var(\mathbf{q}^T\mathbf{b}^0 - \mathbf{k}^T\mathbf{y})
 
 because a variance has to be positive. Hence $var(\mathbf{k}^T\mathbf{y}) > var(\mathbf{q}^T\mathbf{b}^0)$ which can be shown for any linear unbiased estimator $\mathbf{k}^T\mathbf{y}$ and hence $\mathbf{q}^T\mathbf{b}^0$ is "best".
 
+\clearpage
+\pagebreak
+
+## Contrasts {#asm-flem-contrasts}
+Contrasts are linear combinations of parameters. In R, contrasts are used to determine which estimable functions are used to produce results of a linear model analysis that are shown to a user. Furthermore, the user has the option to choose among different contrasts which are already available by default. It is also possible for the user to create custom made contrasts. This section introduces the basic idea of contrasts and how they are used in R.
+
+Let us go back to our example datasets containing body weight and breed of different animals shown in Table \@ref(tab:tbl-flem-bw-breed). 
+
+```{r tbl-flem-bw-breed, echo=FALSE}
+library(dplyr)
+tbl_flem_bw_breed <- tbl_flem %>% 
+  select(Animal, `Body Weight`, Breed) 
+knitr::kable(tbl_flem_bw_breed,
+             booktabs = TRUE,
+             longtable = FALSE,
+             caption = "Body Weight and Breed of Beef Cattle Animals",
+             escape = FALSE)
+```
 
 
+### Contrasts in R
+The contrasts used in R can be seen from the function `contrasts()`. For our example dataset with body weight and breed of animals, we get
+
+```{r}
+(mat_ctr <- contrasts(as.factor(tbl_flem_bw_breed$Breed)))
+```
+
+The information in the above shown contrasts matrix reflects the model terms in the columns of the matrix. Hence from the above matrix it can be seen that there are two terms associated with breeds in any linear model that considers breed as a factor. These two terms are `r colnames(mat_ctr)[1]` and `r colnames(mat_ctr)[2]`. The rows of the above shown contrasts matrix reflect the encoding of the different levels in the dataset. All animals of breed `Angus` are encoded with both zeroes for the two model terms. `Limousin` animals receive a code of $1$ for the first model term and a code of $0$ for the second term. Animals of breed `Simmental` receive a $0$ for the first term and a $1$ for the second term. The above contrasts matrix does not show the intercept. The intercept term is implicitly coded as $1$ for all animals. 
+
+
+### Model Matrix
+The assignment of codes to the different data records can also be seen in the model matrix. In R the model matrix is obtained as a result of the function `model.matrix()`. The model matrix that goes together with the above shown contrasts for the factor `Breed` in our dataset is shown below.  
+
+```{r}
+lm_bw_br <- lm(`Body Weight` ~ Breed, data = tbl_flem_bw_breed)
+(mat_X <- model.matrix(lm_bw_br))
+```
+
+From the above shown model matrix, it can be seen that the encoding contained in the contrasts matrix is applied to the data records. 
+
+
+### Estimable Functions
+The type of estimable functions that are used in a given linear model analysis can be found by first extending the contrasts matrix by a column of all ones, reflecting the encoding of the intercept term. 
+
+```{r}
+mat_ctr_ext <- cbind(matrix(c(rep(1, nrow(mat_ctr))), ncol = 1), mat_ctr)
+colnames(mat_ctr_ext)[1] <- colnames(mat_X)[1]
+mat_ctr_ext
+```
+
+The matrix of estimable functions is obtained by computing the inverse of the extended contrasts matrix
+
+```{r}
+(mat_estf <- solve(mat_ctr_ext))
+```
+
+Each row of the matrix of estimable functions corresponds to a model term. Each column can be seen as one component of the solution to the least squares normal equation. The estimate of the intercept term corresponds to the solution for the first breed level in the normal equations. The estimate for the model term `Limousin` corresponds to the difference beween the solution for the second breed level minus the solution of the first breed level. The estimate of the effect of the term `Simmental` is the difference between the last solution and the first breed level.
+
+
+### Validation
+The results on the investigated connection between contrasts and estimable functions is validated with our example dataset. For this validation, we first need a set of solutions to the least squares normal equations. As the first step, we set up the design matrix $\mathbf{X}$ and use it to compute the crossproduct $\mathbf{X}^T\mathbf{X}$ 
+
+```{r}
+mat_X <- model.matrix(lm(`Body Weight` ~ 0 + Breed, data = tbl_flem_bw_breed))
+mat_X <- cbind(matrix(1, nrow = nrow(tbl_flem_bw_breed), ncol = 1), mat_X)
+dimnames(mat_X) <- NULL
+mat_xtx <- crossprod(mat_X)
+mat_xtx
+```
+
+The generalized inverse $(\mathbf{X}^T\mathbf{X})^-$ provided by the function `MASS::ginv()` of package `MASS` is used to come up with a solution to the least squares normal equation 
+
+$$\mathbf{X}^T\mathbf{X}\mathbf{b}^0 = \mathbf{X}^T\mathbf{y}$$
+
+A solution for $\mathbf{b}^0$ is 
+
+$$\mathbf{b}^0 = (\mathbf{X}^T\mathbf{X})^- \mathbf{X}^T\mathbf{y}$$
+
+For our dataset we get
+
+```{r}
+vec_y <- tbl_flem_bw_breed$`Body Weight`
+mat_xty <- crossprod(mat_X, vec_y)
+mat_xtx_ginv <- MASS::ginv(mat_xtx)
+mat_b0 <- crossprod(mat_xtx_ginv,mat_xty)
+mat_b0
+```
+
+
+These solutions are used to construct the effect results computed by the function `lm()` in R. The summary table looks as follows
+
+```{r}
+lm_bw_br <- lm(`Body Weight` ~ Breed, data = tbl_flem_bw_breed)
+(smry_lm_bw_br <- summary(lm_bw_br))
+```
+
+From the matrix of estimable functions 
+
+```{r}
+mat_estf
+```
+
+ we can see that the intercept estimate corresponds to the mean body weight of all Angus animals. Which is 
+ 
+```{r}
+library(dplyr)
+mean((tbl_flem_bw_breed %>% filter(Breed == "Angus"))$`Body Weight`)
+```
+ 
+The estimate for the effect `r rownames(smry_lm_bw_br$coefficients)[2]` is the difference between the third and the second component in the solution vector $\mathbf{b}^0$
+
+```{r}
+mat_b0[3] - mat_b0[2]
+```
+
+Similarly, the estimate for effect `r rownames(smry_lm_bw_br$coefficients)[3]` is the difference between the last component of the solution vector and the second component of the solution vector.
+
+```{r}
+mat_b0[4] - mat_b0[2]
+```
 
