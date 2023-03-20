@@ -1,3 +1,7 @@
+# asmss2023 0.5.0
+
+* Section 3.5 on contrasts
+
 # asmss2023 0.4.1
 
 * Link to video and ohp
