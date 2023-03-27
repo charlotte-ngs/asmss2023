@@ -1,3 +1,7 @@
+# asmss2023 0.6.1
+
+* OHP and video of l06
+
 # asmss2023 0.6.0
 
 * Slides l05_contrasts
