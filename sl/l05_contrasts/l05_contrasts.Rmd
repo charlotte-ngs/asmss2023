@@ -23,7 +23,8 @@ s_data_dir <- file.path(here::here(), "docs", "data")
 s_flem_path <- file.path(s_data_dir, "asm_bw_flem.csv")
 tbl_flem <- readr::read_csv(file = s_flem_path)
 tbl_flem_bw_breed <- tbl_flem %>% 
-  select(Animal, `Body Weight`, Breed) 
+  select(Animal, `Body Weight`, Breed) %>% 
+  arrange(Breed)
 knitr::kable(tbl_flem_bw_breed,
              booktabs = TRUE,
              longtable = FALSE,
