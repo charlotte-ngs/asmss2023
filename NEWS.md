@@ -1,3 +1,7 @@
+# asmss2023 0.6.0
+
+* Slides l05_contrasts
+
 # asmss2023 0.5.1
 
 * Link to video of l05
