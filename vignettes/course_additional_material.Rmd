@@ -42,16 +42,20 @@ knitr::kable(tbl_sl)
 
 ```{r tbl-ohp, echo=FALSE, message=FALSE, warning=FALSE}
 s_ohp_url <- "https://charlotte-ngs.github.io/asmss2022/ohp/"
-tbl_ohp <- tibble::tibble(Nr = c(1, 2, 3, 4),
+tbl_ohp <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
                           Date = c("2023-02-20",
                                    "2023-02-27",
                                    "2023-03-06",
-                                   "2023-03-13"),
+                                   "2023-03-13",
+                                   "2023-03-20",
+                                   "2023-03-27"),
                           Topic = c(
                             paste0("[Introduction](", s_ohp_url, "20230220_ohp_l01.pdf)", collapse = ""),
                             paste0("[Linear Regression](", s_ohp_url, "20230227_ohp_l02.pdf)", collapse = ""),
                             paste0("[Fixed Linear Effects Model](", s_ohp_url, "20230306_ohp_l03.pdf)", collapse = ""),
-                            paste0("[Regression on Dummy Variables](", s_ohp_url, "20230313_ohp_l04.pdf)", collapse = "")
+                            paste0("[Regression on Dummy Variables](", s_ohp_url, "20230313_ohp_l04.pdf)", collapse = ""),
+                            paste0("[Estimable Functions](", s_ohp_url, "20230320_ohp_l05.pdf)", collapse = ""),
+                            paste0("[Contrasts](", s_ohp_url, "20230327_ohp_l06.pdf)", collapse = "")
                             ))
 knitr::kable(tbl_ohp)
 ```
@@ -60,17 +64,19 @@ knitr::kable(tbl_ohp)
 ## Video
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
-tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5),
+tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
                             Date = c("2022-02-20",
                                      "2022-02-27",
                                      "2022-03-06",
                                      "2022-03-13",
-                                     "2022-03-20"),
+                                     "2022-03-20",
+                                     "2022-03-27"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
                                       "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
                                       "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)",
                                       "[Regression on Dummy Variables](https://youtu.be/3PAOjpUwH4I)",
-                                      "[Estimable Functions and Contrasts](https://youtu.be/8E4-q9DMNWQ)"
+                                      "[Estimable Functions and Contrasts](https://youtu.be/8E4-q9DMNWQ)",
+                                      "[Contrasts](https://youtu.be/aL-C0h2ZUZY)"
                                       ))
 knitr::kable(tbl_video)
 ```

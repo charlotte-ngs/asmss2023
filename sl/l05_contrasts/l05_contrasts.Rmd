@@ -52,7 +52,9 @@ model.matrix(lm(`Body Weight` ~ Breed, data = tbl_flem_bw_breed))
 * extend contrasts matrix by one row of all ones for the intercept
 
 ```{r}
-(mat_ctr_ext <- cbind(matrix(rep(1,nrow(mat_ctr)),ncol = 1), mat_ctr))
+mat_ctr_ext <- cbind(matrix(rep(1,nrow(mat_ctr)),ncol = 1), mat_ctr)
+colnames(mat_ctr_ext)[1] <- "(Intercept)"
+mat_ctr_ext
 ```
 
 
