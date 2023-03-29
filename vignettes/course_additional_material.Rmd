@@ -20,9 +20,9 @@ This page contains additional material like links to slides, video recordings, o
 ## Slides
 
 ```{r tbl-sl, echo=FALSE, message=FALSE, warning=FALSE}
-s_sl_url <- "https://charlotte-ngs.github.io/asmss2022/sl/"
+s_sl_url <- "https://charlotte-ngs.github.io/asmss2023/sl/"
 tbl_sl <- tibble::tibble(Nr = c(1, 2, 3,4, 5),
-                         Date = c(rep("2022-02-20",2),
+                         Date = c(rep("2023-02-20",2),
                                   "2023-03-06",
                                   "2023-03-13",
                                    "2023-03-27"),
@@ -41,7 +41,7 @@ knitr::kable(tbl_sl)
 ## OHP Pictures
 
 ```{r tbl-ohp, echo=FALSE, message=FALSE, warning=FALSE}
-s_ohp_url <- "https://charlotte-ngs.github.io/asmss2022/ohp/"
+s_ohp_url <- "https://charlotte-ngs.github.io/asmss2023/ohp/"
 tbl_ohp <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
                           Date = c("2023-02-20",
                                    "2023-02-27",
@@ -65,12 +65,12 @@ knitr::kable(tbl_ohp)
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
 tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
-                            Date = c("2022-02-20",
-                                     "2022-02-27",
-                                     "2022-03-06",
-                                     "2022-03-13",
-                                     "2022-03-20",
-                                     "2022-03-27"),
+                            Date = c("2023-02-20",
+                                     "2023-02-27",
+                                     "2023-03-06",
+                                     "2023-03-13",
+                                     "2023-03-20",
+                                     "2023-03-27"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
                                       "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
                                       "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)",
