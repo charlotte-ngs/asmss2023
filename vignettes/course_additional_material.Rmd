@@ -28,7 +28,7 @@ tbl_sl <- tibble::tibble(Nr = c(1, 2, 3,4, 5),
                                    "2023-03-27"),
                          Topic = c(
                            paste0("[Introduction](", s_sl_url, "asm-w01-v01-intro.pdf)", collapse = ""),
-                           paste0("[Lineare Regression](", s_sl_url, "l02_regr.pdf)", collapse = ""),
+                           paste0("[Linear Regression](", s_sl_url, "l02_regr.pdf)", collapse = ""),
                            paste0("[Fixed Linear Effects Model](", s_sl_url, "l03_flem.pdf)", collapse = ""),
                            paste0("[Regression on Dummy Variables](", s_sl_url, "l04_regdvar.pdf)", collapse = ""),
                             paste0("[Contrasts](", s_sl_url, "l05_contrasts.pdf)", collapse = "")
