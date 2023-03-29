@@ -1,3 +1,7 @@
+# asmss2023 0.6.2
+
+* Corrected links on additional material
+
 # asmss2023 0.6.1
 
 * OHP and video of l06
