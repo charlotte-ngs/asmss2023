@@ -85,12 +85,18 @@ Topic[12] <- "SVM"
 Topic[13] <- "Bayesian Approaches in Linear Mixed Effects Models"
 Topic[14] <- "Exam" 
 Topic[15] <- "Pentcote Monday (Pfingstmontag)"
+# mode of Lecture
+vecLectureMode <- vector(mode = "character", length = nNrSemesterWeeks)
+vecLectureMode <- c(rep("P", 6), rep("",9))
 
-dfCnTable <- data.frame(Week, Date, Topic, stringsAsFactors = FALSE)
-colnames(dfCnTable) <- vecTableHeaders
+dfCnTable <- tibble::tibble(Week = Week, 
+                            Date = Date, 
+                            Topic = Topic, 
+                            `Lecture Mode` = vecLectureMode)
 knitr::kable(dfCnTable)
 ```
 
+Lecture modes are either in present (P) or via zoom (Z)
 
 ## License
 

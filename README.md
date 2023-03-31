@@ -62,23 +62,25 @@ or via e-mail:
 
 ## Lecture Program
 
-| Week | Date  | Topic                                                         |
-|-----:|:------|:--------------------------------------------------------------|
-|    1 | 20.02 | Introduction to Applied Statistical Methods in Animal Science |
-|    2 | 27.02 | Linear Regression Models                                      |
-|    3 | 06.03 | Linear Fixed Effect Models                                    |
-|    4 | 13.03 | Model Selection                                               |
-|    5 | 20.03 | Pedigree BLUP                                                 |
-|    6 | 27.03 | Variance Components                                           |
-|    7 | 03.04 | GBLUP - Marker-Effects Models                                 |
-|    8 | 10.04 | **Easter Monday** (Ostermontag)                               |
-|    9 | 17.04 | GBLUP - Breeding Value Models                                 |
-|   10 | 24.04 | Lasso                                                         |
-|   11 | 01.05 | **Labor Day** (Tag der Arbeit)                                |
-|   12 | 08.05 | SVM                                                           |
-|   13 | 15.05 | Bayesian Approaches in Linear Mixed Effects Models            |
-|   14 | 22.05 | Exam                                                          |
-|   15 | 29.05 | Pentcote Monday (Pfingstmontag)                               |
+| Week | Date  | Topic                                                         | Lecture Mode |
+|-----:|:------|:--------------------------------------------------------------|:-------------|
+|    1 | 20.02 | Introduction to Applied Statistical Methods in Animal Science | P            |
+|    2 | 27.02 | Linear Regression Models                                      | P            |
+|    3 | 06.03 | Linear Fixed Effect Models                                    | P            |
+|    4 | 13.03 | Model Selection                                               | P            |
+|    5 | 20.03 | Pedigree BLUP                                                 | P            |
+|    6 | 27.03 | Variance Components                                           | P            |
+|    7 | 03.04 | GBLUP - Marker-Effects Models                                 |              |
+|    8 | 10.04 | **Easter Monday** (Ostermontag)                               |              |
+|    9 | 17.04 | GBLUP - Breeding Value Models                                 |              |
+|   10 | 24.04 | Lasso                                                         |              |
+|   11 | 01.05 | **Labor Day** (Tag der Arbeit)                                |              |
+|   12 | 08.05 | SVM                                                           |              |
+|   13 | 15.05 | Bayesian Approaches in Linear Mixed Effects Models            |              |
+|   14 | 22.05 | Exam                                                          |              |
+|   15 | 29.05 | Pentcote Monday (Pfingstmontag)                               |              |
+
+Lecture modes are either in present (P) or via zoom (Z)
 
 ## License
 
@@ -89,4 +91,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-02-27 07:41:25 (pvr)*
+*Latest Changes: 2023-03-31 07:26:39 (pvr)*
