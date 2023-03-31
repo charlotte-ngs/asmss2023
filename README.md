@@ -70,7 +70,7 @@ or via e-mail:
 |    4 | 13.03 | Model Selection                                               | P            |
 |    5 | 20.03 | Pedigree BLUP                                                 | P            |
 |    6 | 27.03 | Variance Components                                           | P            |
-|    7 | 03.04 | GBLUP - Marker-Effects Models                                 |              |
+|    7 | 03.04 | GBLUP - Marker-Effects Models                                 | P            |
 |    8 | 10.04 | **Easter Monday** (Ostermontag)                               |              |
 |    9 | 17.04 | GBLUP - Breeding Value Models                                 |              |
 |   10 | 24.04 | Lasso                                                         |              |
@@ -91,4 +91,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-03-31 07:26:39 (pvr)*
+*Latest Changes: 2023-03-31 16:26:05 (pvr)*
