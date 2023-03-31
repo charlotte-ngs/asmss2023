@@ -1,3 +1,7 @@
+# asmss2023 0.7.0
+
+* Lecture mode on website
+
 # asmss2023 0.6.2
 
 * Corrected links on additional material
