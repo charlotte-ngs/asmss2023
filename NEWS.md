@@ -1,3 +1,7 @@
+# asmss2023 0.7.1
+
+* Set lecture mode for l07
+
 # asmss2023 0.7.0
 
 * Lecture mode on website
