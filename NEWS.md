@@ -1,3 +1,7 @@
+# asmss2023 0.7.2
+
+* Course notes section 3.6 on interactions
+
 # asmss2023 0.7.1
 
 * Set lecture mode for l07
