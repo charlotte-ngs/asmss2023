@@ -496,8 +496,6 @@ var(\mathbf{q}^T\mathbf{b}^0 - \mathbf{k}^T\mathbf{y})
 
 because a variance has to be positive. Hence $var(\mathbf{k}^T\mathbf{y}) > var(\mathbf{q}^T\mathbf{b}^0)$ which can be shown for any linear unbiased estimator $\mathbf{k}^T\mathbf{y}$ and hence $\mathbf{q}^T\mathbf{b}^0$ is "best".
 
-\clearpage
-\pagebreak
 
 ## Contrasts {#asm-flem-contrasts}
 Contrasts are linear combinations of parameters. In R, contrasts are used to determine which estimable functions are used to produce results of a linear model analysis that are shown to a user. Furthermore, the user has the option to choose among different contrasts which are already available by default. It is also possible for the user to create custom made contrasts. This section introduces the basic idea of contrasts and how they are used in R.
@@ -616,4 +614,191 @@ Similarly, the estimate for effect `r rownames(smry_lm_bw_br$coefficients)[3]` i
 ```{r}
 mat_b0[4] - mat_b0[2]
 ```
+
+
+\clearpage
+\pagebreak
+
+
+## Interactions {#asm-flem-interactions}
+
+### Definition
+Interactions occur when any given predictor variable has a different effect on the response variable depending on the value of a different predictor. 
+
+
+### Types of Interactions
+Resulting from the different types of predictor variables (continuous or categorical), the following different types of interactions might be considered
+
+* continuous by continuous
+* continuous by categorical
+* categorical by categorical
+
+
+For reasons of simplicity, we start with the second category
+
+
+### Continuous by Categorical
+The continuous by categorical interaction occurs when the linear model contains two predictors, one is a regression variable and the second predictor is a factor with categorical levels. In our example dataset with body weight of beef cattle animals this would be the case when `Breast Circumference` and `Breed` are both included into the same model. The example dataset that is used to show this type of interactions is shown below. 
+
+```{r tbl-bw-bc-br, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+s_data_dir <- file.path(here::here(), "docs", "data")
+s_flem_path <- file.path(s_data_dir, "asm_bw_flem.csv")
+tbl_flem <- readr::read_csv(file = s_flem_path)
+tbl_flem_bw_bc_br <- tbl_flem %>%
+  select(Animal, `Breast Circumference`, `Body Weight`, Breed)
+tbl_flem_bw_bc_br <- tbl_flem_bw_bc_br %>% arrange(Breed)
+knitr::kable(tbl_flem_bw_bc_br,
+             booktabs = TRUE,
+             longtable = FALSE,
+             caption = "Body Weight, Breast Circumference and Breed of Beef Cattle Animals",
+             escape = FALSE)
+             
+```
+
+The regression of `Body Weight` on `Breast Circumference` is extended by the categorical variable `Breed`. This leads to the following results of the summary-output of `lm()`.
+
+```{r}
+fm_bw_br_bc <- `Body Weight` ~ Breed + `Breast Circumference`
+lm__bw_br_bc <- lm(formula = fm_bw_br_bc, data = tbl_flem_bw_bc_br)
+(smry_lm_bw_br_bc <- summary(lm__bw_br_bc))
+```
+
+Here, it is important to note that the order of the terms in the linear model formula does not matter
+
+If we have reasons to assume that the regression of `Body Weight` on `Breast Circumference` is different for the different breeds, we can include that fact into our model by a so-called  __interaction term__  `BreastCircumference`:`Breed`. The model formulation and the summary of the results as obtained by the function `lm()` is shown below.
+
+```{r}
+fm_bw_bc_br_int <- `Body Weight` ~ `Breast Circumference` + 
+  Breed + `Breast Circumference`:Breed
+lm__bw_bc_br_int <- lm(formula = fm_bw_bc_br_int, data = tbl_flem_bw_bc_br)
+(smry_lm_bw_bc_br_int <- summary(lm__bw_bc_br_int))
+```
+
+The model matrix for the interaction model is given by 
+
+```{r}
+model.matrix(lm__bw_bc_br_int)
+```
+
+The normal equations for the model with interactions can be established and solved as shown below.
+
+```{r}
+mat_X <- model.matrix(lm__bw_bc_br_int)
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+mat_xtx <- crossprod(mat_X)
+mat_xty <- crossprod(mat_X, tbl_flem_bw_bc_br$`Body Weight`)
+mat_b_sol <- solve(mat_xtx, mat_xty)
+mat_b_sol
+```
+
+To better understand the meaning of the above shown results, we are having a closer look at the structure of the model with an interaction term. From a modelling point-of-view, the interaction can also be seen as a dependency of the regression coefficient $b_1$ on the breed. Hence, the original restriced model without interaction which is given by 
+
+$$y_i = b_0 + b_1 \times BC_i + b_2 \times BrLi_i + b_3 \times BrSi_i + e_i$$
+can be extended to include the linear relationship of $b_1$ with `Breed`
+
+$$b_1 = a + b_4 \times BrLi + b_5 \times BrSi$$
+
+Inserting that into the model gives
+
+$$y_i = b_0 + (a + b_4 \times BrLi + b_5 \times BrSi) \times BC_i + b_2 \times BrLi_i + b_3 \times BrSi_i + e_i$$
+which can be simplified to 
+
+$$y_i = b_0 + a \times BC_i + b_2 \times BrLi_i + b_3 \times BrSi_i + b_4 \times BrLi \times BC_i + b_5 \times BrSi \times BC_i + e_i$$
+
+An increase in $1$ cm in Breast Circumference for an Angus animal leads to $`r round(mat_b_sol[2,1], 2)`$ kg inrease in body weight. For a Limousin animal this increase is $`r round(mat_b_sol[2,1], 2)` + `r round(mat_b_sol[5,1], 2)` = `r round(mat_b_sol[2,1], 2)+round(mat_b_sol[5,1], 2)`$. For a Simmental animal, the increase is $`r round(mat_b_sol[2,1], 2)` + `r round(mat_b_sol[6,1], 2)` = `r round(mat_b_sol[2,1], 2)+round(mat_b_sol[6,1], 2)`$
+
+The mean Body Weight of Angus animals with $BC = 0$ is given by the intercept and correpsonds to `r round(mat_b_sol[1,1], 0)`. 
+
+The following plot should explain the relationship, between the different slope estimates. The regression lines are estimated for the different breeds separately. The different slopes of the breed-specific regression lines indicates that there are interactions between the predictors `Breed` and `Breast Circumference`. 
+
+```{r cat-cont-interaction-plot, echo=FALSE, message=FALSE, warning=FALSE}
+# filter different breeds
+library(dplyr)
+formula_bw_bc <- `Body Weight` ~ `Breast Circumference`
+tbl_flem_bw_bc_br_an <- tbl_flem_bw_bc_br %>%
+  filter(Breed == "Angus")
+lm_bw_bc_br_an <- lm(formula = formula_bw_bc, data = tbl_flem_bw_bc_br_an)
+#lm_bw_bc_br_an$coefficients[["(Intercept)"]]
+#lm_bw_bc_br_an$coefficients[["`Breast Circumference`"]]
+tbl_flem_bw_bc_br_li <- tbl_flem_bw_bc_br %>%
+  filter(Breed == "Limousin")
+lm_bw_bc_br_li <- lm(formula = formula_bw_bc, data = tbl_flem_bw_bc_br_li)
+tbl_flem_bw_bc_br_si <- tbl_flem_bw_bc_br %>%
+  filter(Breed == "Simmental")
+lm_bw_bc_br_si <- lm(formula = formula_bw_bc, data = tbl_flem_bw_bc_br_si)
+
+# plots
+library(ggplot2)
+p <- ggplot(data = tbl_flem_bw_bc_br, aes(x=`Breast Circumference`, y = `Body Weight`, group = Breed)) + 
+  geom_point(aes(color = Breed)) + 
+  geom_abline(intercept = lm_bw_bc_br_an$coefficients[["(Intercept)"]],
+              slope = lm_bw_bc_br_an$coefficients[["`Breast Circumference`"]],
+              color = "red") + 
+  geom_abline(intercept = lm_bw_bc_br_li$coefficients[["(Intercept)"]],
+              slope = lm_bw_bc_br_li$coefficients[["`Breast Circumference`"]],
+              color = "green") + 
+  geom_abline(intercept = lm_bw_bc_br_si$coefficients[["(Intercept)"]],
+              slope = lm_bw_bc_br_si$coefficients[["`Breast Circumference`"]],
+              color = "blue")
+p
+```
+
+
+### Continuous by Continuous
+The effect of a continuous by continuous interaction can be explained similarly to what was shown above in the continuous by categorical case. We have a model with a multiple linear regression such as `Body Weight` on `Breast Circumference` and `Height`. Such a multiple linear regression model without interactions can be written as 
+
+\begin{equation}
+y_0 = b_0 + b_1 \times BC_i + b_2 \times HE_i + e_i
+(\#eq:regrbwbchei)
+\end{equation}
+
+Extending the above model to the case with interactions can be done by assuming that the regression coefficient $b_1$ for `Breast Circumference` has a linear dependence to `Height`. Then $b_1$ can be written as
+
+$$b_1 = b_3 + b_4 \times HE_i $$
+
+Inserting this into the model without interactions leads to 
+
+$$y_0 = b_0 + (b_3 + b_4 \times HE_i) \times BC_i + b_2 \times HE_i + e_i$$
+
+After simplifications, we get 
+
+$$y_0 = b_0 + b_2 \times HE_i + b_3 \times BC_i + b_4 \times HE_i \times BC_i + e_i$$
+
+Hence the categorical by categorical interaction is a regression coefficient that shows the effect of the product of multiple linear regression predictors. 
+
+
+### Categorical by Categorical 
+The categorical by categorical interaction occurs when the effects of a given factor such as `Breed` depends the level of a different factor such as `Sex`. 
+
+Let us assume that we have a dataset with `Body Weight` as response and `Breed` and `Sex` as predictor variables. Such an example dataset is shown in Table \@ref(tab:tbl-bw-br-sex).
+
+```{r tbl-bw-br-sex, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+tbl_flem_bw_br_sex <- tbl_flem_bw_bc_br %>%
+  select(Animal, `Body Weight`, Breed)
+tbl_flem_bw_br_sex <- tbl_flem_bw_br_sex %>% 
+  bind_cols(tibble::tibble(Sex = c("M", rep("F",2),
+                                   rep("F", 2), "M", "F",
+                                   "F", "M","F")))
+knitr::kable(tbl_flem_bw_br_sex,
+             booktabs = TRUE,
+             longtable = FALSE,
+             caption = "Body Weight, Breed and Sex for different Beef Cattle Animals",
+             escape = FALSE)
+```
+
+The most instructive way to see the effect of an interaction between two categorical predictors is to visualise the data using a plot where one predictor is shown on the x-axis and the second predictor is used as grouping variable
+
+```{r interaction-plot-cat-by-cat, echo=FALSE, message=FALSE, warning=FALSE}
+p <- ggplot(data = tbl_flem_bw_br_sex, 
+            aes(x = Breed, 
+                y = `Body Weight`,
+                group = Sex)) + 
+  geom_point(aes(color = Sex))
+p
+```
+
+In the above plot, we can see that for the breeds `Angus` and `Simmental`, male animals are heavier than female animals. In contrast, for the breed `Limousin` female animals are heavier than male animals. This gives a strong hint to an interaction between `Sex` and `Breed`. 
 
