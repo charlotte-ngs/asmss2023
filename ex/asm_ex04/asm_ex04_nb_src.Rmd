@@ -1,0 +1,70 @@
+---
+title: Applied Statistical Methods - Notebook 4
+author: Peter von Rohr
+date: '2023-03-20'
+output: html_notebook
+params:
+  doctype:
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
+  isonline:
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Problem 1: Sum Contrasts
+Use the following dataset on `Body Weight` and `Breed` of beef cattle animals. The data is available from
+
+```{r echo=FALSE}
+s_ex04p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_breed.csv"
+s_ex04p01_data_path
+```
+
+Fit a fixed linear model with `Body Weight` as response and `Breed` as predictor variable. Use the `sum` contrasts for reporting the different effects in the model. Validate the estimates by computing the estimates based on a solution of the least squares normal equations. 
+
+### Your Solution
+
+* Read the dataset given by the above link
+* Change contrasts for the factor `Breed` to `sum` contrasts
+* Fit linear model with `Body Weight` as response and `Breed` as predictor
+* Compute solutions of least squares normal equation
+* Use contrasts matrix to determine the estimable functions
+* Compare values of estimable functions to output of `lm()`
+
+
+
+
+
+## Problem 2: Custom Contrasts
+Use the dataset from Problem 1 and use your own contrasts. Your new contrasts should compute the intercept estimate as is done in the `sum` contrasts. The `Breed` effects should be computed the same way as is done in the `treatment` contrast.
+
+### Your Solution
+
+* Construct the matrix of estimable functions and of the linear combination for the intercept
+* Compute the contrasts matrix
+* Fit the linear model using the custom contrasts matrix
+
+
+
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 
