@@ -28,11 +28,25 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Problem 1: Treatment Contrasts
+## Problem 1: Sum Contrasts
+Use the following dataset on `Body Weight` and `Breed` of beef cattle animals. The data is available from
 
+```{r echo=FALSE}
+s_ex04p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_breed.csv"
+s_ex04p01_data_path
+```
+
+Fit a fixed linear model with `Body Weight` as response and `Breed` as predictor variable. Use the `sum` contrasts for reporting the different effects in the model. Validate the estimates by computing the estimates based on a solution of the least squares normal equations. 
 
 <!-- your-solution-start
 ### Your Solution
+
+* Read the dataset given by the above link
+* Change contrasts for the factor `Breed` to `sum` contrasts
+* Fit linear model with `Body Weight` as response and `Breed` as predictor
+* Compute solutions of least squares normal equation
+* Use contrasts matrix to determine the estimable functions
+* Compare values of estimable functions to output of `lm()`
 
 ---  your-solution-end -->
 
@@ -44,7 +58,8 @@ knitr::opts_chunk$set(echo = TRUE)
 <!-- master-solution-end -->
 
 
-## Problem 2
+## Problem 2: Custom Contrasts
+Use the dataset from Problem 1 and use your own contrasts. Your new contrasts should compute the intercept estimate as is done in the `sum` contrasts. The `Breed` effects should be computed the same way as is done in the `treatment` contrast.
 
 <!-- your-solution-start
 ### Your Solution
