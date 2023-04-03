@@ -1,3 +1,7 @@
+# asmss2023 0.7.4
+
+* Link to asm_ex04
+
 # asmss2023 0.7.3
 
 * Link to exercise asm_ex03
