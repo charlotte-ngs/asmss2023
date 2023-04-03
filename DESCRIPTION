@@ -1,6 +1,6 @@
 Package: asmss2023
 Title: Applied Statistical Methods in Animal Sciences
-Version: 0.7.4
+Version: 0.7.5
 Authors@R: 
     person("Peter", "von Rohr", , "peter.vonrohr@qualitasag.ch", role = c("aut", "cre"))
 Description: Material for the lecture Applied Statistical Methods in Animal Sciences at ETH Zurich.

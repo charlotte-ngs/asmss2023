@@ -1,3 +1,7 @@
+# asmss2023 0.7.5
+
+* Slides sl_l06
+
 # asmss2023 0.7.4
 
 * Link to asm_ex04
