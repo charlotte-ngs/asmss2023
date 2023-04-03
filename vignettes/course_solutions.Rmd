@@ -15,3 +15,16 @@ knitr::opts_chunk$set(
 ```
 
 This page contains solutions to exercises.
+
+```{r, echo=FALSE, results='asis'}
+s_url_sol <- "https://charlotte-ngs.github.io/asmss2023/sol/"
+tbl_sol <- tibble::tibble(Nr = c(1, 2),
+                         Date = c("2023-02-27",
+                                  "2023-03-06"),
+                         Topic = c(
+                           paste0("[Linear Regression](", s_url_sol, "asm_ex01_sol.pdf)",  collapse = ""),
+                           paste0("[Linear Regression (Part 2)](", s_url_sol, "asm_ex02_sol.pdf)",  collapse = "")
+                         ))
+knitr::kable(tbl_sol)
+```
+
