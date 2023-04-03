@@ -43,7 +43,8 @@ knitr::kable(tbl_flem_bw_breed,
 ## Model Matrix
 
 ```{r, echo=TRUE}
-model.matrix(lm(`Body Weight` ~ Breed, data = tbl_flem_bw_breed))
+model.matrix(lm(`Body Weight` ~ Breed, 
+                data = tbl_flem_bw_breed))
 ```
 
 
@@ -72,16 +73,31 @@ mat_ctr_ext
 
 ## Validation
 
-...
+* Compute a solution of least squares normal equation
+* Use matrix of estimable functions to validate effects estimates
+
+
+## Default Contrasts
+
+* Per default: `treatment` contrasts
+* Factor levels in alphabetical order
+* First level corresponds to control, other levels are treatments
+* Intercept estimate as mean observation for control group
+* Effects estimates as difference between treatment and control solutions of normal equations
 
 
 ## Other Contasts
 
 * Helmert
 * sum
+* poly
 
 
 ## Custom Contrasts
 
+* Construct own matrix of estimable functions
+* Invert that matrix
+* Ignore first column
+* Use remaining matrix of contrasts as argument in `lm()`
 
 

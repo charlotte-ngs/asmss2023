@@ -21,17 +21,19 @@ This page contains additional material like links to slides, video recordings, o
 
 ```{r tbl-sl, echo=FALSE, message=FALSE, warning=FALSE}
 s_sl_url <- "https://charlotte-ngs.github.io/asmss2023/sl/"
-tbl_sl <- tibble::tibble(Nr = c(1, 2, 3,4, 5),
+tbl_sl <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
                          Date = c(rep("2023-02-20",2),
                                   "2023-03-06",
                                   "2023-03-13",
-                                   "2023-03-27"),
+                                  "2023-03-27",
+                                  "2023-04-03"),
                          Topic = c(
                            paste0("[Introduction](", s_sl_url, "asm-w01-v01-intro.pdf)", collapse = ""),
                            paste0("[Linear Regression](", s_sl_url, "l02_regr.pdf)", collapse = ""),
                            paste0("[Fixed Linear Effects Model](", s_sl_url, "l03_flem.pdf)", collapse = ""),
                            paste0("[Regression on Dummy Variables](", s_sl_url, "l04_regdvar.pdf)", collapse = ""),
-                            paste0("[Contrasts](", s_sl_url, "l05_contrasts.pdf)", collapse = "")
+                           paste0("[Contrasts](", s_sl_url, "l05_contrasts.pdf)", collapse = ""),
+                           paste0("[Interactions](", s_sl_url, "l06_interactions.pdf)", collapse = "")
                          ))
                                   
 knitr::kable(tbl_sl)
