@@ -2,7 +2,8 @@
 # sq2h
 CRSNAME=asmss2023
 SCRIPTDIR=/home/quagadmin/courses/$CRSNAME/bash
-DIRTOFETCH=ex/asm_ex04
+#DIRTOFETCH=ex/asm_ex04
+DIRTOFETCH=sol/asm_ex02
 TESTSTUDENT=/home/quagadmin/courses/$CRSNAME/students/20230303_test_student_usernames_asmss2023.txt
 STUDENTUSER=/home/quagadmin/courses/$CRSNAME/students/20230303_student_usernames_$CRSNAME.txt
 #' fetch individual directory

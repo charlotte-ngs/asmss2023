@@ -66,19 +66,21 @@ knitr::kable(tbl_ohp)
 ## Video
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
-tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
+tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7),
                             Date = c("2023-02-20",
                                      "2023-02-27",
                                      "2023-03-06",
                                      "2023-03-13",
                                      "2023-03-20",
-                                     "2023-03-27"),
+                                     "2023-03-27",
+                                     "2023-04-03"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
                                       "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
                                       "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)",
                                       "[Regression on Dummy Variables](https://youtu.be/3PAOjpUwH4I)",
                                       "[Estimable Functions and Contrasts](https://youtu.be/8E4-q9DMNWQ)",
-                                      "[Contrasts](https://youtu.be/aL-C0h2ZUZY)"
+                                      "[Contrasts](https://youtu.be/aL-C0h2ZUZY)",
+                                      "[Contrasts II](https://youtu.be/Iqt3mJ06JNs)"
                                       ))
 knitr::kable(tbl_video)
 ```

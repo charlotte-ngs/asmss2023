@@ -1,3 +1,7 @@
+# asmss2023 0.7.7
+
+* Video lecture l07
+
 # asmss2023 0.7.6
 
 * Solutions to asm_ex01 and asm_ex02
