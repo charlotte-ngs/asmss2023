@@ -1,0 +1,212 @@
+# Mixed Linear Effects Models  {#asm-mlem}
+```{r met-mlem-reset, include=FALSE}
+met$set_this_rmd_file(ps_this_rmd_file = ifelse(rstudioapi::isAvailable(), 
+                                                 rstudioapi::getSourceEditorContext()$path, 
+                                                 whereami::thisfile()))
+```
+
+Mixed linear effects models are a very useful tool in the analysis of data with some dependencies. In all statistical analyses that we have seen so far the assumption of independence between observations was central. One way of expressing this independence assumption is via the variance-covariance matrix ($var(\mathbf{e})$) of the vector ($\mathbf{e}$) of residuals. In mathematical terms this can be written as 
+
+\begin{equation}
+var(\mathbf{e}) = \mathbf{I} * \sigma_e^2
+(\#eq:varemlem)
+\end{equation}
+
+which means that the variance-covariance matrix ($var(\mathbf{e})$) is proportional to the identity matrix $\mathbf{I}$ with the variance component $\sigma_e^2$ as proportionality factor. 
+
+In what follows, the models that account for different dependency structures are described. 
+
+
+## Repeated Observations
+It is quite common to have repeated observations of the same traits or characteristics from a group of animals. Observing the same characteristic of the same animal multiple times is expected to yield a more accurate description of any relationship between different traits such as body weight and breast circumference. If we apply that line of thought to the example data used in chapter \@ref(asm-regr), we would have repeated measurements of breast circumference and body weight of the same animals. Such a dataset is shown in Table \@ref(tab:rep-obs-bw-bc-tab) for a selected number of animals.
+
+```{r rep-obs-bw-bc-tab, echo=FALSE}
+s_rep_obs_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_bc_rep_obs.csv"
+tbl_rep_obs <- readr::read_csv(file = s_rep_obs_path)
+knitr::kable(tbl_rep_obs,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = "Repeated Observations for Body Weight and Breast Circumference")
+```
+
+In Table \@ref(tab:rep-obs-bw-bc-tab), the column entitiled `Animal` is no longer a running counter which enumerates the observation records. In this repeated observation dataset, the column `Animal` denotes for which animal the measurements was observed. The association between observations and animals is shown in Figure \@ref(fig:rep-obs-bw-bc-fig). 
+
+```{r rep-obs-bw-bc-fig, echo=FALSE, out.width="100%", fig.cap="Repeated Observations of Breast Circumference and Body Weight"}
+tbl_rep_obs$Animal <- as.factor(tbl_rep_obs$Animal)
+ggplot2::ggplot(data = tbl_rep_obs, 
+                mapping = ggplot2::aes(x = `Breast Circumference`,
+                                       y = `Body Weight`,
+                                       color = Animal)) + 
+  ggplot2::geom_point()
+```
+
+The color codes in Figure \@ref(fig:rep-obs-bw-bc-fig) identify the observations for the same animal. This shows that observations for the same animal tend to be grouped together. This grouping has to be considered in the staistical analysis of such a dataset.
+
+
+### Statistical Analysis
+In principle, the dataset shown in Table \@ref(tab:rep-obs-bw-bc-tab) can be analysed with a linear regression model. But from the plot (Figure \@ref(fig:rep-obs-bw-bc-res-plot)) of the residuals versus the fitted values, it becomes clear that the residuals are grouped according to the animals from which the measurement was taken. Due to the small size of the dataset, the grouping effect according to the animal does not show up as clearly as intended. But never the less, this grouping indicates that the assumption of independent residuals is violated.
+
+```{r rep-obs-bw-bc-res-plot, echo=FALSE, out.width="100%", fig.cap="Residuals vs. Fitted Values Plot for Linear Regression Model of Repeated Observation Data"}
+lm_rep_obs <- lm(`Body Weight` ~ `Breast Circumference`, data = tbl_rep_obs)
+tbl_rep_obs$Animal <- as.factor(tbl_rep_obs$Animal)
+ggplot2::ggplot(data = tibble::tibble(Animal = tbl_rep_obs$Animal, 
+                                      Fitted = fitted(lm_rep_obs), 
+                                      Residuals = residuals(lm_rep_obs)),
+                ggplot2::aes(x = Fitted, y = Residuals, color = Animal)) + 
+  ggplot2::geom_point()
+```
+
+
+### Analysis of Variance
+Traditionally repeated measurement data have been analyzed using a statistical technique referred to as analysis of variance (ANOVA). ANOVA is a general method that has been used for a long time to assess the variability of different factors in a dataset. This is done by constructing a specific type of table (ANOVA-table) which presents the essential features of a given dataset (see `r met$add("Searle1992")` for more details). The structure and the properties of an ANOVA-table can best be demonstrated by an analysis of a dataset that shows the influence of the factor breed on body weight of animals shown in Table \@ref(tab:bw-breed-tab).
+
+```{r bw-breed-tab, echo=FALSE}
+s_rep_obs_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_bw_breed <- readr::read_csv(file = s_rep_obs_path)
+tbl_bw_breed <- dplyr::select(tbl_bw_breed, Animal, `Body Weight`, Breed)
+tbl_bw_breed$Breed <- as.factor(tbl_bw_breed$Breed)
+knitr::kable(tbl_bw_breed,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = paste0("Body Weight and Breed for ", nrow(tbl_bw_breed), " Beef Animals", collapse = ""))
+```
+
+A one-factor analysis of variance of the data shown in Table \@ref(tab:bw-breed-tab) can answer the question, whether the factor `Breed` has an influence on the response variable `Body Weight`. An ANOVA in R can be constructed by the function `aov()` as follows.
+
+```{r aov-bw-breed}
+aov_bw_breed <- aov(`Body Weight` ~ Breed, data = tbl_bw_breed)
+(smry_aov_bw_breed <- summary(aov_bw_breed))
+```
+
+The result of the one-way ANOVA of `Body Weight` ond `Breed` shows that it is very unlikely that `Breed` does not have any influence on `Body Weight`. The presented test-statistic from an F-Test is the same that is also shown by the summary results of a result from the `lm()` function. The ANOVA table which is presented by the `summary()` function applied to the `aov`-object contains also an estimate ($\widehat{\sigma_e^2})$ of the residual variance component ($\sigma_e^2$). The estimate corresponds to the mean sum of squares for the component `Residuals`. For our dataset the estimate is `r round(smry_aov_bw_breed[[1]]["Residuals", "Mean Sq"], digits=1)`. Taking the square root of this value results in the `Residual standard error` shown in the summary output of an `lm()`-analysis.
+
+Extending the dataset shown in Table \@ref(tab:bw-breed-tab) to multiple observations for a selected number of animals results in the dataset given in Table \@ref(tab:bw-breed-rep-obs-tab).
+
+```{r bw-breed-rep-obs-tab, echo=FALSE}
+s_bw_breed_rep_obs_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_breed_rep_obs.csv"
+tbl_rep_obs_breed <- readr::read_csv(file = s_bw_breed_rep_obs_path)
+tbl_rep_obs_breed <- dplyr::select(tbl_rep_obs_breed, Animal, `Body Weight`, Breed)
+tbl_rep_obs_breed$Animal <- as.factor(tbl_rep_obs_breed$Animal)
+knitr::kable(tbl_rep_obs_breed,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = "Repeated Observations of Body Weight and Breed for Beef Cattle Animals")
+```
+
+Applying an ANOVA on the dataset given in Table \@ref(tab:bw-breed-rep-obs-tab) allows to check whether there is variation between measurements of the same animal.
+
+```{r}
+aov_bw_breed_rep <- aov(`Body Weight` ~ Breed + Error(Animal), data = tbl_rep_obs_breed)
+summary(aov_bw_breed_rep)
+```
+
+The above ANOVA results show that taking into account the repeated measurement structure of the data greatly reduces the mean squared residuals. On the other hand due to the low number of animals in the dataset, the null-hypothesis of the factor `Breed` having no effect on `Body Weight` could not be rejected. 
+
+While ANOVA is a widely used method and the above results show that we were able to correctly separate the variation between breeds and within a series of observation for the same animal, it has a major disadvantage. ANOVA cannot handle so-called **unbalanced** data very well. Unbalanced data means that the number of observations per factor level or per animal is not the same. Because the problem of unbalanced data occurs quite frequently even in planned experiments, ANOVA is not used that often nowadays. The problems of unbalanced data can be addressed by a different class of models, called the mixed linear effects models.
+
+
+### Random Effects Models
+Before, we introduce the mixed linear effects model, we first have a look at how the repeated measurements data can be modelled with a random effects model. For the demonstration of the random effects model, we use the dataset in Table \@ref(tab:bw-breed-rep-obs-tab), but we are ignoring the factor `Breed` for a moment. Then this dataset just looks like a repeated measurement of the body weight of some beef cattle animals (see Table \@ref(tab:bw-rep-meas-tab)). 
+
+```{r bw-rep-meas-tab, echo=FALSE}
+tbl_rep_obs_no_breed <- dplyr::select(tbl_rep_obs_breed, Animal, `Body Weight`)
+knitr::kable(tbl_rep_obs_no_breed,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = "Repeated Measurements of Body Weight for Beef Cattle Animals")
+```
+
+In a random effects model with repeated observations, the expected value $E(y_{ij})$ for body weight $y_{ij}$ of animal $i$ with the $j^{th}$ observation can be written as 
+
+\begin{equation}
+E(y_{ij}) = \mu + \alpha_i
+(\#eq:repobsbwremmlem)
+\end{equation}
+
+Algebraically the expression for $E(y_{ij})$ given in \@ref(eq:repobsbwremmlem) is not different from what we have seen for the fixed linear effects model in chapter \@ref(asm-flem). But the assumptions are different. In \@ref(eq:repobsbwremmlem), $\alpha_i$ is the effect of animal $i$ on the observed body weight. Because the animals in the dataset (Table \@ref(tab:bw-rep-meas-tab)) is a random sample of a large population of animals, the effect $\alpha_i$ is a so-called **random effect**. A random effect in a model is to be treated as a random variable for which, we have to specify its distributional properties such as expected value and variance. For our example of the repeated measurements data, we assume the following three properties for the $\alpha_i$ effects
+
+1. they are indepentently and identically distributed (i.i.d.)
+2. they all have expected value of $0$, $E(\alpha_i) = 0 \quad \forall i$
+3. they all have the same variance $\sigma_{\alpha}^2$, $var(\alpha_i) = E\left[\alpha_i - E(\alpha_i)\right]^2 = E(\alpha_i^2) = \sigma_{\alpha}^2$ with $cov(\alpha_i, \alpha_k)=0 \quad \forall i \ne k$
+
+A further consequence of choosing $\alpha_i$ as a random effect is that, the expected value in \@ref(eq:repobsbwremmlem) must be considered a second time and must be specified with more details. Assuming that $\alpha^*$ denotes the general random animal effect on the observed body weight. For a given animal $i$, the effect is then $\alpha_i$ which is a realized but unobservable value of the distribution of the $\alpha^*$ effects. Therefore in \@ref(eq:repobsbwremmlem) the expected value of $y_{ij}$ is conditional on the fact that the random variable $\alpha^*$ takes the value $\alpha_i$. Hence \@ref(eq:repobsbwremmlem) is a conditional mean
+
+\begin{equation}
+E(y_{ij} | \alpha^* = \alpha_i) = \mu + \alpha_i
+(\#eq:repobsbwcondexpmlem)
+\end{equation}
+
+For notational simplicity, the $\alpha^*$ is often ommitted. Taking expectation over $\alpha^*$ leads to 
+
+\begin{equation}
+E_{\alpha^*}\left[E(y_{ij} | \alpha_i) \right] = E(y_{ij}) = \mu
+(\#eq:repobsbwcondexpalphamlem)
+\end{equation}
+
+The residuals are defined as 
+
+\begin{equation}
+e_{ij} = y_{ij} - E(y_{ij} | \alpha_i) = y_{ij} - (\mu + \alpha_i)
+(\#eq:repobsbwresmlem)
+\end{equation}
+
+With that definition, we can establish the model equation for an observation $y_{ij}$ as
+
+\begin{equation}
+y_{ij} = \mu + \alpha_i + e_{ij}
+(\#eq:repobsbwmodeleqmlem)
+\end{equation}
+
+The properties of the residuals are assumed analogously to the fixed effects model. In summary, the properties are listed as 
+
+* the expected value of the residuals are all $0$, $E(e_{ij}) = 0$
+* the variances of the residuals are all equal to $\sigma_e^2$, $var(e_{ij}) = E(e_{ij}^2) = \sigma_e^2$
+* all residuals are independent, $cov(e_{ij}, e_{i'j'}) = 0 \quad \forall i,i' \text{ and } \forall j,j' \text{ except } i=i' \text{ and } j=j'$
+* residuals are independen of $\alpha_i$ effects, $cov(e_{ij}, \alpha_k) = 0 \quad \forall i, j, k$
+
+Together with \@ref(eq:repobsbwmodeleqmlem), we can establish the total variance of all observations $y_{ij}$ as
+
+\begin{equation}
+var(y_{ij}) = var(\mu + \alpha_i + e_{ij}) = \sigma_{\alpha}^2 + \sigma_e^2 = \sigma_y^2
+(\#eq:repobsbwvarymlem)
+\end{equation}
+
+This shows that the variance ($\sigma_y^2$) can be decomposed into the two variance components $\sigma_{\alpha}^2$ and $\sigma_e^2$. It is also noted that the intra-class covariance which corresponds to the covariance between body weights for the same animal can be written as
+
+\begin{equation}
+cov(y_{ij}, y_{ij'}) = cov(\mu + \alpha_i + e_{ij}, \mu + \alpha_i + e_{ij'}) = \sigma_{\alpha}^2 \quad \text{ for } j \ne j'
+(\#eq:repobsbwintraclasscovmlem)
+\end{equation}
+
+#### Package lme4
+In R, one of the packages that can handle random effects models is the package `lme4`. For the dataset in Table \@ref(tab:bw-rep-meas-tab), this can be done as follows
+
+```{r lme-rep-meas-analysis}
+library(lme4)
+lmer_bw_rep <- lmer(`Body Weight` ~ (1 | Animal), data = tbl_rep_obs_no_breed)
+summary(lmer_bw_rep)
+```
+
+
+### Mixed Linear Effects Models
+
+
+## Pedigree BLUP
+
+
+## Genomic BLUP
+
+
+## Other Resources
+The following resources were used for this chapter:
+
+* https://m-clark.github.io/mixed-models-with-R/
+* https://www.r-bloggers.com/2017/12/linear-mixed-effect-models-in-r/
+* https://gkhajduk.github.io/2017-03-09-mixed-models/
+* One-factor anova: https://youtu.be/GctGncQrJew
+* `r met$add("Brown2021a")`
+* `r met$add("Singmann2019")`
+* Repeated Measures ANOVA: 
+    + https://conjugateprior.org/2013/01/formulae-in-r-anova/
+    + https://s3-eu-west-1.amazonaws.com/s3-euw1-ap-pe-ws4-cws-documents.ri-prod/9781138024571/chapters/ch11/1_Least-Square_RM_ANOVA_in_R_Using_aov().JLH.pdf
+* Data Anaylsis in R: https://bookdown.org/steve_midway/DAR/

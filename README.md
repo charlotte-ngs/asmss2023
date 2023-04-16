@@ -72,7 +72,7 @@ or via e-mail:
 |    6 | 27.03 | Variance Components                                           | P            |
 |    7 | 03.04 | GBLUP - Marker-Effects Models                                 | P            |
 |    8 | 10.04 | **Easter Monday** (Ostermontag)                               |              |
-|    9 | 17.04 | GBLUP - Breeding Value Models                                 |              |
+|    9 | 17.04 | GBLUP - Breeding Value Models                                 | Z            |
 |   10 | 24.04 | Lasso                                                         |              |
 |   11 | 01.05 | **Labor Day** (Tag der Arbeit)                                |              |
 |   12 | 08.05 | SVM                                                           |              |
@@ -91,4 +91,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-03-31 16:26:05 (pvr)*
+*Latest Changes: 2023-04-16 16:22:14 (pvr)*
