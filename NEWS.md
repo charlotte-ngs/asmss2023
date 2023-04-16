@@ -1,3 +1,7 @@
+# asmss2023 0.8.0
+
+* Updated lecture mode
+
 # asmss2023 0.7.7
 
 * Video lecture l07
