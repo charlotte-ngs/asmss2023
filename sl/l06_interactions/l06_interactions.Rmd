@@ -129,3 +129,22 @@ p
 
 ```
 
+
+## Model Matrix
+
+\tiny
+
+```{r}
+lm_bw_br_sex <- lm(`Body Weight` ~ Breed * Sex, data = tbl_flem_bw_br_sex)
+model.matrix(lm_bw_br_sex)
+```
+
+
+## Summary
+
+\tiny
+
+```{r}
+summary(lm_bw_br_sex)
+```
+

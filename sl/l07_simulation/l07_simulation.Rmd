@@ -1,0 +1,42 @@
+---
+title: "Simulations"
+author: "Peter von Rohr"
+date: "2023-04-17"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Timing of Data Analysis
+
+* When is the best time to think about data analysis?
+* So far: 
+    + Dataset is given
+    + Analysis comes after data collection
+    + Structure of data cannot be changed
+* Better: 
+    + Plan data analysis before data collection
+    + Experimental design
+    + Use simulation ...
+    
+    
+## Simulation
+
+* What is simulation? 
+* Given there is an effect between characteristics of variables
+* Generate data that contains the effects
+* Re-analyse generated data
+* Can effects be found?
+
+
+## Examples
+
+* `Body Weight` on `Breast Circumference` 
+* Differences between feeds ...
+* Differences between treatment and controls ...
+* Differences betwween healthy and diseased ...
+
+
+
