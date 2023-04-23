@@ -1,3 +1,7 @@
+# asmss2023 0.9.0
+
+* Update lecture mode
+
 # asmss2023 0.8.1
 
 * Added material for l08
