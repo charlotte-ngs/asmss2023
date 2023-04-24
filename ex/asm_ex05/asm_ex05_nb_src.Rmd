@@ -1,0 +1,81 @@
+---
+title: Applied Statistical Methods - Notebook 5
+author: Peter von Rohr
+date: '2023-04-24'
+output: html_notebook
+params:
+  doctype:
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
+  isonline:
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Problem 1: Interactions
+Use the following dataset on `Breed`, `Breast Circumference` and `Body Weight` and fit a fixed linear effects model with `Body Weight` as response and `Breed` and `Breast Circumference` as predictors and include an interaction term between the two predictors. Compute the expected difference in `Body Weight` for two animals which differ in `Breast Circumference by $1cm$ for every `Breed`. 
+
+The dataset is available under
+
+```{r tbl-ex05-p01, echo=FALSE}
+s_tbl_ex05_p01_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+s_tbl_ex05_p01_path
+```
+
+
+### Your Solution
+
+* Read the data
+* Fit fixed linear effects model for Body Weight using `Breed` and `Breast Circumference` and the interaction with function `lm()`
+* From the solution of the `summary()` of the `lm()` result get the regression coefficient and the interaction effects and compute the expected difference in `Body Weight` for all three breeds. 
+
+
+
+
+
+## Problem 2: Simulation
+Use the following values for intercept and regression slope for `Body Weight` on `Breast Circumference` to simulate a dataset of size $N$. What is the number for $N$ that has to be chosen such that the regression analysis of the simulated data gives the same result as the true regression slope. 
+
+The true values are: 
+
+* Intercept: $-1070$
+* Regression slope: $8.7$
+* Residual standard error: $12$
+
+### Hints
+
+* Start with $N=10$, simulate a dataset and analyse the data with `lm()`
+* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=20$
+* Continue until you get close to the true value.
+
+### Your Solution
+
+* Start with $N=10$, simulate a dataset and analyse the data with `lm()`
+* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=20$
+* Continue until you get close to the true value.
+
+
+
+
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 
