@@ -1,3 +1,7 @@
+# asmss2023 0.9.4
+
+* Link to video and slides with notes
+
 # asmss2023 0.9.3
 
 * Slides l08 
