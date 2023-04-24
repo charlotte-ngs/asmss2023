@@ -1,3 +1,7 @@
+# asmss2023 0.9.1
+
+* Added chpt 4 of cn
+
 # asmss2023 0.9.0
 
 * Update lecture mode
