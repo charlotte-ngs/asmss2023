@@ -52,11 +52,13 @@ knitr::kable(tbl_sl)
 
 ```{r tbl-sl-notes, echo=FALSE, message=FALSE, warning=FALSE}
 s_sl_notes_url <- paste(s_root_url,"sl_notes/", sep = "")
-tbl_sl_notes <- tibble::tibble(Nr = c(1, 2),
-                               Date = c(rep("2023-04-17", 2)),
+tbl_sl_notes <- tibble::tibble(Nr = c(1, 2, 3),
+                               Date = c(rep("2023-04-17", 2),
+                                        "2023-04-24"),
                                Topic = c(
                                  paste0("[Interactions](", s_sl_notes_url, "l06_interactions_with_notes.pdf)", collapse = ""),
-                                 paste0("[Simulation](", s_sl_notes_url, "l07_simulation_with_notes.pdf)", collapse = "")
+                                 paste0("[Simulation](", s_sl_notes_url, "l07_simulation_with_notes.pdf)", collapse = ""),
+                                 paste0("[Repeated Observations](", s_sl_notes_url, "l08_mlem_with_notes.pdf)", collapse = "")
                                ))
 ```
 
@@ -88,7 +90,7 @@ knitr::kable(tbl_ohp)
 ## Video
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
-tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8),
+tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                             Date = c("2023-02-20",
                                      "2023-02-27",
                                      "2023-03-06",
@@ -96,7 +98,8 @@ tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8),
                                      "2023-03-20",
                                      "2023-03-27",
                                      "2023-04-03",
-                                     "2023-04-17"),
+                                     "2023-04-17",
+                                     "2023-04-24"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
                                       "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
                                       "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)",
@@ -104,7 +107,8 @@ tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8),
                                       "[Estimable Functions and Contrasts](https://youtu.be/8E4-q9DMNWQ)",
                                       "[Contrasts](https://youtu.be/aL-C0h2ZUZY)",
                                       "[Contrasts II](https://youtu.be/Iqt3mJ06JNs)",
-                                      "[Interactions and Simulation](https://youtu.be/7J69ZZhZjXc)"
+                                      "[Interactions and Simulation](https://youtu.be/7J69ZZhZjXc)",
+                                      "[Linear Regression with Repeated Observations](https://youtu.be/4F7UAN7k8JE)"
                                       ))
 knitr::kable(tbl_video)
 ```
