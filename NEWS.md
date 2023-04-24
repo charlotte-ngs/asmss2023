@@ -1,3 +1,7 @@
+# asmss2023 0.9.3
+
+* Slides l08 
+
 # asmss2023 0.9.2
 
 * Added asm_ex05
