@@ -1,3 +1,7 @@
+# asmss2023 0.9.2
+
+* Added asm_ex05
+
 # asmss2023 0.9.1
 
 * Added chpt 4 of cn
