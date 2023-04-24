@@ -60,6 +60,7 @@ tbl_sl_notes <- tibble::tibble(Nr = c(1, 2, 3),
                                  paste0("[Simulation](", s_sl_notes_url, "l07_simulation_with_notes.pdf)", collapse = ""),
                                  paste0("[Repeated Observations](", s_sl_notes_url, "l08_mlem_with_notes.pdf)", collapse = "")
                                ))
+knitr::kable(tbl_sl_notes)
 ```
 
 
