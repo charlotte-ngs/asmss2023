@@ -1,3 +1,7 @@
+# asmss2023 0.10.0
+
+* Added solutions for ex03 and ex04
+
 # asmss2023 0.9.5
 
 * Created table with slides with notes
