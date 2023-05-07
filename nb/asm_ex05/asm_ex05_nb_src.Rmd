@@ -48,24 +48,42 @@ s_tbl_ex05_p01_path
 
 
 ## Problem 2: Simulation
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+n_b_intercept <- -1070
+n_b_slope <- 8.7
+n_res_std_error <- 12
+n_nr_obs <- 10
+n_slope_tol <- 0.1
+
+# take the values for mean and sd for bc from the dataset
+s_tbl_bw_bc_br_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_bw_bc_br <- readr::read_delim(s_tbl_bw_bc_br_path, delim = ",")
+n_mean_bc <- round(mean(tbl_bw_bc_br$`Breast Circumference`), 0)
+n_sd_bc <- round(sd(tbl_bw_bc_br$`Breast Circumference`), 2)
+```
+
 Use the following values for intercept and regression slope for `Body Weight` on `Breast Circumference` to simulate a dataset of size $N$. What is the number for $N$ that has to be chosen such that the regression analysis of the simulated data gives the same result as the true regression slope. 
 
 The true values are: 
 
-* Intercept: $-1070$
-* Regression slope: $8.7$
-* Residual standard error: $12$
+* Intercept: $`r n_b_intercept`$
+* Regression slope: $`r n_b_slope`$
+* Residual standard error: $`r n_res_std_error`$
 
 ### Hints
 
-* Start with $N=10$, simulate a dataset and analyse the data with `lm()`
-* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=20$
+* Start with $N=`r n_nr_obs`$, simulate a dataset and analyse the data with `lm()`
+* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=`r 2*n_nr_obs`$
 * Continue until you get close to the true value.
+* Assume that the random resiudals follow a normal distribution with mean zero and standard devation equal to $`r n_res_std_error`$
+* Take breast circumference to be normally distributed with a mean of $`r n_mean_bc`$ and a standard deviation of $`r n_sd_bc`$
+* Use a linear regression model with an intercept to model expected body weight based on breast circumference.
+
 
 ### Your Solution
 
-* Start with $N=10$, simulate a dataset and analyse the data with `lm()`
-* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=20$
+* Start with $N=`r n_nr_obs`$, simulate a dataset and analyse the data with `lm()`
+* If the result (rounded to 1 digits after decimal point) is not the same then double the size of the dataset, hence use, $N=`r 2*n_nr_obs`$
 * Continue until you get close to the true value.
 
 
