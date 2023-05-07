@@ -1,3 +1,7 @@
+# asmss2023 0.10.2
+
+* Updated lecture mode
+
 # asmss2023 0.10.1
 
 * Added solution for asm_ex05
