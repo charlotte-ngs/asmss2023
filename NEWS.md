@@ -1,6 +1,10 @@
+# asmss2023 0.10.1
+
+* Added solution for asm_ex05
+
 # asmss2023 0.10.0
 
-* Added solutions for ex03 and ex04
+* Added solutions for asm_ex03 and asm_ex04
 
 # asmss2023 0.9.5
 
