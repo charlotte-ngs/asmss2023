@@ -191,6 +191,119 @@ summary(lmer_bw_rep)
 \pagebreak
 
 ### Mixed Linear Effects Models
+A fixed general mean $\mu$ or a fixed intercept term $b_0$ and random residual term $e$ occur in almost all models that were presented so far. Apart from these, all other effects were either all fixed or random^[Except for a small introduction into repeated measures models, we have not really look at random models in great detail. But they are not of great importance to the treatment of mixed models.]. We now consider models where some effects (other than $\mu$ and $e$) are fixed and some are random. Such models are called __mixed linear effects models__^[Sometimes these models are just called mixed models. We are using these terms interchangably]. 
+
+An example dataset which could be analysed with a mixed linear effects model would be, if we would add to each animal in our reference dataset on body weight, breast circumference and breed also the sire of each animal. If some of these animals would share the same sire and hence would be half sibs, the dataset would again as already seen in the repeated observations data, a specific variance structure. This is due to the fact that body weights from half sibs would be expected to be more similar than observations from unrelated animals. 
+
+```{r tbl-bw-bc-br-sire, echo=FALSE, message=FALSE, warning=FALSE}
+s_rep_obs_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_bw_breed <- readr::read_csv(file = s_rep_obs_path)
+tbl_bw_bc_br <- dplyr::select(tbl_bw_breed, Animal, `Body Weight`, `Breast Circumference`, Breed)
+tbl_bw_bc_br_sire <- dplyr::bind_cols(tbl_bw_bc_br,
+                                      tibble::tibble(Sire = c("S1", "S1","S3","S2","S3","S4","S5", "S5", "S6","S6")))
+knitr::kable(tbl_bw_bc_br_sire,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = "Body Weight, Breast Circumference, Breed and Sire of Beef Cattle Animals")
+```
+
+When fitting a mixed linear effects model to a dataset as shown in Table \@ref(tab:tbl-bw-bc-br-sire), the question is which effects should be taken as fixed and which should be considered to be random. As already mentioned in this case, `Breast Circumference` and `Breed` would be modelled as fixed effects and `Sire` would be modelled as a random effect. In general, there are not strict rules that would tell us which effects should be modelled as fixed effects an which ones should be considered as random. In our dataset we can certainly say that for `Breast Circumference` and `Breed` we are interested in the effect sizes of the values that are observed in the given datasets. In contrasts to that, we can say that the included sires are a random sample of a larger population of sires. Furthermore, the primary interest in the sire effects are in the imposed covariance structure of the data due to the sire effects. In the case where the primary interest is in the variance imposed by a certain effect, then the respective effect has to be modelled as a random effect.
+
+The general mixed effects model can be written as 
+
+\begin{equation}
+\mathbf{y} = \mathbf{Xb} + \mathbf{Zu} + \mathbf{e}
+\end{equation}
+
+where $\mathbf{y}$ is the vector of observations, $\mathbf{b}$ is the vector of fixed effects, $\mathbf{u}$ is the vector of random effects, $\mathbf{X}$ and $\mathbf{Z}$ are incidence matrices and $\mathbf{e}$ is the vector of random residuals. The random effects are assumed to have expected values of zero and given specific variance-covariance matrices. Hence we can write
+
+\begin{equation}
+E \left[
+\begin{array}{c}
+\mathbf{y} \\
+\mathbf{u} \\
+\mathbf{e}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+\mathbf{Xb} \\
+\mathbf{0} \\
+\mathbf{0}
+\end{array}
+\right]
+\end{equation}
+
+The variance-covariance matrices are specified as 
+
+\begin{equation}
+var \left[
+\begin{array}{c}
+\mathbf{y} \\
+\mathbf{u} \\
+\mathbf{e}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{ccc}
+\mathbf{ZDZ^T} + \mathbf{R} & \mathbf{ZD} & \mathbf{R} \\
+\mathbf{DZ^T}               & \mathbf{D}  & \mathbf{0} \\
+\mathbf{R}                  & \mathbf{0}  & \mathbf{R}
+\end{array}
+\right]
+\end{equation}
+
+with $var(\mathbf{u}) = E(\mathbf{uu^T}) = \mathbf{D}$ and $var(\mathbf{e}) = E(\mathbf{ee^T}) = R$. 
+
+Assuming $\mathbf{V}$ is not singular, the normal equations stemming from the generalized least squares are 
+
+\begin{equation}
+\mathbf{X}^T\mathbf{V}^{-1}\mathbf{X}\mathbf{b}^0 = 
+\mathbf{X}^T\mathbf{V}^{-1}\mathbf{y}
+\end{equation}
+
+with a solution 
+
+\begin{equation}
+\mathbf{b}^0 = (\mathbf{X}^T\mathbf{V}^{-1}\mathbf{X})^- \mathbf{X}^T\mathbf{V}^{-1}\mathbf{y}
+\end{equation}
+
+From that solution, we can get estimates of estimable functions for the fixed effects as previously discussed for fixed models. 
+
+For the random effects $\mathbf{u}$, the conditional expectation of $\mathbf{u}$ given the observations $\mathbf{y}$ are of particular interest as estimators. Assuming multivariate normality for $\mathbf{u}$ and $\mathbf{e}$, we can write 
+
+\begin{align}
+\hat{\mathbf{u}} =  E(\mathbf{u}|\mathbf{y}) &= E(\mathbf{u}) + cov(\mathbf{u}, \mathbf{y}^T)(var(\mathbf{y}))^{-1}(\mathbf{y} - E(\mathbf{y})) \notag \\
+&= \mathbf{D}\mathbf{Z}^T\mathbf{V}^{-1}(\mathbf{y} - \mathbf{X}\mathbf{b})
+\end{align}
+
+Both terms, the solution for $\mathbf{b}^0$ and the estimate $\hat{\mathbf{u}}$ depend on the inverse matrix $\mathbf{V}^{-1}$ which can be extremely large and difficult to compute. In different publications, the research group of Charles Henderson has shown that solving the following system of equations leads to the same estimates for both the fixed and the random effects. This system of equations is called __Mixed Model Equations__ and is shown below. 
+
+\begin{equation}
+\left[
+\begin{array}{cc}
+\mathbf{X}^T\mathbf{R}^{-1}\mathbf{X} & \mathbf{X}^T\mathbf{R}^{-1}\mathbf{Z} \\
+\mathbf{Z}^T\mathbf{R}^{-1}\mathbf{X} & \mathbf{Z}^T\mathbf{R}^{-1}\mathbf{Z} + \mathbf{D}^{-1}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\hat{\mathbf{b}} \\
+\hat{\mathbf{u}}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+\mathbf{X}^T\mathbf{R}^{-1}\mathbf{y} \\
+\mathbf{Z}^T\mathbf{R}^{-1}\mathbf{y}
+\end{array}
+\right]
+\end{equation}
+
+
 
 
 ## Pedigree BLUP
