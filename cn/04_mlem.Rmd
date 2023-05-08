@@ -304,9 +304,77 @@ Both terms, the solution for $\mathbf{b}^0$ and the estimate $\hat{\mathbf{u}}$ 
 \end{equation}
 
 
-
-
 ## Pedigree BLUP
+The linear mixed effects models as shown above can be applied to datasets in livestock breeding. In such a model, the response variable $y$ corresponds to measurements or observations of phenotypic traits. The vector of fixed effects $b$ contains all information about the known environment such as `Breed`, `Herd`, `Season`, `Age` and possibly other predictors that have an influence on the response. The random effects $u$ contain the breeding values of animals of interest in our livestock breeding population. Once all the informations of the data are collected, it can be transfered into model components. The model components are then used to construct the mixed model equations. Solutions to these equations provide estimates of fixed effects and predictions of breeding values. Properties of the predicted breeding values can be summarized as 
+
+* Best: the predicted breeding values have minimum prediction error variance
+* Linear: the predicted breeding values are linear functions of the data
+* Unbiased: the expected value of the predicted breeding values is equal to the expected value of the true breeding value
+* Prediction: because breeding values cannot be observed, the results are called predictions. 
+
+The above listed properties are often abbreviated as BLUP. 
+
+The application of linear mixed effects models to livestock breeding datasets can be done in two different ways. 
+
+1. Sire model: only sires in the dataset get breeding values
+2. Animal model: all animals in a datasets (also parents without observations) get breeding values
+
+
+### Sire Model
+In a sire model the vector $\mathbf{u}$ of random effects contains all sires in the dataset. For the example data shown in Table \@ref(tab:tbl-bw-bc-br-sire), this corresponds to 
+
+```{r, echo=FALSE, results='asis'}
+vec_u_sire <- tbl_bw_bc_br_sire$Sire
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_u_sire, ps_name = "\\mathbf{u}", ps_env = "$$")))
+```
+
+Because the sire breeding values ($\mathbf{u}$) are random effects, we also have to specify the expected value and the variance-covariance matrix of $\mathbf{u}$. Because breeding values are defined as deviations, the expected values of the sire breeding values are zero. Hence
+
+\begin{align}
+E(\mathbf{u}) &= \mathbf{0} \\
+var(\mathbf{u}) &= \mathbf{D}
+\end{align}
+
+with $\mathbf{D}$ beeing the variance-covariance matrix between the sire breeding values. If the sires are not related, then $\mathbf{D} = \sigma_s^2\ I$ where $\sigma_s^2$ is a sire variance component. If the sires are related then $\mathbf{D} = \sigma_s^2\ \mathbf{A}_s$ where $\mathbf{A}_s$ is the sire relationship matrix containing elements of probabilities of sharing allels based on identity by descent between related sires as off-diagonal elements. The diagonal elements of $\mathbf{A}_s$ are all one.
+
+For the moment, we assume that the variance component such as $\sigma_s^2$ are all given. In reality, such components would also need to be estimated from the data. The discussion on how to estimate variance components from the data is deferred to a later chapter.
+
+
+### Animal Model
+The major difference between the sire model and the animal model is that in the animal model all animals in the dataset receive breeding values. Hence in the dataset shown in Table \@ref(tab:tbl-bw-bc-br-sire), we would need to add the dams. 
+
+```{r tbl-bw-bc-br-sire-dam, echo=FALSE, message=FALSE, warning=FALSE}
+s_rep_obs_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_bw_flem.csv"
+tbl_bw_breed <- readr::read_csv(file = s_rep_obs_path)
+tbl_bw_bc_br <- dplyr::select(tbl_bw_breed, Animal, `Body Weight`, `Breast Circumference`, Breed)
+tbl_bw_bc_br_animal <- dplyr::bind_cols(tbl_bw_bc_br,
+                                      tibble::tibble(Sire = c("S1", "S1","S3","S2","S3","S4","S5", "S5", "S6","S6"),
+                                                     Dam = c("D1","D2","D3","D2","D3","D4","D5","D5","D6","D7")))
+knitr::kable(tbl_bw_bc_br_animal,
+             booktabs = TRUE,
+             longtable = TRUE,
+             caption = "Body Weight, Breast Circumference, Breed, Sire and Dam of Beef Cattle Animals")
+```
+
+The vector $\mathbf{u}$ contains breeding values for all animals in the dataset, also from parents that do not have observations. Hence
+
+```{r, echo=FALSE, results='asis'}
+vec_u_animals <- c("S1", "S2", "...", "D1", "D2", "...", "1", "2", "...", "10")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_u_animals, ps_name = "\\mathbf{u}", ps_env = "$$")))
+```
+
+The expected value and the variance-covariance matrix of $\mathbf{u}$ are defined as 
+
+\begin{align}
+E(\mathbf{u}) &= \mathbf{0} \\
+var(\mathbf{u}) &= \mathbf{D} = \mathbf{A} \sigma_u^2
+\end{align}
+
+where the matrix $\mathbf{A}$ corresponds to the numerator relationship matrix. This matrix contains the probabilities of two animals sharing alleles identical by descent on the offdiagonal elements. The diagonal elements of $\mathbf{A}$ are computed as one plus the inbreeding coefficient of an animal. The inbreeding coefficient of an animal is given by half of the relationship coefficient of the parents. 
+
+
+\clearpage
+\pagebreak
 
 
 ## Genomic BLUP
