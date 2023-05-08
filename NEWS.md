@@ -1,3 +1,7 @@
+# asmss2023 0.10.3
+
+* Added chapter 4.2 on pedigree blup
+
 # asmss2023 0.10.2
 
 * Updated lecture mode
