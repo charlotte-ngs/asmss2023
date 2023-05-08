@@ -1,3 +1,7 @@
+# asmss2023 0.10.4
+
+* Added slides for pblup
+
 # asmss2023 0.10.3
 
 * Added chapter 4.2 on pedigree blup

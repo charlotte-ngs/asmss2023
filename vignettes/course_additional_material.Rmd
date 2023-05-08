@@ -25,14 +25,15 @@ s_root_url <- "https://charlotte-ngs.github.io/asmss2023/"
 
 ```{r tbl-sl, echo=FALSE, message=FALSE, warning=FALSE}
 s_sl_url <- paste(s_root_url, "sl/", sep = "")
-tbl_sl <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8),
+tbl_sl <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                          Date = c(rep("2023-02-20",2),
                                   "2023-03-06",
                                   "2023-03-13",
                                   "2023-03-27",
                                   "2023-04-03",
                                   "2023-04-17",
-                                  "2023-04-24"),
+                                  "2023-04-24",
+                                  "2023-05-08"),
                          Topic = c(
                            paste0("[Introduction](", s_sl_url, "asm-w01-v01-intro.pdf)", collapse = ""),
                            paste0("[Linear Regression](", s_sl_url, "l02_regr.pdf)", collapse = ""),
@@ -41,7 +42,8 @@ tbl_sl <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8),
                            paste0("[Contrasts](", s_sl_url, "l05_contrasts.pdf)", collapse = ""),
                            paste0("[Interactions](", s_sl_url, "l06_interactions.pdf)", collapse = ""),
                            paste0("[Simulation](", s_sl_url, "l07_simulation.pdf)", collapse = ""),
-                           paste0("[Mixed Linear Effects Models](", s_sl_url, "l08_mlem.pdf)", collapse = "")
+                           paste0("[Mixed Linear Effects Models](", s_sl_url, "l08_mlem.pdf)", collapse = ""),
+                           paste0("[Pedigree BLUP](", s_sl_url, "l09_pblup.pdf)", collapse = "")
                          ))
                                   
 knitr::kable(tbl_sl)
