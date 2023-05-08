@@ -1,3 +1,7 @@
+# asmss2023 0.10.5
+
+* Links to video and slides with notes
+
 # asmss2023 0.10.4
 
 * Added slides for pblup
