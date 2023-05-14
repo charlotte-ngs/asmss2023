@@ -1,0 +1,378 @@
+---
+title: Applied Statistical Methods - `r tools::toTitleCase(params$doctype)` 7
+author: Peter von Rohr
+date: 2023-05-14
+output:
+  bookdown::pdf_document2:
+    toc: false
+    number_sections: false
+    keep_md: false
+    keep_tex: false
+header-includes:
+ \usepackage{longtable}
+ \usepackage{float}
+params:
+  doctype:
+    label: 'Document Type'
+    value: 'solution'
+    choices: ['exercise', 'solution', 'notebook']
+  isonline:
+    label: 'Online (y/n)'
+    value: TRUE
+    choices: [TRUE, FALSE]
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Problem 1: Marker Effects Model
+```{r ex11p01-setup, echo=FALSE}
+s_ex11_p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_geno_sim_data.csv"
+
+sigma_q2 <- 3
+sigma_e2 <- 36
+```
+
+Predict genomic breeding values using a marker effects model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex11_p01_data_path, "\n")
+```
+
+### Hints
+
+* The variance $\sigma_q^2$ of the marker effect is $`r sigma_q2`$.
+* The residual variance $\sigma_e^2$ is $`r sigma_e2`$
+* The sex of each animal can be modelled as a fixed effect
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data
+* Setup mixed model equations to predict marker effects for all the SNP-loci
+* Compute predicted genomic breeding values based on the estimated marker effects
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data
+
+```{r, message=FALSE, warning=FALSE}
+tbl_ex11_p01 <- readr::read_csv(s_ex11_p01_data_path)
+```
+
+* Setup mixed model equations to predict marker effects for all the SNP-loci. The model is given as 
+
+$$y = Xb + Wq + e$$
+where $y$ is the vector of observations, $b$ is the vector of fixed effects and $q$ is the vector of random marker effects for each SNP. The matrices $X$ and $W$ are design matrices. The matrix $W$ is special because it contains the genotype encodings. 
+
+From that model the mixed model equations can be specified as
+
+$$ 
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TW \\
+W^TX  &  W^TW + \lambda_q * I
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{q}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+W^Ty
+\end{array}
+\right]
+$$
+with $\lambda_q = \sigma_e^2 / \sigma_q^2$. 
+
+The matrix $X$
+
+```{r}
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_ex11_p01))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+mat_X
+```
+
+The matrix $W$
+
+```{r}
+library(dplyr)
+tbl_geno_ex11_p01 <- tbl_ex11_p01 %>%
+  select(SNP1:SNP100)
+mat_W <- as.matrix(tbl_geno_ex11_p01)
+mat_W[,1:10]
+```
+
+The vector $y$
+
+```{r}
+vec_y <- tbl_ex11_p01$P
+vec_y
+```
+
+The mixed model equations
+
+```{r}
+# coefficient matrix
+mat_xtx <- crossprod(mat_X)
+mat_xtw <- crossprod(mat_X, mat_W)
+mat_wtx <- t(mat_xtw)
+lambda_q <- sigma_e2 / sigma_q2
+mat_ztz_lambda_I <- crossprod(mat_W) + lambda_q * diag(1, nrow = ncol(mat_W))
+mat_coef <- rbind(cbind(mat_xtx, mat_xtw), 
+                  cbind(mat_wtx, mat_ztz_lambda_I))
+# right hand side
+mat_xty <- crossprod(mat_X, vec_y)
+mat_wty <- crossprod(mat_W, vec_y)
+mat_rhs <- rbind(mat_xty, mat_wty)
+# solution
+mat_sol <- solve(mat_coef, mat_rhs)
+# partition solutions
+vec_sol_fix <- mat_sol[1:2,]
+vec_sol_marker <- mat_sol[3:nrow(mat_sol),]
+```
+
+The solution for the estimates of the fixed effects are: 
+
+```{r}
+vec_sol_fix
+```
+
+The solutions for the first few marker effects are
+
+```{r}
+vec_sol_marker[1:10]
+```
+
+
+* Compute predicted genomic breeding values based on the estimated marker effects. The predicted genomic breeding values are obtained by the matrix-multiplication of matrix $W$ times the vector of the estimated marker effects.
+
+```{r}
+mat_mem_gbv <- crossprod(t(mat_W), vec_sol_marker)
+mat_mem_gbv
+```
+
+
+<!-- master-solution-end -->
+
+
+## Problem 2: Breeding Value Based Model
+```{r ex11p02-setup, echo=FALSE}
+s_ex11_p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_geno_sim_data.csv"
+
+sigma_q2 <- 3
+sigma_u2 <- 3*sigma_q2
+sigma_e2 <- 36
+```
+
+Use the same dataset as in Problem 1 to predict genomic breeding values based on a breeding-value model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex11_p02_data_path, "\n")
+```
+
+### Hints
+
+* The genomic variance $\sigma_u^2$ of the marker effect is $`r sigma_u2`$.
+* The residual variance $\sigma_e^2$ is $`r sigma_e2`$
+* The sex of each animal can be modelled as a fixed effect
+* Use the following function to compute the genomic relationship matrix $G$ based on the matrix of genotypes
+
+```{r}
+computeMatGrm <- function(pmatData) {
+  matData <- pmatData
+  # check the coding, if matData is -1, 0, 1 coded, then add 1 to get to 0, 1, 2 coding
+  if (min(matData) < 0) matData <- matData + 1
+  # Allele frequencies, column vector of P and sum of frequency products
+  freq <- apply(matData, 2, mean) / 2
+  P <- 2 * (freq - 0.5)
+  sumpq <- sum(freq*(1-freq))
+  # Changing the coding from (0,1,2) to (-1,0,1) and subtract matrix P
+  Z <- matData - 1 - matrix(P, nrow = nrow(matData), 
+                             ncol = ncol(matData), 
+                             byrow = TRUE)
+  # Z%*%Zt is replaced by tcrossprod(Z)
+  return(tcrossprod(Z)/(2*sumpq))
+}
+```
+
+* If the genomic relationship matrix $G$ which is computed by the function above cannot be inverted, add $0.05 * I$ to $G$ which results in $G^*$ and use $G^*$ as genomic relationship matrix.
+
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data
+* Compute the inverse genomic relationship matrix using the given function for the genomic relationship matrix
+* Setup mixed model equations to predict genomic breeding values
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data
+
+```{r, message=FALSE, warning=FALSE}
+tbl_ex11_p02 <- readr::read_csv(s_ex11_p02_data_path)
+```
+
+* Compute the inverse genomic relationship matrix using the given function for the genomic relationship matrix. The genomic relationship matrix $G$ is computed using the above given function with the matrix $W$ from the marker effect model as an argument.
+
+The matrix $W$
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+tbl_geno_ex11_p02 <- tbl_ex11_p02 %>%
+  select(SNP1:SNP100)
+mat_W <- as.matrix(tbl_geno_ex11_p01)
+```
+
+The genomic relationship matrix $G$
+
+```{r}
+mat_G <- computeMatGrm(pmatData = mat_W)
+mat_G
+```
+
+We have to check whether $G$ can be inverted. This is done by computing the rank of the matrix
+
+```{r}
+Matrix::rankMatrix(mat_G)
+```
+
+This shows that matrix $G$ does not have full column rank. Hence we add $0.05 * I$ to get to matrix $G^*$. 
+
+```{r}
+mat_G_star <- mat_G + 0.05 * diag(1, nrow = nrow(mat_G))
+Matrix::rankMatrix(mat_G_star)
+```
+
+Matrix $G^*$ can be used as genomic relationship matrix.
+
+* Setup mixed model equations to predict genomic breeding values. The breeding value based model is given by 
+
+$$ y = Xb + Zu + e$$
+where $y$ is the vector of observations, $b$ is the vector of fixed effects and $u$ is the vector of random genomic breeding values. The matrices $X$ and $Z$ are design matrices. 
+
+The mixed model equations are
+
+$$
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda_g * (G^*)^{-1}
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+$$
+
+with $\lambda_u = \sigma_e^2 / \sigma_u^2$. 
+
+The matrix $X$
+
+```{r}
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_ex11_p02))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+mat_X
+```
+
+The matrix $Z$
+
+```{r}
+# model matrix from data
+mat_Z <- model.matrix(lm(P ~ 0 + as.factor(ID), data = tbl_ex11_p02))
+attr(mat_Z, "assign") <- NULL
+attr(mat_Z, "contrasts") <- NULL
+colnames(mat_Z) <- NULL
+mat_Z
+```
+
+The vector $y$
+
+```{r}
+vec_y <- tbl_ex11_p02$P
+vec_y
+```
+
+The mixed model equations are
+
+```{r}
+# coefficient matrix
+mat_xtx <- crossprod(mat_X)
+mat_xtz <- crossprod(mat_X, mat_Z)
+mat_ztx <- t(mat_xtz)
+lambda_u <- sigma_e2 / sigma_u2
+mat_ztz_u_inv_lambda <- crossprod(mat_Z) + lambda_u * mat_G_star
+mat_coef <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_u_inv_lambda))
+# right hand side
+mat_xty <- crossprod(mat_X, vec_y)
+mat_zty <- crossprod(mat_Z, vec_y)
+mat_rhs <- rbind(mat_xty, mat_zty)
+# solution
+mat_sol <- solve(mat_coef, mat_rhs)
+# partition the solution
+vec_sol_fix <- mat_sol[1:2,]
+vec_sol_gbv <- mat_sol[3:nrow(mat_sol),]
+```
+
+The solution for the estimated fixed effects are 
+
+```{r}
+vec_sol_fix
+```
+
+The predicted genomic breeding values are
+
+```{r}
+vec_sol_gbv
+```
+
+Comparing order of animals according to predicted genomic breeding values from Problem 1 and Problem 2:
+
+* marker effect model
+
+```{r}
+order(mat_mem_gbv[,1], decreasing = TRUE)
+```
+
+* breeding value based model
+
+```{r}
+order(vec_sol_gbv, decreasing = TRUE)
+```
+
+
+
+<!-- master-solution-end -->
+
