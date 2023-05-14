@@ -21,18 +21,21 @@ This page contains a list of exercises.
 ```{r, echo=FALSE, results='asis'}
 s_url_ex <- "https://charlotte-ngs.github.io/asmss2023/ex/"
 s_url_nb <- "https://charlotte-ngs.github.io/asmss2023/nb/"
-tbl_ex <- tibble::tibble(Nr = c(1, 2, 3, 4, 5),
+tbl_ex <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7),
                          Date = c("2023-02-27",
                                   "2023-03-06",
                                   "2023-03-20",
                                   "2023-04-03",
-                                  "2023-04-24"),
+                                  "2023-04-24",
+                                  rep("2023-05-15", 2)),
                          Topic = c(
                            paste0("Linear Regression [pdf](", s_url_ex, "asm_ex01.pdf) | [nb](", s_url_nb, "asm_ex01_nb_src.nb.html)",  collapse = ""),
                            paste0("Linear Regression (Part 2) [pdf](", s_url_ex, "asm_ex02.pdf) | [nb](", s_url_nb, "asm_ex02_nb_src.nb.html)",  collapse = ""),
                            paste0("Fixed Linear Effects Models [pdf](", s_url_ex, "asm_ex03.pdf) | [nb](", s_url_nb, "asm_ex03_nb_src.nb.html)", collapse = ""),
                            paste0("Contrasts [pdf](", s_url_ex, "asm_ex04.pdf) | [nb](", s_url_nb, "asm_ex04_nb_src.nb.html)", collapse = ""),
-                           paste0("Interactions [pdf](", s_url_ex, "asm_ex05.pdf) | [nb](", s_url_nb, "asm_ex05_nb_src.nb.html)", collapse = "")
+                           paste0("Interactions [pdf](", s_url_ex, "asm_ex05.pdf) | [nb](", s_url_nb, "asm_ex05_nb_src.nb.html)", collapse = ""),
+                           paste0("Pedigree BLUP [pdf](", s_url_ex, "asm_ex06.pdf) | [nb](", s_url_nb, "asm_ex06_nb_src.nb.html)", collapse = ""),
+                           paste0("Genomic BLUP [pdf](", s_url_ex, "asm_ex07.pdf) | [nb](", s_url_nb, "asm_ex07_nb_src.nb.html)", collapse = "")
                          ))
 knitr::kable(tbl_ex)
 ```
