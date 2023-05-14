@@ -1,3 +1,7 @@
+# asmss2023 0.11.2
+
+* Uploaded tasks and solutions for test exam
+
 # asmss2023 0.11.1
 
 * Released exercises asm_ex06 and asm_ex07
