@@ -1,3 +1,7 @@
+# asmss2023 0.11.0
+
+* Added section on GBLUP
+
 # asmss2023 0.10.5
 
 * Links to video and slides with notes
