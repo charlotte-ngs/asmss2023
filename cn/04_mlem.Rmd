@@ -370,7 +370,7 @@ E(\mathbf{u}) &= \mathbf{0} \\
 var(\mathbf{u}) &= \mathbf{D} = \mathbf{A} \sigma_u^2
 \end{align}
 
-where the matrix $\mathbf{A}$ corresponds to the numerator relationship matrix. This matrix contains the probabilities of two animals sharing alleles identical by descent on the offdiagonal elements. The diagonal elements of $\mathbf{A}$ are computed as one plus the inbreeding coefficient of an animal. The inbreeding coefficient of an animal is given by half of the relationship coefficient of the parents. 
+where the matrix $\mathbf{A}$ corresponds to the numerator relationship matrix. This matrix contains the probabilities of two animals sharing alleles identical by descent on the off-diagonal elements. The diagonal elements of $\mathbf{A}$ are computed as one plus the inbreeding coefficient of an animal. The inbreeding coefficient of an animal is given by half of the relationship coefficient of the parents. 
 
 
 \clearpage
@@ -378,8 +378,325 @@ where the matrix $\mathbf{A}$ corresponds to the numerator relationship matrix. 
 
 
 ## Genomic BLUP
+The term __genomic BLUP__ is used for the use of genomic information together with pedigree data and phenotypic observations to predict breeding values. Hence the goal is the same as with the pedigree-based BLUP animal model. The main difference is just in the information that goes into the model. But otherwise, the internal modelling mechanisms are the same as before.
+
+The prediction of genomic breeding values which consists of objective of genomic BLUP can be done in two ways. The two ways are
+
+1. marker effect model
+2. breeding value based model
 
 
+### Marker Effect Model
+When using marker effect models to predict genomic breeding values, this is done in two steps. In a first step marker effects are estimated from a reference population. In that reference population all animals have a complete set of marker genotypes as well as phenotypic observations of the trait of intertest.  In a second step the estimated marker effects ($\hat{\mathbf{q}}^T = \left[\begin{array}{cccc} \hat{q}_1 & \hat{q}_2 & \ldots & \hat{q}_k \end{array}\right]$) are used to predict genomic breeding values for any animal that has genomic information in the form of marker genotypes available. 
+
+```{r marker-effect-model, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%", fig.cap="Principle of Two-Step Genomic Prediction of Breeding Values"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/marker-effect-model.odg")
+knitr::include_graphics(path = "odg/marker-effect-model.png")
+```
+
+In Figure \@ref(fig:marker-effect-model) the principle of the two step procedure to predict genomic breeding values is shown. A possible linear model to estimate SNP-marker-effects based on the data from the reference population can be defined as follows
+
+\begin{equation}
+y = Xb +  Mq + e
+(\#eq:linearmodelgpbv)
+\end{equation}
+
+\begin{tabular}{lll}
+where  &  $m$  &  number of SNP markers \\
+       &  $y$  &  vector of observations \\
+       &  $b$  &  vector of fixed effects \\
+       &  $X$  &  design matrix linking fixed effects to observations \\
+       &  $q$  &  random genetic effect of SNP-marker-genotypes \\
+       &  $M$  &  design matrix linking SNP-genotype effects to observations \\
+       &  $e$  &  vector of random residuals
+\end{tabular}       
+
+The mixed-model equations resulting from models given in \@ref(eq:linearmodelgpbv) have the following structure
+
+\begin{equation}
+\left[
+  \begin{array}{lr}
+  X^TR^{-1}X  &  X^TR^{-1}M  \\
+  M^TR^{-1}X  &  M^TR^{-1}M + I * \lambda
+  \end{array}
+\right]
+\left[
+  \begin{array}{c}
+  \hat{b}\\
+  \hat{q}
+  \end{array}
+\right]
+=
+\left[
+  \begin{array}{c}
+  X^TR^{-1}y \\
+  M^TR^{-1}y
+  \end{array}
+\right]
+(\#eq:mmegpbv)
+\end{equation}
+
+where 
+
+\begin{equation}
+\lambda = \frac{\sigma_e^2}{\sigma_q^2}
+(\#eq:lambdammegpbv)
+\end{equation}
+
+In \@ref(eq:lambdammegpbv) $\sigma_q^2$ is the total genetic variance explained by the given markers in the dataset
+
+The solutions for $\hat{q}$ from \@ref(eq:mmegpbv) correspond to the SNP-genotype effects. The predicted breeding value $\hat{u}$ for any selection candidate $i$ with genomic information is then computed as
+
+\begin{equation}
+\hat{u}_i =  M_i \cdot \hat{q}
+(\#eq:genomicpbv)
+\end{equation}
+
+where $M_i$ corresponds to the vector of SNP-genotypes of selection candidate $i$.
+
+
+### Breeding Value Based Model
+The use of breeding value based models to predict genomic breeding values is also known as __single-step__ prediction of genomic breeding values. As the term single-step already alludes to, with this method genomic breeding values are predicted directly from the data. This is done by directly integrating genomic breeding values into the mixed linear effects model where the random effects in the model are the genomic breeding values.
+
+When only looking at the model for predicting genomic breeding values, it looks similar to the pedigree-based animal model as shown below. 
+
+\begin{equation}
+y = Xb + Zu + e
+  (\#eq:asmgblupbvm)
+\end{equation}
+
+The mixed model equations to get solutions used for estimates of fixed effects and predicted genomic breeding values can be written as
+
+\begin{equation}
+\left[
+\begin{array}{cc}
+X^TR^{-1}X & X^TR^{-1}Z \\
+Z^TR^{-1}X & Z^TR^{-1}Z + D^{-1}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+X^TR^{-1}y \\
+Z^TR^{-1}y
+\end{array}
+\right]
+\end{equation}
+
+The difference to the pedigree-based animal model is the matrix $D$ which depended on the numerator realtionship matrix $A$ for the animal model. In single-step genomic BlUP, the matrix $D$ corresponds to 
+
+$$D = G * \sigma_u^2$$
+
+where $G$ corresponds to the genomic relationship matrix and $\sigma_u^2$ is taken to be the genetic-additive variance. How the matrix $G$ is constructed is shown in the next section.
+
+
+## Genomic Relationship Matrix {#asm-gblup-grm}
+The variance-covariance matrix between the genetic effects $u$ in model \@ref(eq:asmgblupbvm) is proportional to the genomic relationship matrix $G$. Analogously to the traditional BLUP animal model where the variance-covariance matrix of the random breeding values is proportional to the numerator relationship matrix $A$. 
+
+
+### Derivation of $G$ {#asm-gblup-deriv-grm}
+Because the traditional pedigree-based BLUP animal model is very well respected in animal breeding and the defined model \@ref(eq:asmgblupbvm) produces an analogy of the genomic evaluation model to the already known animal model the following properties of $u$ and the genomic relationship matrix $G$ are essential.
+
+1. The genomic breeding values $u$ should correspond to a linear combination of the single SNP-effects $q$
+2. The genomic breeding values $u$ should be defined as deviations from a common mean, leading to the expected value $E\left[u \right] = 0$.
+3. The variance-covariance matrix of the vector $u$ corresponds to the product of $G$ times a common variance component $\sigma_u^2$.
+4. The genomic relationship matrix $G$ should be similar to the numerator relationship matrix $A$. The diagonal elements should be close to $1$ and off-diagonal elements of animals that are related should have higher values than elements between unrelated animals.
+
+The matrix $G$ can be computed based on SNP genotypes. In what follows the material of `r met$add("VanRaden2008")` and `r met$add("Gianola2009")` is used to derive the genomic relationship matrix.
+
+
+### Linear Combination of SNP Effects {#asm-gblup-lincombsnpeffects}
+Based on the SNP marker information the marker effects in the vector $q$ can be estimated. Hence, we assume that the vector $q$ is known. The property that $u$ should be a linear combination of the effects in $q$ means that there exists a matrix $U$ for which we can write
+
+\begin{equation}
+  u = U \cdot q
+  (\#eq:asm-gblup-gfromq)
+\end{equation}
+
+The matrix $U$ is determined based on the desired properties described above.
+
+
+### Deviation {#asm-gblup-deviation}
+The genomic breeding values $u$ should be defined as deviation from a common basis. Due to this definition the expected value of the genetic effect is determined by $E\left[u \right] = 0$. This requirement has the following consequences for the matrix $U$.
+
+Let us have a look at the random variable $w$ which takes the SNP-genotype codes in the matrix $M$ in the marker effect model. Let us further assume that the SNP loci are in Hardy-Weinberg equilibrium. Then $w$ can take the following values
+
+\begin{equation}
+w = \left\{ \begin{array}{lll}
+-1  &  \text{with probability} & (1-p)^2\\
+0  &  \text{with probability} & 2p(1-p) \\
+1  &  \text{with probability} & p^2
+\end{array}
+\right.
+(\#eq:asm-gblup-RandVarGenotypesW)
+\end{equation}
+
+The expected value of $w$ corresponds to
+
+\begin{equation}
+E\left[w \right] = (-1) * (1-p)^2 + 0 * 2p(1-p) + 1 * p^2 = -1 + 2p - p^2 + p^2 = 2p - 1
+(\#eq:asm-gblup-exptectedw)
+\end{equation}
+
+The matrix $U$ is computed as the difference between the matrix $M$ and the matrix $P$ where the matrix $P$ corresponds to column vectors which have elements corresponding to $2p_j-1$ where $p_j$ corresponds to the allele frequency of the positive allele at SNP locus $j$. The following table gives an overview of the elements of matrix $U$ for the different genotypes at SNP locus $j$. 
+
+
+\vspace{2ex}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Genotype      &  Genotypic Value            &  Coding in Matrix $U$\\
+\hline
+$(G_2G_2)_j$  &  $-2p_jq_j$      &  $-1-2(p_j-0.5) = -2p_j$\\
+$(G_1G_2)_j$  &  $(1-2p_j)q_j$   &  $-2(p_j-0.5) = 1-2p_j$\\
+$(G_1G_1)_j$  &  $(2-2p_j)q_j$   &  $1-2(p_j-0.5) = 2 - 2p_j$\\
+\hline
+\end{tabular}
+\end{center}
+
+Here we assume that for a locus $G_j$, the allele $(G_1)_j$ has a positive effect and occurs with frequency $p_j$. We can now verify that with this definition of $U$, the expected value for a genetic effect determined by the locus $j$ corresponds to
+
+\begin{align}
+  E\left[u \right]_j &= \left[(1-p_j)^2 * (-2p_j) + 2p_j(1-p_j)(1-2p_j) + p_j^2(2 - 2p_j) \right]q_j \notag \\
+                     &= 0
+\end{align}
+
+
+### Variance of Genomic Breeding Values {#asm-gblup-vargeneffect}
+As already postulated the variance-covariance matrix of the genomic breeding values should be proportional to the genomic relationship matrix $G$. 
+
+\begin{equation}
+var(u) = G * \sigma_u^2
+(\#eq:asm-gblup-varcovargeneffect)
+\end{equation}
+
+Computing the same variance-covariance matrix based on equation \@ref(eq:asm-gblup-gfromq)
+
+\begin{equation}
+var(u) = U \cdot var(q) \cdot U^T
+(\#eq:asm-gblup-uvarqut)
+\end{equation}
+
+The variance-covariance matrix of the SNP effects is $var(q) = I * \sigma_q^2$. Inserting this into \@ref(eq:asm-gblup-uvarqut) we get $var(u) = UU^T \sigma_q^2$. 
+
+In [@Gianola2009] the variance component $\sigma_u^2$ was derived from $\sigma_q^2$ leading to 
+
+\begin{equation}
+\sigma_u^2 = 2 \sum_{j=1}^m p_j(1-p_j)\sigma_q^2
+(\#eq:asm-gblup-defsigmag2)
+\end{equation}
+
+Now we combine all relationships for $var(u)$ leading to
+
+\begin{equation}
+var(u) = G * \sigma_u^2 = UU^T\sigma_q^2
+(\#eq:asm-gblup-derivegstep1)
+\end{equation}
+
+In \@ref(eq:asm-gblup-derivegstep1), $\sigma_u^2$ is replaced by the result of \@ref(eq:asm-gblup-defsigmag2).
+
+\begin{equation}
+G * 2 \sum_{j=1}^m p_j(1-p_j)\sigma_q^2 = UU^T\sigma_q^2
+(\#eq:asm-gblup-derivegstep2)
+\end{equation}
+
+Dividing both sides of \@ref(eq:asm-gblup-derivegstep2) by $\sigma_q^2$ and solving for $G$ gives us a formula for the genomic relationship matrix $G$
+
+\begin{equation}
+G = \frac{UU^T}{2 \sum_{j=1}^m p_j(1-p_j)}
+(\#eq:asm-gblup-derivegresult)
+\end{equation}
+
+
+## How Does GBLUP Work {#asm-gblup-howdoesgblupwork}
+The genomic relationship matrix $G$ allows to predict genomic breeding values for animals with SNP-Genotypes without any observation in the dataset. This fact is the basis of the large benefit of genomic selection. As soon as a young animal is born, its SNP genotypes can be determined and a genomic breeding value can be predicted. This genomic breeding value is much more accurate then the traditional breeding value based only on ancestral information. 
+
+The BVM model given in \@ref(eq:asmgblupbvm) is a mixed linear effects model. The solution for the unknown parameters can be obtained by solving the mixed model equations shown in \@ref(eq:asm-gblup-gblupmme). In this form the Inverse $G^{-1}$ of $G$ and the vector $\hat{u}$ of predicted genotypic breeding values are split into one part corresponding to the animals with observations and a second part for the animals without phenotypic information.
+
+```{r GblupMme, echo=FALSE, results='asis'}
+matCoeff <- matrix(c("X^TX","X^TZ","0",
+                     "Z^TX","Z^TZ + G^{(11)}","G^{(12)}",
+                     "0","G^{(21)}","G^{(22)}"), ncol = 3, byrow = TRUE)
+vecSol <- c("\\hat{b}","\\hat{u}_1","\\hat{u}_2")
+vecRhs <- c("X^Ty","Z^Ty","0")
+### # show mme
+cat("\\begin{equation}\n")
+cat(paste0(rmdhelp::bmatrix(pmat = matCoeff), collapse = '\n'), '\n')
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vecSol), collapse = '\n'), '\n')
+cat(" = \n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vecRhs), collapse = '\n'), '\n')
+cat("(\\#eq:asm-gblup-gblupmme)")
+cat("\\end{equation}\n")
+```
+
+The matrix $G^{(11)}$ denotes the part of $G^{-1}$ corresponding to the animals with phenotypic observations. Similarly, $G^{(22)}$ stands for the part of the animals without genotypic observations. The matrices $G^{(12)}$ and $G^{(21)}$ are the parts of $G^{-1}$ which link the two groups of animals. The same partitioning holds for the vector of predicted breeding values. The vector $\hat{u}_1$ contains the predicted breeding values for the animals with observations and the vector $\hat{u}_2$ contains the predicted breeding values of all animals without phenotypic observations. 
+
+Based on the last line of \@ref(eq:asm-gblup-gblupmme) the predicted breeding values $\hat{u}_2$ of all animals without phenotypic observations can be computed from the predicted breeding values $\hat{u}_1$ from the animals with observations.
+
+\begin{equation}
+\hat{u}_2 = -\left( G^{22}\right)^{-1}G^{21}\hat{u}_1
+(\#eq:GenomicBvAnimalNoPhen)
+\end{equation}
+
+Equation \@ref(eq:GenomicBvAnimalNoPhen) is referred to as genomic regression of predicted breeding values of animals without observation on the predicted genomic breeding values of animals with observations.
+
+
+## Single Step Genomic BLUP With Real-World Datasets
+In real-world livestock breeding datasets not all animals are genotyped. But we want to have predicted breeding values for all animals in a population. Futhermore, the genomic information of the genotyped animals should also give more accurate predicted breeding values for related animals without genomic information.
+
+The single step genomic BLUP model can be specified as 
+
+\begin{equation}
+y = Xb + Zu + e
+(\#eq:singlestepgblupbvm)
+\end{equation}
+
+with $var(u) = H * \sigma_u^2$ and $var(e) = I * \sigma_e^2$. At this point it is important to note that the vector $u$ of genomic breeding values can be split into two parts
+
+$$u = \left[\begin{array}{c} u_1 \\ u_2 \end{array} \right]$$
+
+where $u_1$ is the vector of breeding values for non-genotyped animals and $u_2$ is the vector of genotyped animals.
+
+\begin{equation}
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda * H^{-1}
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+(\#eq:singlestepmmemlem)
+\end{equation}
+
+where here $\lambda = \sigma_e^2 / \sigma_u^2$. 
+
+The above required inverse matrix $H^{-1}$ can be shown (e.g. in `r met$add("Legarra2014")`) to correspond to 
+
+$$H^{-1} = A^{-1} + \left(\begin{array}{cc} 0  &  0  \\  0  &  G^{-1} - A_{22}^{-1} \end{array} \right) $$
+
+where $A^{-1}$ is the inverse numerator relationship matrix and $A_22$ corresponds to the part of the numerator relationship matrix containing all genotyped animals.
+
+
+
+<!--
 ## Other Resources
 The following resources were used for this chapter:
 
@@ -393,3 +710,4 @@ The following resources were used for this chapter:
     + https://conjugateprior.org/2013/01/formulae-in-r-anova/
     + https://s3-eu-west-1.amazonaws.com/s3-euw1-ap-pe-ws4-cws-documents.ri-prod/9781138024571/chapters/ch11/1_Least-Square_RM_ANOVA_in_R_Using_aov().JLH.pdf
 * Data Anaylsis in R: https://bookdown.org/steve_midway/DAR/
+--> 

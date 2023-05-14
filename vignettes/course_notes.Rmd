@@ -18,13 +18,14 @@ This page contains the list of links pointing to the different chapters in the c
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 s_cn_url <- "https://charlotte-ngs.github.io/asmss2023/cn/"
-tbl_chpt <- tibble::tibble(Nr      = c(1, 2, 3, 4, 5, 6, 7),
+tbl_chpt <- tibble::tibble(Nr      = c(1, 2, 3, 4, 5, 6, 7, 8),
                            Date    = c(rep("2023-02-20",2),
                                        "2023-03-06",
                                        "2023-03-20",
                                        "2023-04-03",
                                        "2023-04-24",
-                                       "2023-05-08"),
+                                       "2023-05-08",
+                                       "2023-05-15"),
                            Topic   = c(
                              paste0("[Introducion](", s_cn_url, "01_intro.pdf)", collapse = ""),
                              paste0("[Linear Regression](", s_cn_url, "02_regr.pdf)", collapse = ""),
@@ -32,7 +33,8 @@ tbl_chpt <- tibble::tibble(Nr      = c(1, 2, 3, 4, 5, 6, 7),
                              paste0("[Contrasts](", s_cn_url, "035_contrasts.pdf)", collapse = ""),
                              paste0("[Interactions](", s_cn_url, "036_interactions.pdf)", collapse = ""),
                              paste0("[Mixed Linear Effects Models](", s_cn_url, "04_mlem.pdf)", collapse = ""),
-                             paste0("[Pedigree BLUP](", s_cn_url, "042_pblup.pdf)")
+                             paste0("[Pedigree BLUP](", s_cn_url, "042_pblup.pdf)", collapse = ""),
+                             paste0("[Genomic BLUP](", s_cn_url, "043_gblup.pdf)", collapse = "")
                              ))
 knitr::kable(tbl_chpt)
 ```
