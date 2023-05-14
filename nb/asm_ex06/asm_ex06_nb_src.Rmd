@@ -1,0 +1,119 @@
+---
+title: Applied Statistical Methods - Notebook 6
+author: Peter von Rohr
+date: '2023-05-14'
+output: html_notebook
+params:
+  doctype:
+    label: Document Type
+    value: solution
+    choices:
+    - exercise
+    - solution
+    - notebook
+  isonline:
+    label: Online (y/n)
+    value: true
+    choices:
+    - true
+    - false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Problem 1: Sire Model
+```{r ex10p01-setup, echo=FALSE}
+s_ex10_p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+
+sigma_u2 <- 9
+sigma_s2 <- sigma_u2 / 4
+sigma_e2 <- 36
+```
+
+Use the following dataset to predict breeding values using a sire model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex10_p01_data_path, "\n")
+```
+
+## Hints
+
+* The variance component $\sigma_s^2$ of the sire effect can be assumed to be  $`r sigma_s2`$.
+* The variance component $\sigma_e^2$ of the random resiudals is $`r sigma_e2`$.
+* Sex is modelled as a fixed effect.
+* The sire pedigree relationship can be computed using the `pedigreemm` package.
+
+
+
+### Your Solution
+
+* Read the data
+
+* Compute the inverse sire relationship matrix
+
+* Setup the mixed model equations
+
+* Solve mixed model equations
+
+
+
+
+
+## Problem 2: Animal Model
+```{r ex10p02-setup, echo=FALSE}
+s_ex10_p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+
+sigma_u2 <- 9
+sigma_s2 <- sigma_u2 / 4
+sigma_e2 <- 36
+```
+
+Use the same dataset as in Problem 1 to predict breeding values, but use an animal model instead of a sire model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex10_p02_data_path, "\n")
+```
+
+## Hints
+
+* The variance component $\sigma_u^2$ of the breeding value can be assumed to be  $`r sigma_u2`$.
+* The variance component $\sigma_e^2$ of the random resiudals is $`r sigma_e2`$.
+* Sex is modelled as a fixed effect.
+* The numerator relationship matrix can be computed using the `pedigreemm` package.
+
+
+### Your Solution
+
+* Read the data
+
+* Compute the inverse sire relationship matrix
+
+* Setup the mixed model equations
+
+* Solve mixed model equations
+
+
+
+
+
+## Problem 3: Model Comparison
+Compare the order of the predicted breeding values for the sires from the sire model and from the animal model. 
+
+### Your Solution
+
+* Compare both ordered vectors of predicted breeding values
+
+
+
+ 
+
+
+```{r, echo=FALSE, results='asis'}
+cat('\n---\n\n _Latest Changes: ', format(Sys.time(), '%Y-%m-%d %H:%M:%S'), ' (', Sys.info()['user'], ')_\n', sep = '')
+```
+ 

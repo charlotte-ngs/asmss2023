@@ -1,0 +1,399 @@
+---
+title: Applied Statistical Methods - `r tools::toTitleCase(params$doctype)` 6
+author: Peter von Rohr
+date: 2023-05-14
+output:
+  bookdown::pdf_document2:
+    toc: false
+    number_sections: false
+    keep_md: false
+    keep_tex: false
+header-includes:
+ \usepackage{longtable}
+ \usepackage{float}
+params:
+  doctype:
+    label: 'Document Type'
+    value: 'solution'
+    choices: ['exercise', 'solution', 'notebook']
+  isonline:
+    label: 'Online (y/n)'
+    value: TRUE
+    choices: [TRUE, FALSE]
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Problem 1: Sire Model
+```{r ex10p01-setup, echo=FALSE}
+s_ex10_p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+
+sigma_u2 <- 9
+sigma_s2 <- sigma_u2 / 4
+sigma_e2 <- 36
+```
+
+Use the following dataset to predict breeding values using a sire model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex10_p01_data_path, "\n")
+```
+
+## Hints
+
+* The variance component $\sigma_s^2$ of the sire effect can be assumed to be  $`r sigma_s2`$.
+* The variance component $\sigma_e^2$ of the random resiudals is $`r sigma_e2`$.
+* Sex is modelled as a fixed effect.
+* The sire pedigree relationship can be computed using the `pedigreemm` package.
+
+
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data
+
+* Compute the inverse sire relationship matrix
+
+* Setup the mixed model equations
+
+* Solve mixed model equations
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data
+
+```{r, message=FALSE, warning=FALSE}
+s_ex10_p01_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+tbl_ex10_p01 <- readr::read_csv(s_ex10_p01_data_path)
+```
+
+
+* Compute the inverse sire relationship matrix
+
+```{r}
+vec_sire <- unique(tbl_ex10_p01$SIRE)
+vec_sire <- vec_sire[!is.na(vec_sire)]
+n_nr_sire <- length(vec_sire)
+ped_sire <- pedigreemm::pedigree(sire = c(NA, NA, 2),
+                                 dam = rep(NA, n_nr_sire),
+                                 label = as.character(vec_sire))
+mat_A_inv_sire <- as.matrix(pedigreemm::getAInv(ped = ped_sire))
+mat_A_inv_sire
+```
+
+
+* Setup the mixed model equations. The mixed model equations are 
+
+$$
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda_s * A_s^{-1}
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{s}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+$$
+
+where $\lambda_s = \sigma_e^2 / \sigma_s^2$. 
+
+The components of the mixed model equations are shown in the following table
+
+```{r, echo=FALSE}
+tbl_mme <- tibble::tibble(Component = c("$X$", "$Z$", "$y$", "$\\lambda_s$", "$A_s^{-1}$"),
+                          Description = c("Given in the data",
+                                          "Given in the data",
+                                          "Given in the data",
+                                          "Given by variance components",
+                                          "Computed above"))
+knitr::kable(tbl_mme,
+             booktabs = TRUE,
+             longtable = TRUE,
+             escape = FALSE)
+```
+
+The matrix $X$
+
+```{r}
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_ex10_p01))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+mat_X
+```
+
+The matrix $Z$
+
+```{r}
+mat_Z <- model.matrix(lm(P ~ 0 + as.factor(SIRE), data = tbl_ex10_p01))
+attr(mat_Z, "assign") <- NULL
+attr(mat_Z, "contrasts") <- NULL
+colnames(mat_Z) <- NULL
+mat_Z
+```
+
+The vector $y$
+
+```{r}
+vec_y <- tbl_ex10_p01$P
+vec_y
+```
+
+The mixed model equations are
+
+```{r}
+mat_xtx <- crossprod(mat_X)
+mat_xtz <- crossprod(mat_X, mat_Z)
+mat_ztx <- t(mat_xtz)
+lambda_s <- sigma_e2 / sigma_s2
+mat_ztz_a_inv_lambda <- crossprod(mat_Z) + lambda_s * mat_A_inv_sire
+mat_coef <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_a_inv_lambda))
+mat_xty <- crossprod(mat_X, vec_y)
+mat_zty <- crossprod(mat_Z, vec_y)
+mat_rhs <- rbind(mat_xty, mat_zty)
+```
+
+
+* Solve mixed model equations. The solution is obtained by
+
+```{r}
+mat_sol_sire <- solve(mat_coef, mat_rhs)
+mat_sol_sire
+```
+
+The solution for the fixed effects are 
+
+```{r}
+mat_sol_sire[1:2,]
+```
+
+The predicted breeding values are
+
+```{r}
+mat_sol_sire[3:nrow(mat_sol_sire),]
+```
+
+
+<!-- master-solution-end -->
+
+
+## Problem 2: Animal Model
+```{r ex10p02-setup, echo=FALSE}
+s_ex10_p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+
+sigma_u2 <- 9
+sigma_s2 <- sigma_u2 / 4
+sigma_e2 <- 36
+```
+
+Use the same dataset as in Problem 1 to predict breeding values, but use an animal model instead of a sire model. The dataset is available from
+
+```{r, echo=FALSE}
+cat(s_ex10_p02_data_path, "\n")
+```
+
+## Hints
+
+* The variance component $\sigma_u^2$ of the breeding value can be assumed to be  $`r sigma_u2`$.
+* The variance component $\sigma_e^2$ of the random resiudals is $`r sigma_e2`$.
+* Sex is modelled as a fixed effect.
+* The numerator relationship matrix can be computed using the `pedigreemm` package.
+
+
+<!-- your-solution-start
+### Your Solution
+
+* Read the data
+
+* Compute the inverse sire relationship matrix
+
+* Setup the mixed model equations
+
+* Solve mixed model equations
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Read the data
+
+```{r, message=FALSE, warning=FALSE}
+s_ex10_p02_data_path <- "https://charlotte-ngs.github.io/asmss2023/data/asm_ped_sim_data.csv"
+tbl_ex10_p02 <- readr::read_csv(s_ex10_p02_data_path)
+```
+
+
+* Compute the inverse sire relationship matrix
+
+```{r}
+ped <- pedigreemm::pedigree(sire = c(rep(NA, 4), tbl_ex10_p02$SIRE),
+                                 dam  = c(rep(NA, 4), tbl_ex10_p02$DAM),
+                                 label = as.character(c(1:4, tbl_ex10_p02$ID)))
+mat_A_inv <- as.matrix(pedigreemm::getAInv(ped = ped))
+mat_A_inv
+```
+
+
+* Setup the mixed model equations. The mixed model equations are 
+
+$$
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda * A^{-1}
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+$$
+
+where $\lambda = \sigma_e^2 / \sigma_u^2$. 
+
+The components of the mixed model equations are shown in the following table
+
+```{r, echo=FALSE}
+tbl_mme <- tibble::tibble(Component = c("$X$", "$Z$", "$y$", "$\\lambda$", "$A^{-1}$"),
+                          Description = c("Given in the data",
+                                          "Given in the data",
+                                          "Given in the data",
+                                          "Given by variance components",
+                                          "Computed above"))
+knitr::kable(tbl_mme,
+             booktabs = TRUE,
+             longtable = TRUE,
+             escape = FALSE)
+```
+
+The matrix $X$
+
+```{r}
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_ex10_p02))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+mat_X
+```
+
+The matrix $Z$
+
+```{r}
+# model matrix from data
+mat_Z <- model.matrix(lm(P ~ 0 + as.factor(ID), data = tbl_ex10_p02))
+attr(mat_Z, "assign") <- NULL
+attr(mat_Z, "contrasts") <- NULL
+colnames(mat_Z) <- NULL
+# add founders
+mat_Z <- cbind(matrix(0, nrow = nrow(mat_Z), ncol = 4), mat_Z)
+mat_Z
+```
+
+The vector $y$
+
+```{r}
+vec_y <- tbl_ex10_p02$P
+vec_y
+```
+
+The mixed model equations are
+
+```{r}
+mat_xtx <- crossprod(mat_X)
+mat_xtz <- crossprod(mat_X, mat_Z)
+mat_ztx <- t(mat_xtz)
+lambda <- sigma_e2 / sigma_u2
+mat_ztz_a_inv_lambda <- crossprod(mat_Z) + lambda * mat_A_inv
+mat_coef <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_a_inv_lambda))
+mat_xty <- crossprod(mat_X, vec_y)
+mat_zty <- crossprod(mat_Z, vec_y)
+mat_rhs <- rbind(mat_xty, mat_zty)
+```
+
+
+* Solve mixed model equations. The solution is obtained by
+
+```{r}
+mat_sol <- solve(mat_coef, mat_rhs)
+mat_sol
+```
+
+The solution for the fixed effects are 
+
+```{r}
+mat_sol[1:2,]
+```
+
+The predicted breeding values are
+
+```{r}
+mat_sol[3:nrow(mat_sol),]
+```
+
+<!-- master-solution-end -->
+
+
+## Problem 3: Model Comparison
+Compare the order of the predicted breeding values for the sires from the sire model and from the animal model. 
+
+<!-- your-solution-start
+### Your Solution
+
+* Compare both ordered vectors of predicted breeding values
+
+---  your-solution-end -->
+
+
+<!-- master-solution-start -->
+
+### Solution
+
+* Sire model
+
+```{r}
+order(mat_sol_sire[3:nrow(mat_sol_sire)], decreasing = TRUE)
+```
+
+* Animal model
+
+```{r}
+order(mat_sol[3:nrow(mat_sol)], decreasing = TRUE)
+```
+
+The order of the sires is the same under both models
+
+<!-- master-solution-end -->
+ 
