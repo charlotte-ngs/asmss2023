@@ -75,20 +75,22 @@ knitr::kable(tbl_sl_notes)
 
 ```{r tbl-ohp, echo=FALSE, message=FALSE, warning=FALSE}
 s_ohp_url <- "https://charlotte-ngs.github.io/asmss2023/ohp/"
-tbl_ohp <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6),
+tbl_ohp <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7),
                           Date = c("2023-02-20",
                                    "2023-02-27",
                                    "2023-03-06",
                                    "2023-03-13",
                                    "2023-03-20",
-                                   "2023-03-27"),
+                                   "2023-03-27",
+                                   "202305-15"),
                           Topic = c(
                             paste0("[Introduction](", s_ohp_url, "20230220_ohp_l01.pdf)", collapse = ""),
                             paste0("[Linear Regression](", s_ohp_url, "20230227_ohp_l02.pdf)", collapse = ""),
                             paste0("[Fixed Linear Effects Model](", s_ohp_url, "20230306_ohp_l03.pdf)", collapse = ""),
                             paste0("[Regression on Dummy Variables](", s_ohp_url, "20230313_ohp_l04.pdf)", collapse = ""),
                             paste0("[Estimable Functions](", s_ohp_url, "20230320_ohp_l05.pdf)", collapse = ""),
-                            paste0("[Contrasts](", s_ohp_url, "20230327_ohp_l06.pdf)", collapse = "")
+                            paste0("[Contrasts](", s_ohp_url, "20230327_ohp_l06.pdf)", collapse = ""),
+                            paste0("[Pedigree-Blup and Genomic BLUP](", s_ohp_url, "20230515_ohp_l11.pdf)", collapse = "")
                             ))
 knitr::kable(tbl_ohp)
 ```
@@ -97,7 +99,7 @@ knitr::kable(tbl_ohp)
 ## Video
 
 ```{r tbl-video, echo=FALSE, message=FALSE, warning=FALSE}
-tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
                             Date = c("2023-02-20",
                                      "2023-02-27",
                                      "2023-03-06",
@@ -107,7 +109,8 @@ tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
                                      "2023-04-03",
                                      "2023-04-17",
                                      "2023-04-24",
-                                     "2023-05-08"),
+                                     "2023-05-08",
+                                     "2023-05-15"),
                             Topic = c("[Introduction](https://youtu.be/_1NiimKYyNQ)",
                                       "[Linear Regression](https://youtu.be/fnEsBNTM0Mk)",
                                       "[Multiple Linear Regression](https://youtu.be/A8n8o_Clw1s)",
@@ -117,7 +120,8 @@ tbl_video <- tibble::tibble(Nr = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
                                       "[Contrasts II](https://youtu.be/Iqt3mJ06JNs)",
                                       "[Interactions and Simulation](https://youtu.be/7J69ZZhZjXc)",
                                       "[Linear Regression with Repeated Observations](https://youtu.be/4F7UAN7k8JE)",
-                                      "[Linear Mixed Effects Models - Pedigree BLUP](https://youtu.be/JCcawJFAcY0)"
+                                      "[Linear Mixed Effects Models - Pedigree BLUP](https://youtu.be/JCcawJFAcY0)",
+                                      "[Pedigree-BLUP and Genomic BLUP](https://youtu.be/7ZihwdivNy0)"
                                       ))
 knitr::kable(tbl_video)
 ```
