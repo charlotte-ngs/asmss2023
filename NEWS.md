@@ -1,3 +1,7 @@
+# asmss2023 0.11.4
+
+* Added sl_l10_gblup
+
 # asmss2023 0.11.3
 
 * Updated lecture mode
