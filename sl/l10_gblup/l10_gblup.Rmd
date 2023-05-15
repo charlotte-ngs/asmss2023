@@ -1,0 +1,169 @@
+---
+title: Genomic BLUP
+author: Peter von Rohr
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# rmdhelp::show_knit_hook_call()
+knitr::knit_hooks$set(hook_convert_odg = rmdhelp::hook_convert_odg)
+```
+
+## Genomic BlUP
+
+1. Marker effect models (MEM): Linear mixed effects models with marker effects as random effects
+2. Breeding-value based models (BVM): Genomic breeding values as random effects
+
+
+## Marker Effect Models 
+
+```{r mem-diagram, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/mem-diagram.odg",ps_odg_template = "odg_draw_a4_landscape")
+knitr::include_graphics(path = "odg/mem-diagram.png")
+```
+
+
+## Marker Effect Models II
+
+* Model
+\begin{equation}
+  y = 1_n \mu + Mq + e \notag
+\end{equation}
+
+* Solution
+
+\begin{equation}
+\left[ 
+\begin{array}{cc}
+1_n^T1_n  &  1_n^TM \\
+M^T1_n  &  M^TM + \lambda_q * I
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{\mu} \\
+\hat{q}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+1_n^Ty \\
+M^Ty
+\end{array}
+\right] \notag
+\end{equation}
+
+with $\lambda_q = \sigma_e^2 / \sigma_q^2$. 
+
+## Genomic Breeding Values from MEM
+
+For animal $i$ with genotype information stored in row $i$ of Matrix $M$, predicted genomic breeding value $\hat{u}_i$ is
+
+$$\hat{u}_i = M_i \cdot \hat{q}$$
+
+
+
+## Breeding Value Models
+
+```{r bvm-diagram, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/bvm-diagram.odg", ps_odg_template = "odg_draw_a4_landscape")
+knitr::include_graphics(path = "odg/bvm-diagram.png")
+```
+
+
+
+## Breeding Value Models II
+
+* Model
+
+\begin{equation}
+  y = Xb + Zu + e \notag
+\end{equation}
+
+
+* Solution
+
+\begin{equation}
+\left[ 
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda_u * G^{-1}
+\end{array}
+\right]
+\left[ 
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+= 
+\left[ 
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right] \notag
+\end{equation}
+
+with $\lambda_u = \sigma_e^2 / \sigma_u^2$. 
+
+
+## Genomic Relationship Matrix
+
+\begin{equation}
+  u = U \cdot q \notag
+\end{equation}
+
+with $U = M - P$ and $P$ has columns $2p_j-1$ with $p_j$ being the frequency of the positive allele at locus $j$.
+
+\begin{equation}
+var(u) = G * \sigma_u^2 \notag
+\end{equation}
+
+\begin{equation}
+var(u) = UU^T * \sigma_q^2 \notag
+\end{equation}
+
+\begin{equation}
+\sigma_u^2 = 2 \sum_{j=1}^m p_j(1-p_j)\sigma_q^2 \notag
+\end{equation}
+
+
+## Genomic Relationship Matrix II
+
+\begin{equation}
+var(u) = G * \sigma_u^2 = UU^T\sigma_q^2 \notag
+\end{equation}
+
+\begin{equation}
+G = \frac{UU^T}{2 \sum_{j=1}^m p_j(1-p_j)} \notag
+\end{equation}
+
+ 
+## How Does GBLUP Work
+
+How do we get predicted genomic breeding values for young animals
+
+```{r GblupMme, echo=FALSE, results='asis'}
+matCoeff <- matrix(c("X^TX","X^TZ","0",
+                     "Z^TX","Z^TZ + G^{(11)}","G^{(12)}",
+                     "0","G^{(21)}","G^{(22)}"), ncol = 3, byrow = TRUE)
+vecSol <- c("\\hat{b}","\\hat{u}_1","\\hat{u}_2")
+vecRhs <- c("X^Ty","Z^Ty","0")
+### # show mme
+cat("\\begin{equation}\n")
+cat(paste0(rmdhelp::bmatrix(pmat = matCoeff), collapse = '\n'), '\n')
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vecSol), collapse = '\n'), '\n')
+cat(" = \n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vecRhs), collapse = '\n'), '\n')
+cat("\\notag \n")
+cat("\\end{equation}\n")
+```
+
+\begin{equation}
+\hat{u}_2 = -\left( G^{22}\right)^{-1}G^{21}\hat{u}_1 \notag
+\end{equation}
+  
