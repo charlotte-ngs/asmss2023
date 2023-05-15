@@ -87,7 +87,7 @@ Topic[14] <- "Exam"
 Topic[15] <- "Pentcote Monday (Pfingstmontag)"
 # mode of Lecture
 vecLectureMode <- vector(mode = "character", length = nNrSemesterWeeks)
-vecLectureMode <- c(rep("P", 7), " ", rep("Z",2), " ", "Z", rep("",3))
+vecLectureMode <- c(rep("P", 7), " ", rep("Z",2), " ", "Z", "P", rep("",2))
 
 dfCnTable <- tibble::tibble(Week = Week, 
                             Date = Date, 

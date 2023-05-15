@@ -76,7 +76,7 @@ or via e-mail:
 |   10 | 24.04 | Lasso                                                         | Z            |
 |   11 | 01.05 | **Labor Day** (Tag der Arbeit)                                |              |
 |   12 | 08.05 | SVM                                                           | Z            |
-|   13 | 15.05 | Bayesian Approaches in Linear Mixed Effects Models            |              |
+|   13 | 15.05 | Bayesian Approaches in Linear Mixed Effects Models            | P            |
 |   14 | 22.05 | Exam                                                          |              |
 |   15 | 29.05 | Pentcote Monday (Pfingstmontag)                               |              |
 
@@ -91,4 +91,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-05-07 18:41:03 (pvr)*
+*Latest Changes: 2023-05-15 05:10:36 (pvr)*
