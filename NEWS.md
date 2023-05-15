@@ -1,3 +1,7 @@
+# asmss2023 0.11.3
+
+* Updated lecture mode
+
 # asmss2023 0.11.2
 
 * Uploaded tasks and solutions for test exam
