@@ -1,5 +1,18 @@
 
 
+#' Create New Set of Slides
+#'
+#' @param ps_sl_name name of slide source file
+#' @param pb_edit flag whether to open slides file directly
+#' @param pl_data data to replace placeholder
+#'
+#'
+#' @examples
+#' \dontrun{
+#' s_sl_name = "l11_lasso"
+#' l_data = list(title = "LASSO", author = "Peter von Rohr")
+#' create_slides(ps_sl_name = s_sl_name, pl_data = l_data)
+#' }
 create_slides <- function(ps_sl_name, 
                           pb_edit = FALSE, 
                           pl_data = list(title = "Slide Title", author = "Peter von Rohr")){
