@@ -40,6 +40,7 @@ Topics for Master Theses at Qualitas AG together with ETH will follow here ...
 - Written exam
 - Date: 22.05.2023 - 08:15 - 10:00
 - Room: LFW C 11
+- Links to datasets: [here](https://charlotte-ngs.github.io/asmss2023/exam/asm_exam_read_data.html)
 
 
 ## Description

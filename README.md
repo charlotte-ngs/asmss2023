@@ -31,6 +31,8 @@ here …
 - Written exam
 - Date: 22.05.2023 - 08:15 - 10:00
 - Room: LFW C 11
+- Links to datasets:
+  [here](https://charlotte-ngs.github.io/asmss2023/exam/asm_exam_read_data.html)
 
 ## Description
 
@@ -91,4 +93,4 @@ Commons Attribution 4.0 International License</a>.
 
 ------------------------------------------------------------------------
 
-*Latest Changes: 2023-05-15 05:10:36 (pvr)*
+*Latest Changes: 2023-05-21 08:47:54 (pvr)*
