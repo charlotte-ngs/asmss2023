@@ -1,3 +1,7 @@
+# asmss2023 0.12.0
+
+* Added page with link to asm_exam datasets
+
 # asmss2023 0.11.5
 
 * OHP and Link to video
