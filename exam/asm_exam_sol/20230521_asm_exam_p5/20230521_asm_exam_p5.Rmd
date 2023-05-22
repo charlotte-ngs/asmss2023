@@ -1,0 +1,41 @@
+---
+title: "ASM Exam Sol Problem 5: Contrasts"
+output: html_notebook
+---
+
+
+Use the data from problem 2 and take only methane and breed
+
+
+```{r}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p2 <- file.path(s_data_url_root, "asm_exam_p02.csv")
+tbl_p2 <- readr::read_delim(file = s_data_url_p2, delim = ",")
+tbl_p2
+```
+
+Cut the column of acetone
+
+```{r}
+library(dplyr)
+tbl_p5 <- tbl_p2 |>
+  select(-Acetone)
+tbl_p5
+```
+
+Arrange according to breed and re-number
+
+```{r}
+tbl_p5 <- tbl_p5 |>
+  arrange(Breed)
+tbl_p5$Cow <- 1:nrow(tbl_p5)
+tbl_p5
+```
+
+Write the data to a file
+
+```{r}
+s_p05_path <- file.path(here::here(), "docs", "data", "asm_exam_p05.csv")
+readr::write_delim(tbl_p5, file = s_p05_path, delim = ",")
+```
+

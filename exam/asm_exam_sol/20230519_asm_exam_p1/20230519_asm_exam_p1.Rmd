@@ -1,0 +1,117 @@
+---
+title: "ASM Exam Sol Problem 1: Linear Regression"
+output: html_notebook
+---
+
+# Data Simulation
+Descriptive statistics according to 
+
+>"Supplementary Table S2. Summary statistics of milk non-volatile metabolites measured (relative peak area)"
+
+```{r}
+# Acetone 
+n_mean <- 0.035 
+n_sd <- 0.0159 
+n_min <- 0.023 
+n_max <- 0.102
+```
+
+
+
+According to Table 4 of https://doi.org/10.3168/jds.2015-10248, we use the data based on 
+
+> "Linear regression between methane yield (g/kg of DMI) and milk nonvolatile metabolites (relative area)"
+
+We use the metabolite with highest $R^2$ which is Acetone
+
+```{r}
+# Acetone and regression measures
+n_intercept_value <- 25.6
+n_intercept_se <- 0.79
+n_slope_value <- -43.20
+n_slope_se <- 20.664
+n_slope_p <- 0.046
+n_slope_r2 <- 0.135
+```
+
+Characteristics of dataset
+
+```{r}
+n_nr_cow <- 12
+```
+
+The dataset for `r n_nr_cow` cows is given by
+
+```{r}
+# setting the seed by
+#rteachtools::get_seed()
+set.seed(8968)
+tbl_ace_meth <- tibble::tibble(Cow = c(1:n_nr_cow),
+                               Acetone = rnorm(n_nr_cow, mean = n_mean, sd = n_sd))
+
+cat("Min Aceton: ", min(tbl_ace_meth$Acetone), " -- ", n_min, "\n")
+cat("Max Aceton: ", max(tbl_ace_meth$Acetone), " -- ", n_max, "\n")
+
+# adjust sd to fit given min and max. Not done currently , because sd is getting reduced substantially
+b_adjust_sd <- FALSE
+
+# check for minimum and iterate until condition is met
+if (b_adjust_sd){
+  n_max_iter <- 10
+  n_cnt_iter <- 0
+  n_cur_sd <- n_sd
+  while (min(tbl_ace_meth$Acetone) < n_min || 
+         max(tbl_ace_meth$Acetone) > n_max || 
+         n_max_iter > n_cnt_iter){
+    n_cnt_iter <- n_cnt_iter + 1
+    n_cur_sd <- 0.95 * n_cur_sd
+    tbl_ace_meth$Acetone <- rnorm(n_nr_cow, mean = n_mean, sd = n_cur_sd)
+  }
+  cat("Iterations: ", n_cnt_iter, "\n")
+  cat("Min Aceton: ", min(tbl_ace_meth$Acetone), " -- ", n_min, "\n")
+  cat("Max Aceton: ", max(tbl_ace_meth$Acetone), " -- ", n_max, "\n")
+}
+
+```
+
+Generate $CH_4$ data based on given regression
+
+```{r}
+n_methan_sd <- 0.38
+tbl_ace_meth$Methane <- n_intercept_value + n_slope_value * tbl_ace_meth$Acetone + rnorm(n_nr_cow, mean = 0, sd = n_methan_sd)
+tbl_ace_meth_rounded <- tbl_ace_meth
+tbl_ace_meth_rounded$Acetone <- round(tbl_ace_meth$Acetone, digits = 4)
+tbl_ace_meth_rounded$Methane <- round(tbl_ace_meth$Methane, digits = 2)
+tbl_ace_meth_rounded
+```
+
+Write the data
+
+```{r}
+s_ace_meth_path <- file.path(here::here(), "docs", "data", "asm_exam_p01.csv")
+readr::write_delim(tbl_ace_meth_rounded, file = s_ace_meth_path, delim = ",")
+```
+
+Regression
+
+```{r}
+lm_meth_ace <- lm(Methane ~ Acetone, data = tbl_ace_meth_rounded)
+lm_meth_ace
+```
+
+Plots
+
+
+```{r}
+library(ggplot2)
+ggplot(data = tbl_ace_meth_rounded,
+       aes(x = Acetone, y = Methane)) + 
+  geom_point() + 
+  geom_abline(slope = lm_meth_ace$coefficients[["Acetone"]],
+              intercept = lm_meth_ace$coefficients[["(Intercept)"]],
+              color = "red") + 
+  xlim(c(0, 1.1*max(tbl_ace_meth_rounded$Acetone))) + 
+  ylim(c(0.95 * min(tbl_ace_meth_rounded$Methane),  lm_meth_ace$coefficients[["(Intercept)"]]))
+         
+```
+

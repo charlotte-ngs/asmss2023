@@ -1,0 +1,119 @@
+---
+title: "ASM Exam Sol Problem 3: Pedigree BLup"
+output: html_notebook
+---
+
+Get a seed
+
+```{r}
+# n_seed <- rteachtools::get_seed()
+n_seed <- 2162
+cat("Seed: ", n_seed)
+set.seed(n_seed)
+```
+
+
+Use the package `pedSimulate` to generate a pedigree with data
+
+```{r}
+# pedigree parameter
+n_f0_size <- 6L
+n_va0 <- 25
+n_ve0 <- 100
+n_littersize <- 1L
+n_nr_gen <- 3L
+
+# simulated pedigree
+library(pedSimulate)
+ped_p3 <- ped <- simulatePed(
+  F0size = n_f0_size,
+  Va0 = n_va0,
+  Ve = n_ve0,
+  littersize = n_littersize,
+  ngen = n_nr_gen,
+  overlap.s = 1,
+  m.rate = 0.5,
+  seed = n_seed)
+ped_p3
+```
+
+Add sex as fixed effect
+
+```{r}
+vec_sex_effect <- c(13.7, -2.9)
+mat_X_sex <- model.matrix(lm(ped_p3$P ~ 0 + ped_p3$SEX))
+attr(mat_X_sex, "assign") <- NULL
+attr(mat_X_sex, "contrasts") <- NULL
+mat_X_sex
+```
+
+Vector of sex effects
+
+```{r}
+mat_sex_eff <- crossprod(t(mat_X_sex), vec_sex_effect)
+mat_sex_eff
+```
+
+Add sex effect to phenotypes
+
+```{r}
+ped_p3$P <- as.vector(ped_p3$P + mat_sex_eff[,1])
+ped_p3$P <- round(ped_p3$P, digits = 1)
+ped_p3
+```
+
+## Write Data to File
+
+Prepare output
+
+```{r}
+library(dplyr)
+tbl_ped_p3 <- tibble::as_tibble(ped_p3)
+# select relevant columns
+tbl_ped_p3_data_out <- ped_p3 %>%
+  select(ID, SIRE, DAM, SEX, P)
+# set unknown paretns to NA
+tbl_ped_p3_data_out$SIRE[tbl_ped_p3_data_out$SIRE == 0] <- NA
+tbl_ped_p3_data_out$DAM[tbl_ped_p3_data_out$DAM == 0] <- NA
+tbl_ped_p3_data_out <- tbl_ped_p3_data_out %>% filter(ID > 6)
+tbl_ped_p3_data_out
+```
+
+```{r}
+n_repl_id <- 12
+n_new_sire <- 10
+```
+
+Adapt pedigree and replace the sire of animal `r n_repl_id` to be sire number `r n_new_sire`
+
+```{r}
+n_repl_idx <- which(tbl_ped_p3_data_out$ID == n_repl_id)
+n_repl_idx
+```
+
+Replace sire
+
+```{r}
+tbl_ped_p3_data_out$SIRE[n_repl_idx] <- n_new_sire
+tbl_ped_p3_data_out
+```
+
+
+Write data to file
+
+```{r}
+s_data_out_path <- file.path(here::here(), "docs", "data", "asm_exam_p03.csv")
+#if (!file.exists(s_data_out_path))
+readr::write_delim(tbl_ped_p3_data_out, s_data_out_path, delim = ",")
+```
+
+
+Find the levels of fixed effects
+
+```{r}
+vec_levels_fixed_eff <- levels(as.factor(tbl_ped_p3_data_out$SEX))
+paste0("b_", vec_levels_fixed_eff)
+```
+
+
+

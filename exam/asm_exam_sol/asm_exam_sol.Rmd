@@ -1,0 +1,1403 @@
+---
+output:
+  pdf_document:
+    includes:
+      in_header: tex/header.tex
+    fig_caption: no
+    keep_tex: no
+  html_document:
+    df_print: paged
+output_file: asm_exam_sol.pdf
+params:
+  seed: 1846
+  name: "von Rohr"
+  firstname: Peter
+  leginr: "88-918-123"
+  examdate: "2023-05-22"
+  alias: test
+--- 
+<!-- %\usepackage{fancyhdr} -->
+
+\newcommand{\points}[1]
+{\begin{flushright}\textbf{#1}\end{flushright}}
+
+<!-- %\begin{document} -->
+<!-- %\SweaveOpts{concordance=TRUE} -->
+```{r ChunkOptions, echo=FALSE}
+# knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+#knitr::opts_chunk$set(concordance=TRUE)
+knitr::knit_hooks$set(hook_convert_odg = rmdhelp::hook_convert_odg)
+# write the parameters to file
+b_params_to_file <- FALSE
+# check whether seed is set and output it to a file
+s_this_rmd_file = basename(ifelse(rstudioapi::isAvailable(), 
+                         rstudioapi::getSourceEditorContext()$path, 
+                         whereami::thisfile()))
+if (is.null(params$seed)){
+  stop(" ** Error parameter seed has not been set.")
+} else {
+  set.seed(params$seed)
+  s_params_file <- paste0(format(Sys.time(), '%Y%m%d%H%M%S'), "_params_", s_this_rmd_file, ".txt", collapse = "")
+  if (b_params_to_file) dput(params, file = s_params_file)
+}
+```
+
+```{r PointsQ1, echo=FALSE}
+# Assign Points for Q1
+lPointsQ1 <- list(TaskA = 4,
+                  TaskB = 14,
+                  TaskC = 5,
+                  TaskD = 0)
+nPointQ1Total <- sum(unlist(lPointsQ1))
+```
+
+```{r PointsQ2, echo=FALSE}
+# Assign Points for Q2
+lPointsQ2 <- list(TaskA = 2,
+                  TaskB = 2,
+                  TaskC = 8,
+                  TaskD = 0)
+nPointQ2Total <- sum(unlist(lPointsQ2))
+```
+
+```{r PointsQ3, echo=FALSE}
+# Assign Points for Q3
+lPointsQ3 <- list(TaskA = 25,
+                  TaskB = 25,
+                  TaskC = 0,
+                  TaskD = 0)
+nPointQ3Total <- sum(unlist(lPointsQ3))
+```
+
+```{r PointsQ4, echo=FALSE}
+# Assign Points for Q4
+lPointsQ4 <- list(TaskA = 20,
+                  TaskB = 20,
+                  TaskC = 0,
+                  TaskD = 0)
+nPointQ4Total <- sum(unlist(lPointsQ4))
+```
+
+```{r PointsQ5, echo=FALSE}
+# Assign Points for Q4
+lPointsQ5 <- list(TaskA = 8,
+                  TaskB = 8,
+                  TaskC = 0,
+                  TaskD = 0)
+nPointQ5Total <- sum(unlist(lPointsQ5))
+```
+
+```{r PointsTotal, echo=FALSE}
+nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4Total + nPointQ5Total
+```
+
+
+\thispagestyle{empty}
+
+\fcolorbox{white}{white}{
+	\centering \parbox[t]{1.0\linewidth}{
+		\fontsize{12pt}{20pt}\selectfont % 
+		\vspace*{0.5cm} % 
+
+   	Peter von Rohr \\ Institute of Agricultural Sciences\\ D-USYS\\ ETH Zurich
+
+		\vspace*{0.5cm} 
+	}
+}
+
+\vspace*{2cm}
+
+\fcolorbox{white}{white}{
+	\parbox[t]{1.0\linewidth}{
+		\centering \fontsize{25pt}{40pt}\selectfont %
+		\vspace*{0.2cm}
+		 751-7602-00 V \\
+     Solutions for Exam in    \\
+     Applied Statistical Methods \\
+     in Animal Sciences \\
+     Spring Semester 2023
+
+		\vspace*{0.7cm} % Space between the end of the title and the bottom of the grey box
+	}
+}
+
+
+\vspace*{0.5cm}
+
+<!-- % Table with Name -->
+\begin{tabular}{p{3cm}p{6cm}}
+Date:     &  `r params$examdate` \\
+          &  \\
+          &  \\
+Name:     &  \\
+          &  \\
+          &  \\
+Legi-Nr:  &  \\
+\end{tabular}
+
+<!-- % Table with Points -->
+
+\vspace{3ex}
+\begin{center}
+\begin{tabular}{|p{3cm}|c|c|}
+\hline
+Problem  &  Maximum Number of Points  &  Number of Points Reached\\
+\hline
+1        &  `r nPointQ1Total`  & \\
+\hline
+2        &  `r nPointQ2Total`  & \\
+\hline
+3        &  `r nPointQ3Total`  & \\
+\hline
+4        &  `r nPointQ4Total`  & \\
+\hline
+5        &  `r nPointQ5Total`  & \\
+\hline
+Total    &  `r nPointOverallTotal` & \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.25cm}
+
+\textit{Questions in German are in italics}
+
+\clearpage
+\pagebreak
+
+```{r, asm_exam_general_setup, echo=FALSE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+```
+
+
+
+## Problem 1: Linear Regression
+```{r asm_exam_p1_setup, echo=FALSE, message=FALSE, warning=FALSE}
+s_data_url_p1 <- file.path(s_data_url_root, "asm_exam_p01.csv")
+tbl_p1 <- readr::read_delim(file = s_data_url_p1, delim = ",")
+n_nr_cow <- nrow(tbl_p1)
+```
+
+Given is the following dataset on methane yield (in g/kg of Dry Matter Intake) and the nonvolatile milk metabolite acetone (as NMR-based relative area) for `r n_nr_cow` cows. The dataset is available under the link shown below the table
+
+\textit{Gegeben ist der nachfolgend gezeigte Datensatz mit Methan (in g/kg Trockensubstanzaufnahme) und dem nicht-flüchtigen Milkmetaboliten Aceton (als relative Fläche aus der NMR) für `r n_nr_cow` Kühe. Der Datensatz ist verfügbar unter dem Link, welcher unter der Tabelle gezeigt wird.}
+
+```{r asm_exam_p1_show_tbl, echo=FALSE}
+knitr::kable(tbl_p1,
+             booktabs = TRUE,
+             longtable = TRUE)
+
+```
+
+```{r asm_exam_p1_data_url, echo=FALSE}
+cat(s_data_url_p1, "\n")
+```
+
+
+\begin{enumerate}
+\item[a)] Fit a linear regression model with methane yield as response variable and acetone as predictor variable. What are the estimated values for 
+
+\begin{itemize}
+\item the slope, 
+\item the intercept and 
+\item the standard deviation of the residuals
+\end{itemize}
+
+based on fitted regression model?
+
+\textit{Passen Sie ein lineares Regressionsmodell mit Methan als Zielgrösse und Aceton als unabhängige Variable (Predictor). Wie gross sind die aufgrund des Regressionsmodells geschätzten Werte für}
+
+\begin{itemize}
+\item \textit{die Steigung},
+\item \textit{der Achsenabschnitt und }
+\item \textit{die Standardabweichung der Residuen}
+\end{itemize}
+
+\end{enumerate}
+\points{`r lPointsQ1$TaskA`}
+
+
+### Solution
+The data is read as given by
+
+```{r read-data, message=FALSE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p1 <- file.path(s_data_url_root, "asm_exam_p01.csv")
+tbl_p1 <- readr::read_delim(file = s_data_url_p1, delim = ",")
+```
+
+The linear regression model is fit by 
+
+```{r fit-model}
+lm_p1 <- lm(formula = Methane ~ Acetone, data = tbl_p1)
+smry_p1 <- summary(lm_p1)
+smry_p1
+```
+
+The estimates for the quantities asked in the problem are listed in the following table
+
+```{r, echo=FALSE}
+tbl_est_p1 <- tibble::tibble(Quantity = c("Slope", "Intercept", "SD of Residuals"),
+                             Estimate = c(smry_p1$coefficients["Acetone", "Estimate"],
+                                          smry_p1$coefficients["(Intercept)", "Estimate"],
+                                          smry_p1$sigma)
+                             )
+knitr::kable(tbl_est_p1,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] The plot below shows a scatter-plot of the given data on Acetone and Methane together with the fitted regression line. Please enter into the plot the slope, the intercept and all residuals. 
+
+\textit{Die unten gezeigte Grafik zeigt den Scatterplot der gegebenen Daten zu Aceton und Methan zusammen mit der angepassten Regressionslinie. Bitte zeichnen Sie in den gegebenen Plot die folgenden Grössen ein: Steigung, Achsenabschnitt und alle Residuen}
+
+\end{enumerate}
+\points{`r lPointsQ1$TaskB`}
+
+```{r, echo=FALSE}
+lm_p1 <- lm(formula = Methane ~ Acetone, data = tbl_p1)
+library(ggplot2)
+ggplot(data = tbl_p1,
+       aes(x = Acetone, y = Methane)) + 
+  geom_point() + 
+  geom_abline(slope = lm_p1$coefficients[["Acetone"]],
+              intercept = lm_p1$coefficients[["(Intercept)"]],
+              color = "red") + 
+  xlim(c(0, 1.1*max(tbl_p1$Acetone))) + 
+  ylim(c(0.95 * min(tbl_p1$Methane),  lm_p1$coefficients[["(Intercept)"]]))
+      
+```
+
+
+### Solution 
+
+The required quantities entered in the plot are shown below
+
+```{r asm-exam-p01b-scatter-plot-solution, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg", out.width="100%"}
+#rmdhelp::use_odg_graphic(ps_path = "odg/asm-exam-p01b-scatter-plot-solution.odg")
+knitr::include_graphics(path = "odg/asm-exam-p01b-scatter-plot-solution.png")
+```
+
+
+\clearpage
+\pagebreak
+
+```{r asm-exam-p1c-setup, echo=FALSE}
+n_add_cows <- 3
+n_intercept_value <- 25
+n_slope_value <- -40
+vec_acetone <- c(0.0532, 0.012, 0.109)
+```
+
+
+\begin{enumerate}
+\item[c)] The table below contains acetone measurements for `r n_add_cows` additional cows. Predict their methane values based on the linear regression that you found in Problem 1a). If you did not manage to solve Problem 1a) you can assume an intercept of `r n_intercept_value` and a slope of `r n_slope_value` for the prediction of methane based on acetone. Please specify whether all of the predicted methane values are valid or whether there is a problem with some of the values. If you find a problem please specify which values have a problem and what the problem is.
+
+\textit{Die nachfolgende Tabelle enthält Acetonwerte für `r n_add_cows` zusätzliche Kühe. Berechnen Sie die geschätzten Methanwerte für diese Kühe aufgrund der geschätzten Regression aus Aufgabe 1a). Falls Sie die Aufgabe 1a) nicht gelöst haben, dann können Sie einen Achsenabschnitt von `r n_intercept_value` und eine Steigung von `r n_slope_value` für die Vorhersage der Methanwerte annehmen. Bitte geben Sie an, ob die geschätzten Methanwerte alle gültig sind oder ob es mit gewissen Werten ein Problem gibt. Falls Sie Probleme finden, geben Sie bitte an welche Werte problematisch sind und was genau das Problem ist.}
+
+\end{enumerate}
+\points{`r lPointsQ1$TaskC`}
+
+Cows with additional acetone values
+
+```{r, echo=FALSE}
+tbl_added_ace <- tibble::tibble(Cow = c((1:n_add_cows)+n_nr_cow),
+                                Acetone = vec_acetone)
+knitr::kable(tbl_added_ace,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+
+
+### Solution 
+
+The predicted values with results from Problem 1a)
+
+```{r}
+tbl_pred_meth <- tbl_added_ace
+tbl_pred_meth$Methane <- lm_p1$coefficients[["(Intercept)"]] + 
+  lm_p1$coefficients[["Acetone"]] * tbl_pred_meth$Acetone
+knitr::kable(tbl_pred_meth,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+The predicted values with assumed values
+
+```{r}
+tbl_pred_meth <- tbl_added_ace
+tbl_pred_meth$Methane <- n_intercept_value + 
+  n_slope_value * tbl_pred_meth$Acetone
+knitr::kable(tbl_pred_meth,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+Find the cow with acetone outside of valid range
+
+```{r}
+vec_upper <- which(tbl_added_ace$Acetone > max(tbl_p1$Acetone))
+vec_lower <- which(tbl_added_ace$Acetone < min(tbl_p1$Acetone))
+vec_outside <- union(vec_upper,vec_lower)
+vec_outside_cow_id <- vec_outside + n_nr_cow
+```
+
+The problem is that the acetone value for `r ifelse(length(vec_outside_cow_id) > 1L, "cows", "cow")` `r vec_outside_cow_id` are outside of the valid range of acetone measurements and hence the predictions are not valid.
+
+
+\clearpage
+\pagebreak
+
+## Problem 2: Fixed Linear Effects Model
+```{r asm_exam_p2_setup, echo=FALSE, message=FALSE, warning=FALSE}
+s_data_url_p2 <- file.path(s_data_url_root, "asm_exam_p02.csv")
+tbl_p2 <- readr::read_delim(file = s_data_url_p2, delim = ",")
+n_nr_cow <- nrow(tbl_p2)
+```
+
+The dataset from Problem 1 is extended by the breed of every cow. The extended dataset is shown in the table below. The extended dataset can be read from the link shown below the table. 
+
+\textit{Der Datensatz von Aufgabe 1 wurde um die Rasse der Kühe erweitert. Der erweiterte Datensatz ist in der nachfolgenden Tabelle gezeigt. Der erweiterte Datensatz kann vom nachfolgenden Link gelesen werden.}
+
+```{r asm_exam_p2_show_tbl, echo=FALSE}
+knitr::kable(tbl_p2,
+             booktabs = TRUE,
+             longtable = TRUE)
+
+```
+
+```{r asm_exam_p2_data_url, echo=FALSE}
+cat(s_data_url_p2, "\n")
+```
+
+\begin{enumerate}
+\item[a)] Fit a fixed linear effects model with methane as the response and with acetone and breed as predictor variables. 
+
+\textit{Passen Sie ein fixes lineares Modell an mit Methan als Zielgrösse und mit Aceton und Rasse als unabhängige Variable.}
+
+\end{enumerate}
+\points{`r lPointsQ2$TaskA`}
+
+
+### Solution
+
+The fixed linear effect model
+
+```{r}
+lm_p2 <- lm(Methane ~ Acetone + Breed, data = tbl_p2)
+smry_lm_p2 <- summary(lm_p2)
+smry_lm_p2
+```
+
+
+\clearpage
+\pagebreak
+
+
+\begin{enumerate}
+\item[b)] Fit a fixed linear effects model with methane as response variable and the predictors acetone and breed, including an interaction term between acetone and breed. 
+
+\textit{Passen Sie ein fixes lineares Modell an mit Methan als Zielgrösse und mit den unabhängigen Variablen Aceton und Rasse, inklusive eines Interaktionsterms zwischen Aceton und Rasse.}
+
+\end{enumerate}
+\points{`r lPointsQ2$TaskB`}
+
+
+### Solution
+
+The fixed linear effects model with interaction
+
+```{r}
+lm_p2_inta <- lm(Methane ~ Acetone * Breed, data = tbl_p2)
+smry_lm_p2_inta <- summary(lm_p2_inta)
+smry_lm_p2_inta
+```
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] What are the expected methane values for the cows of a given breed and with given acetone values, using the model with and without interactions.
+
+\textit{Welches sind die erwarteten Methanwerte für die unten aufgelisteten Kühe einer bestimmten Rassen und mit beobachteten Acetonwerten. Unterscheiden Sie dabei nach den Modellen mit und ohne Interaktion}
+
+\end{enumerate}
+\points{`r lPointsQ2$TaskC`}
+
+```{r, echo=FALSE}
+n_nr_cow_added_ace_breed <- 4
+tbl_added_ace_breed <- tibble::tibble(Cow = c((1:n_nr_cow_added_ace_breed)+n_nr_cow),
+                                      Acetone = c(0.0532, 0.012, 0.009, 0.0169),
+                                      Breed = c(rep("Limousin", 2), rep("Angus",2)),
+                                      `Expected Methane without Interaction` = c(rep("",n_nr_cow_added_ace_breed)),
+                                      `Expected Methane with Interaction` = c(rep("",n_nr_cow_added_ace_breed)))
+knitr::kable(tbl_added_ace_breed,
+             booktabs = TRUE, 
+             longtable = TRUE)
+```
+
+
+### Solution 
+The computation is done separately per breed
+
+```{r}
+library(dplyr)
+tbl_added_ace_li <- tbl_added_ace_breed |>
+  filter(Breed == "Limousin")
+tbl_added_ace_li$`Expected Methane without Interaction` <- 
+  smry_lm_p2$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2$coefficients["Acetone", "Estimate"] * tbl_added_ace_li$Acetone + 
+  smry_lm_p2$coefficients["BreedLimousin", "Estimate"]
+tbl_added_ace_li$`Expected Methane with Interaction` <- 
+ smry_lm_p2_inta$coefficients["(Intercept)", "Estimate"] + 
+ smry_lm_p2_inta$coefficients["Acetone", "Estimate"] * tbl_added_ace_li$Acetone +
+ smry_lm_p2_inta$coefficients["BreedLimousin", "Estimate"] + 
+ smry_lm_p2_inta$coefficients["Acetone:BreedLimousin", "Estimate"] * tbl_added_ace_li$Acetone
+knitr::kable(tbl_added_ace_li,
+             booktabs = TRUE,
+             longtable = TRUE)
+``` 
+
+The same for Angus animals
+
+```{r}
+tbl_added_ace_an <- tbl_added_ace_breed |>
+  filter(Breed == "Angus")
+tbl_added_ace_an$`Expected Methane without Interaction` <- 
+  smry_lm_p2$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2$coefficients["Acetone", "Estimate"] * tbl_added_ace_an$Acetone
+tbl_added_ace_an$`Expected Methane with Interaction` <- 
+  smry_lm_p2_inta$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2_inta$coefficients["Acetone", "Estimate"] * tbl_added_ace_an$Acetone
+knitr::kable(tbl_added_ace_an,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+
+\clearpage
+\pagebreak
+
+
+## Problem 3: Pedigree BLUP
+```{r asm-exam-p3-setup, echo=FALSE, message=FALSE}
+s_data_url_p3 <- file.path(s_data_url_root, "asm_exam_p03.csv")
+tbl_p3 <- readr::read_delim(file = s_data_url_p3, delim = ",")
+# genetic parameters
+n_va0 <- 25
+n_ve0 <- 100
+n_p0 <- n_va0 + n_ve0
+n_vs0 <- n_va0 / 4
+n_ves0 <- n_p0 - n_vs0
+```
+
+Use the data shown in the table below to fit linear mixed effects models. The column `P` corresponds to values of phenotypic observations and is to be used as response variable in the linear model. The column `Sex` contains the sex of the animal and is to be used as a fixed effect in the linear model.
+
+\textit{Verwenden Sie die Daten in der unten gezeigten Tabelle um ein lineares gemischtes Modell anzupassen. Die Kolonne mit dem Titel `P` enthält Werte von phänotypischen Beobachtungen, welche als Zielgrössen im Modell verwendet werden sollen. Die Kolonne `Sex` enthält das Geschlecht der Tiere und soll als ein fixer Effekt ins gemischte Modell einfliessen.}
+
+```{r asm-exam-p3-data-tbl, echo=FALSE}
+knitr::kable(tbl_p3,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+```{r asm_exam_p3_data_url, echo=FALSE}
+cat(s_data_url_p3, "\n")
+```
+
+
+\begin{enumerate}
+\item[a)] Use a sire model to predict breeding values for all sires. Please specify the model in the form of an equation and explain the meaning of all model components. Write down the expected values and the variance-covariance matrices for all random effects in the model. Put all the information from the data into the model components consisting of response variable, fixed effects, random effects, and their associated design matrices. Construct the mixed model equations and provide solutions to these equations. Extract predicted breeding values from these solutions.
+
+The following variance components can be assumed to be given as
+
+\begin{itemize}
+\item sire variance $\sigma_s^2 = `r n_vs0`$
+\item residual variance $\sigma_e^2 = `r n_ves0`$
+\end{itemize}
+
+\textit{Verwenden Sie ein Vatermodell zur Schätzung der Zuchtwerte aller männlichen Tiere. Bitte geben Sie die Modellgleichung and und erläutern Sie die Bedeutung aller Modellkomponenten. Schreiben Sie die Erwartungswerte und die Varianz-Kovarianzmatrizen aller zufälligen Effekte im Modell auf. Verwenden Sie alle Informationen aus den Daten für die genaue Spezifikation der Modellkomponenten, wie zum Beispiel Zielgrösse, fixe Effekte, zufällige Effekte und die zugehörigen Designmatrizen. Stellen Sie die Mixed-Model-Gleichungen auf und lösen Sie diese Gleichungen. Extrahieren Sie die Zuchtwerte aller männlichen Tiere aus den Lösungen.}
+
+\textit{Die folgenden Varianzkomponenten können als gegeben angenommen werden:}
+
+\begin{itemize}
+\item Sire Varianz $\sigma_s^2 = `r n_vs0`$
+\item Varianz der Residuen $\sigma_e^2 = `r n_ves0`$
+\end{itemize}
+
+\end{enumerate}
+\points{`r lPointsQ3$TaskA`}
+
+
+### Solution
+
+* Model as equation: 
+
+$$y = Xb + Zs + e$$
+where
+
+```{r, echo=FALSE}
+tbl_sire_model_where <- tibble::tibble(Variable = c("$y$",
+                                                    "$b$",
+                                                    "$s$",
+                                                    "$e$",
+                                                    "$X$", 
+                                                    "$Z$"),
+                                       Meaning  = c("vector of observations",
+                                                    "vector of fixed effects",
+                                                    "vector of random sire breeding values",
+                                                    "vector of random residuals",
+                                                    "design matrix linking observations to fixed effects",
+                                                    "design matrix linking observations to sire breeding values"))
+knitr::kable(tbl_sire_model_where, col.names = NULL)
+```
+
+
+* Expected values and the variance-covariance matrices:
+
+Random effects are $y$, $s$ and $e$. Their expected values correspond to 
+
+$$E\left[\begin{array}{c}y \\ s \\ e \end{array}\right] 
+= \left[\begin{array}{c}Xb \\ 0 \\ 0 \end{array}\right]
+$$
+
+The variance-covariance matrices 
+
+$$
+var\left[\begin{array}{c}y \\ s \\ e \end{array}\right]
+= \left[\begin{array}{ccc} V & ZS & R \\ SZ^T & S & 0 \\ R & 0 & R \end{array}\right]
+$$
+
+where $var(s) = S = A_s * \sigma_s^2$, $var(e) = R = I * \sigma_e^2$ and $var(y) = V = ZSZ^T + R$ with given sire-variance component $\sigma_s^2$ and given residual variance component $\sigma_e^2$. 
+
+
+* Information from data to model components
+
+```{r, echo=FALSE, results='asis'}
+# vectors: y, b, s, e
+vec_y <- tbl_p3$P
+n_nr_rec <- length(vec_y)
+vec_levels_fixed_eff <- levels(as.factor(tbl_p3$SEX))
+vec_b <- paste0("b_", vec_levels_fixed_eff)
+vec_levels_sire <- levels(as.factor(tbl_p3$SIRE))
+vec_sire <- paste0("s_{", vec_levels_sire, "}")
+vec_residuals <- paste0("e_", (1:n_nr_rec))
+# matrices X and Z
+mat_X_sex <- model.matrix(lm(tbl_p3$P ~ 0 + tbl_p3$SEX))
+attr(mat_X_sex, "assign") <- NULL
+attr(mat_X_sex, "contrasts") <- NULL
+colnames(mat_X_sex) <- NULL
+mat_Z_sire <- model.matrix(lm(tbl_p3$P ~ 0 + factor(tbl_p3$SIRE)))
+attr(mat_Z_sire, "assign") <- NULL
+attr(mat_Z_sire, "contrasts") <- NULL
+colnames(mat_Z_sire) <- NULL
+# output
+cat("$$\n")
+cat(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "y"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name = "b"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_sire, ps_name = "s"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_residuals, ps_name = "e"))
+cat("$$\n\n")
+cat("$$\n")
+cat(rmdhelp::bmatrix(pmat = mat_X_sex, ps_name = "X"))
+cat("\\text{, }")
+cat(rmdhelp::bmatrix(pmat = mat_Z_sire, ps_name = "Z"))
+cat("$$\n")
+```
+
+* Mixed model equations:
+
+$$
+\left[
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda_s * A_s^{-1}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\hat{b} \\
+\hat{s}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+$$
+```{r, echo=FALSE}
+lambda_s <- n_ves0 / n_vs0
+library(pedigreemm)
+n_nr_sire <- length(vec_sire)
+ped_sire <- pedigree(sire = c(rep(NA, 3),3,4),
+                     dam = c(rep(NA, n_nr_sire)),
+                     label = as.character(1:n_nr_sire))
+mat_As <- as.matrix(getA(ped = ped_sire))
+mat_As_inv <- as.matrix(getAInv(ped = ped_sire))
+```
+
+where $\lambda_s = \frac{\sigma_e^2}{\sigma_s^2} = \frac{`r n_ves0`}{`r n_vs0`} = `r lambda_s`$ and $A_s$ corresponds to the sire relationship matrix given by
+
+```{r, echo=FALSE, results='asis'}
+cat(rmdhelp::bmatrix(pmat = mat_As, ps_name = "A_s", ps_env = "$$"))
+```
+
+The inverse $A_s^{-1}$ is
+
+```{r, echo=FALSE, results='asis'}
+cat(rmdhelp::bmatrix(pmat = mat_As_inv, ps_name = "A_s^{-1}", ps_env = "$$"))
+```
+
+
+* Solutions of MME
+
+```{r}
+mat_xtx <- crossprod(mat_X_sex)
+mat_xtz <- crossprod(mat_X_sex, mat_Z_sire)
+mat_ztx <- t(mat_xtz)
+mat_ztz_lAsinv <- crossprod(mat_Z_sire) + lambda_s * mat_As_inv
+mat_coef_sire <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_lAsinv))
+mat_rhs_sire <- rbind(crossprod(mat_X_sex, vec_y), crossprod(mat_Z_sire, vec_y))
+mat_sol_sire <- solve(mat_coef_sire, mat_rhs_sire)
+mat_sol_sire
+```
+
+
+* Predicted sire breeding values: The first two elements are solutions of fixed effects, the remaining elements are predicted breeding values
+
+```{r, echo=FALSE}
+tbl_sire_pbv <- tibble::tibble(Sire = vec_levels_sire,
+                               `Predicted Breeding Values` = mat_sol_sire[(length(vec_b)+1):nrow(mat_sol_sire),])
+knitr::kable(tbl_sire_pbv)
+```
+
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Use an animal model to predict breeding values for all animals in the above shown dataset. Please specify the model in the form of an equation and explain the meaning of all model components. Write down the expected values and the variance-covariance matrices for all random effects in the model. Put all the information from the data into the model components consisting of response variable, fixed effects, random effects, and their associated design matrices. Construct the mixed model equations and provide solutions to these equations. Extract predicted breeding values from these solutions.
+
+The following variance components can be assumed to be given as
+
+\begin{itemize}
+\item additive genetic variance $\sigma_u^2 = `r n_va0`$
+\item residual variance $\sigma_e^2 = `r n_ve0`$
+\end{itemize}
+
+\textit{Verwenden Sie ein Tiermodell für die Schätzung der Zuchtwerte aller Tiere im oben gegebenen Datensatz.Bitte geben Sie die Modellgleichung and und erläutern Sie die Bedeutung aller Modellkomponenten. Schreiben Sie die Erwartungswerte und die Varianz-Kovarianzmatrizen aller zufälligen Effekte im Modell auf. Verwenden Sie alle Informationen aus den Daten für die genaue Spezifikation der Modellkomponenten, wie zum Beispiel Zielgrösse, fixe Effekte, zufällige Effekte und die zugehörigen Designmatrizen. Stellen Sie die Mixed-Model-Gleichungen auf und lösen Sie diese Gleichungen. Extrahieren Sie die Zuchtwerte aller männlichen Tiere aus den Lösungen.}
+
+\textit{Die folgenden Varianzkomponenten können als gegeben angenommen werden:}
+
+\begin{itemize}
+\item Additive Genetische Varianz $\sigma_u^2 = `r n_va0`$
+\item Varianz der Residuen $\sigma_e^2 = `r n_ve0`$
+\end{itemize}
+
+\end{enumerate}
+\points{`r lPointsQ3$TaskB`}
+
+
+
+### Solution
+
+* Model as equation:
+
+$$y = Xb + Zu + e$$
+where
+
+```{r, echo=FALSE}
+tbl_sire_model_where <- tibble::tibble(Variable = c("$y$",
+                                                    "$b$",
+                                                    "$u$",
+                                                    "$e$",
+                                                    "$X$", 
+                                                    "$Z$"),
+                                       Meaning  = c("vector of observations",
+                                                    "vector of fixed effects",
+                                                    "vector of random breeding values",
+                                                    "vector of random residuals",
+                                                    "design matrix linking observations to fixed effects",
+                                                    "design matrix linking observations to sire breeding values"))
+knitr::kable(tbl_sire_model_where, col.names = NULL)
+```
+
+
+* Expected values and the variance-covariance matrices:
+
+Random effects are $y$, $u$ and $e$. Their expected values correspond to 
+
+$$E\left[\begin{array}{c}y \\ u \\ e \end{array}\right] 
+= \left[\begin{array}{c}Xb \\ 0 \\ 0 \end{array}\right]
+$$
+
+The variance-covariance matrices 
+
+$$
+var\left[\begin{array}{c}y \\ u \\ e \end{array}\right]
+= \left[\begin{array}{ccc} V & ZU & R \\ UZ^T & U & 0 \\ R & 0 & R \end{array}\right]
+$$
+
+where $var(u) = U = A * \sigma_u^2$, $var(e) = R = I * \sigma_e^2$ and $var(y) = V = ZUZ^T + R$ with given additive genetic variance component $\sigma_u^2$ and given residual variance component $\sigma_e^2$. 
+
+
+* Information from data to model components
+
+
+```{r, echo=FALSE, results='asis'}
+# vectors: y, b, u, e
+vec_y <- tbl_p3$P
+n_nr_rec <- length(vec_y)
+vec_levels_fixed_eff <- levels(as.factor(tbl_p3$SEX))
+vec_b <- paste0("b_", vec_levels_fixed_eff)
+vec_levels_ani <- union(union(unique(tbl_p3$SIRE), unique(tbl_p3$DAM)), unique(tbl_p3$ID))
+vec_levels_ani <- vec_levels_ani[order(vec_levels_ani)]
+vec_ani <- paste0("u_{", vec_levels_ani, "}")
+vec_residuals <- paste0("e_", (1:n_nr_rec))
+# matrix X
+mat_X_sex <- model.matrix(lm(tbl_p3$P ~ 0 + tbl_p3$SEX))
+attr(mat_X_sex, "assign") <- NULL
+attr(mat_X_sex, "contrasts") <- NULL
+colnames(mat_X_sex) <- NULL
+# matrix Z
+n_nr_ani <- length(vec_levels_ani)
+n_nr_founder <- n_nr_ani - n_nr_rec
+mat_Z_ani <- cbind(matrix(0,nrow = n_nr_rec, ncol = n_nr_founder),
+                   diag(1, nrow = n_nr_rec))
+attr(mat_Z_ani, "assign") <- NULL
+attr(mat_Z_ani, "contrasts") <- NULL
+colnames(mat_Z_ani) <- NULL
+# output
+cat("$$\n")
+cat(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "y"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name = "b"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_ani, ps_name = "s"))
+cat("\\text{, }")
+cat(rmdhelp::bcolumn_vector(pvec = vec_residuals, ps_name = "e"))
+cat("$$\n\n")
+cat("$$\n")
+cat(rmdhelp::bmatrix(pmat = mat_X_sex, ps_name = "X"))
+cat("$$\n\n")
+cat("$$\n")
+# cat(paste0(rmdhelp::bmatrix(pmat = mat_Z_ani, ps_name = "Z"), collapse = "\n"), "\n")
+cat("Z = ")
+cat("$$\n")
+```
+
+
+* Mixed model equations:
+
+$$
+\left[
+\begin{array}{cc}
+X^TX  &  X^TZ \\
+Z^TX  &  Z^TZ + \lambda_u * A^{-1}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\hat{b} \\
+\hat{u}
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+X^Ty \\
+Z^Ty
+\end{array}
+\right]
+$$
+
+```{r, echo=FALSE}
+lambda_u <- n_ve0 / n_va0
+library(pedigreemm)
+ped_ani <- pedigree(sire = c(rep(NA, n_nr_founder), tbl_p3$SIRE),
+                     dam = c(rep(NA, n_nr_founder), tbl_p3$DAM),
+                     label = as.character(1:n_nr_ani))
+mat_A <- as.matrix(getA(ped = ped_ani))
+mat_A_inv <- as.matrix(getAInv(ped = ped_ani))
+```
+
+where $\lambda_u = \frac{\sigma_e^2}{\sigma_u^2} = \frac{`r n_ve0`}{`r n_va0`} = `r lambda_u`$ and $A$ corresponds to the numerator relationship matrix given by
+
+```{r, echo=FALSE, results='asis'}
+#cat(rmdhelp::bmatrix(pmat = mat_A, ps_name = "A", ps_env = "$$"))
+cat("$$A =  $$\n")
+```
+
+The inverse $A_s^{-1}$ is
+
+```{r, echo=FALSE, results='asis'}
+#cat(rmdhelp::bmatrix(pmat = mat_A_inv, ps_name = "A^{-1}", ps_env = "$$"))
+cat("$$A^{-1} = $$\n")
+```
+
+
+* Solutions of MME
+
+```{r}
+mat_xtx <- crossprod(mat_X_sex)
+mat_xtz <- crossprod(mat_X_sex, mat_Z_ani)
+mat_ztx <- t(mat_xtz)
+mat_ztz_lAinv <- crossprod(mat_Z_ani) + lambda_u * mat_A_inv
+mat_coef_ani <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_lAinv))
+mat_rhs_ani <- rbind(crossprod(mat_X_sex, vec_y), crossprod(mat_Z_ani, vec_y))
+mat_sol_ani <- solve(mat_coef_ani, mat_rhs_ani)
+mat_sol_ani
+```
+
+
+* Predicted breeding values for all animals: The first two elements are solutions of fixed effects, the remaining elements are predicted breeding values
+
+```{r, echo=FALSE}
+tbl_ani_pbv <- tibble::tibble(Animals = vec_levels_ani,
+                               `Predicted Breeding Values` = mat_sol_ani[(length(vec_b)+1):nrow(mat_sol_ani),])
+knitr::kable(tbl_ani_pbv)
+```
+
+
+\clearpage
+\pagebreak
+
+<!--
+\begin{enumerate}
+\item[c)] 
+
+\textit{}
+\end{enumerate}
+\points{`r lPointsQ3$TaskC`}
+
+
+### Solution
+
+
+\clearpage
+\pagebreak
+
+-->
+
+## Problem 4: Genomic BLUP
+```{r asm-exam-p4-setup, echo=FALSE, message=FALSE}
+s_data_url_p4 <- file.path(s_data_url_root, "asm_exam_p04.csv")
+tbl_p4 <- readr::read_delim(file = s_data_url_p4, delim = ",")
+n_nr_snp <- length(grep("SNP", colnames(tbl_p4), fixed = TRUE))
+# genetic parameters
+n_va0 <- 25
+n_ve0 <- 275
+n_p0 <- n_va0 + n_ve0
+lambda_g <- n_ve0 / n_va0
+lambda_q <- lambda_g / n_nr_snp
+```
+
+Use the dataset shown in the table below to predict genomic breeding values. The column `P` contains phenotypic observations which are to be used as response variables. The column `SEX` contains the sex of the animal which is to be used as fixed effect. The columns `SNP1` to `SNP5` contain marker genotypes where the number stands for the number of favourite alleles at the respective marker position. 
+
+\textit{Verwenden Sie den nachfolgend gezeigten Datensatz für die Schätzung von genomischen Zuchtwerten. Die Kolonne `P` enhält phänotypische Beobachtungen, welche als Zielgrössen zu verwenden sind. Die Kolonne `SEX` enthält das Geschlecht der Tiere, welche als fixe Effekte verwendet werden. Die Kolonnen `SNP1` bis `SNP5` enthalten Markergenotypen, wobei der Wert der Anzahl an positiven Allelen an der entsprechenden Markerposition entsprechen.}
+
+```{r asm-exam-p4-data-tbl, echo=FALSE}
+knitr::kable(tbl_p4,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+```{r asm_exam_p4_data_url, echo=FALSE}
+cat(s_data_url_p4, "\n")
+```
+
+
+\begin{enumerate}
+\item[a)] Use a marker effect model in a two step procedure to predict genomic breeding values for all animals shown in the above dataset. The ratio between residual variance and variance of the marker effects is $`r lambda_q`$.
+
+\textit{Verwenden Sie ein Markereffektmodell in einem Zwei-Schritt-Verfahren um genomische Zuchtwerte für alle Tiere im oben gezeigten Datensatz zu schätzen.Das Verhältnis zwischen Restvarianz und Markervarianz beträgt} $`r lambda_q`$.
+
+\end{enumerate}
+\points{`r lPointsQ4$TaskA`}
+
+
+### Solution
+
+The two step procedure consists of 
+
+1. marker effect estimates
+2. prediction of breeding values
+
+* Marker effects can in principle be estimated using `lm()` in a regression model. But the dataset is too small to yield valid estimates. Hence, we have to use a mixed model.
+
+$$y = Xb + Wq + e$$
+
+with $y$ the vector of observations, $b$ the vector of fixed effects, $q$ the vector of random marker effects, $e$ the vector of random residuals and design matrices $X$ and $W$. Inserting information from the data leads to
+
+```{r}
+# vector y
+vec_y <- tbl_p4$P
+n_nr_rec_p4 <- length(vec_y)
+# matrix X
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_p4))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+# vector b
+vec_b <- c("b_{f}", "b_{m}")
+# martix W
+tbl_geno <- tbl_p4 %>% select(SNP1, SNP2, SNP3, SNP4, SNP5)
+mat_W <- as.matrix(tbl_geno)
+# vector q
+vec_q <- sapply(1:ncol(mat_W), function(x) paste("q_", x, sep = ""))
+# vector e
+vec_e <- sapply(1:n_nr_rec_p4, function(x) paste("e_", x, sep = ""))
+```
+
+```{r, echo=FALSE, results='asis'}
+cat("$$\n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "y"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_X, ps_name = "X"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name = "b"), collapse = "\n"),"\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_W, ps_name = "W"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_q, ps_name = "q"), collapse = "\n"),"\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_e, ps_name = "e"), collapse = "\n"),"\n")
+cat("$$\n")
+```
+
+$$E\left[\begin{array}{c} y \\ q \\ e\end{array} \right] = \left[\begin{array}{c} Xb \\ 0 \\ 0\end{array} \right]$$
+
+The variance-covariance matrices
+
+$$var\left[\begin{array}{c} y \\ q \\ e\end{array} \right] 
+= \left[\begin{array}{ccc} ZQZ^T + R & ZQ & R \\ QZ^T & Q & 0 \\ R & 0 & R \end{array} \right] $$
+
+with 
+
+* $var(e) = R = I * \sigma_e^2$, 
+* $var(q) = Q = I * \sigma_q^2$
+* $\sigma_e^2$ the residual variance component
+* $\sigma_q^2$ the marker variance component
+
+Setting up mixed model equations 
+
+```{r}
+# coefficient matrix
+mat_xtx <- crossprod(mat_X)
+mat_xtw <- crossprod(mat_X, mat_W)
+mat_wtx <- t(mat_xtw)
+mat_wtw <- crossprod(mat_W)
+mat_wtw_qinv_lambda <- mat_wtw + lambda_q * diag(1,nrow = nrow(mat_wtw))
+mat_coef_marker <- rbind(cbind(mat_xtx, mat_xtw), cbind(mat_wtx, mat_wtw_qinv_lambda))
+# right hand side
+mat_xty <- crossprod(mat_X, vec_y)
+mat_wty <- crossprod(mat_W, vec_y)
+mat_rhs_marker <- rbind(mat_xty, mat_wty)
+```
+
+Solving MME
+
+```{r}
+(mat_sol_marker <- solve(mat_coef_marker, mat_rhs_marker))
+```
+
+Solutions for fixed effects
+
+```{r}
+n_nr_fix_effects <- length(vec_b)
+mat_sol_marker[1:n_nr_fix_effects,]
+```
+
+The solution for the marker effects
+
+```{r}
+(vec_sol_geno <- mat_sol_marker[(n_nr_fix_effects+1):nrow(mat_sol_marker),])
+```
+
+Predicted genomic breeding values for genotyped animals
+
+```{r}
+mat_W %*% vec_sol_geno
+```
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Use a breeding value based model in a single step procedure to predict breeding values for all animals shown in the above dataset. The ratio between residual variance and genomic variance is $`r lambda_g`$.
+
+\textit{Verwenden Sie ein Zuchtwert-basiertes Modell in einem Single-Step Verfahren um genomische Zuchtwerte für alle Tiere im oben gezeigten Datensatz zu schätzen. Das Verhältnis der Restvarianz zur genomischen Varianz beträgt }$`r lambda_g`$.
+
+\end{enumerate}
+\points{`r lPointsQ4$TaskB`}
+
+
+### Solution
+The genomic breeding values using a breeding value based model are obtained by the following linear mixed effects model
+
+$$y = Xb + Zu + e$$
+
+with $y$ the vector of observations, $b$ the vector of fixed effects, $u$ the vector of random genomic breeding values, $e$ the vector of random residuals and design matrices $X$ and $Z$. Inserting information from the data leads to
+
+```{r}
+# vector y
+vec_y <- tbl_p4$P
+n_nr_rec_p4 <- length(vec_y)
+# matrix X
+mat_X <- model.matrix(lm(P ~ 0 + SEX, data = tbl_p4))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+# vector b
+vec_b <- c("b_{f}", "b_{m}")
+# martix Z
+mat_Z <- diag(1, nrow = n_nr_rec_p4)
+# vector g
+vec_u <- sapply(1:n_nr_rec_p4, function(x) paste("u_", x, sep = ""))
+# vector e
+vec_e <- sapply(1:nrow(tbl_p4), function(x) paste("e_", x, sep = ""))
+```
+
+```{r, echo=FALSE, results='asis'}
+cat("$$\n")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_y, ps_name = "y"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_X, ps_name = "X"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_b, ps_name = "b"), collapse = "\n"),"\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bmatrix(pmat = mat_Z, ps_name = "Z"), collapse = "\n"), "\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_u, ps_name = "u"), collapse = "\n"),"\n")
+cat("\\text{, }")
+cat(paste0(rmdhelp::bcolumn_vector(pvec = vec_e, ps_name = "e"), collapse = "\n"),"\n")
+cat("$$\n")
+
+```
+
+
+
+The expected values are defined as
+
+$$E\left[\begin{array}{c} y \\ u \\ e\end{array} \right] = \left[\begin{array}{c} Xb \\ 0 \\ 0\end{array} \right]$$
+
+The variance-covariance matrices
+
+$$var\left[\begin{array}{c} y \\ u \\ e\end{array} \right] 
+= \left[\begin{array}{ccc} ZHZ^T + R & ZH & R \\ HZ^T & H & 0 \\ R & 0 & R \end{array} \right] $$
+
+with 
+
+* $var(e) = R = I * \sigma_e^2$, 
+* $var(u) = H = G * \sigma_u^2$
+* $\sigma_e^2$ the residual variance component
+* $\sigma_u^2$ the genomic variance component
+* $G$ the genomic relationship matrix
+
+The numerator relationshipmatrix $G$ is
+
+```{r}
+tbl_geno <- tbl_p4 %>% select(SNP1, SNP2, SNP3, SNP4, SNP5)
+mat_geno <- as.matrix(tbl_geno)
+# function to compute genomic relationship matrix
+computeMatGrm <- function(pmatData) {
+  matData <- pmatData
+  # check the coding, if matData is -1, 0, 1 coded, then add 1 to get to 0, 1, 2 coding
+  if (min(matData) < 0) matData <- matData + 1
+  # Allele frequencies, column vector of P and sum of frequency products
+  freq <- apply(matData, 2, mean) / 2
+  P <- 2 * (freq - 0.5)
+  sumpq <- sum(freq*(1-freq))
+  # Changing the coding from (0,1,2) to (-1,0,1) and subtract matrix P
+  Z <- matData - 1 - matrix(P, nrow = nrow(matData), 
+                             ncol = ncol(matData), 
+                             byrow = TRUE)
+  # Z%*%Zt is replaced by tcrossprod(Z)
+  return(tcrossprod(Z)/(2*sumpq))
+}
+# genomic relationship matrix
+mat_G <- computeMatGrm(pmatData = mat_geno)
+# test full rank
+if (Matrix::rankMatrix(mat_G) < nrow(mat_G)){
+  mat_G_star <- mat_G + 0.01 * diag(1, nrow = nrow(mat_G))
+} else {
+  mat_G_star <- mat_G
+}
+
+```
+
+```{r, echo=FALSE, results='asis'}
+cat(paste0(rmdhelp::bmatrix(pmat = round(mat_G_star, digits = 4), ps_name = "G", ps_env = "$$"), collapse = "\n"), "\n")
+```
+
+Setting up mixed model equations 
+
+```{r}
+# coefficient matrix
+mat_xtx <- crossprod(mat_X)
+mat_xtz <- crossprod(mat_X, mat_Z)
+mat_ztx <- t(mat_xtz)
+mat_ztz_ginv_lambda <- crossprod(mat_Z) + lambda_g * solve(mat_G_star)
+mat_coef_geno <- rbind(cbind(mat_xtx, mat_xtz), cbind(mat_ztx, mat_ztz_ginv_lambda))
+# right hand side
+mat_xty <- crossprod(mat_X, vec_y)
+mat_zty <- crossprod(mat_Z, vec_y)
+mat_rhs_geno <- rbind(mat_xty, mat_zty)
+```
+
+Solving MME
+
+```{r}
+(mat_sol_geno <- solve(mat_coef_geno, mat_rhs_geno))
+```
+
+Solutions for fixed effects
+
+```{r}
+n_nr_fix_effects <- length(vec_b)
+mat_sol_geno[1:n_nr_fix_effects,]
+```
+
+Predicted genomic breeding values for genotyped animals
+
+```{r}
+(vec_sol_geno <- mat_sol_geno[(n_nr_fix_effects+1):nrow(mat_sol_geno),])
+```
+
+
+\clearpage
+\pagebreak
+
+<!--
+\begin{enumerate}
+\item[c)]
+
+\textit{}
+
+\end{enumerate}
+\points{`r lPointsQ4$TaskC`}
+
+
+### Solution 
+
+  
+\clearpage
+\pagebreak
+-->
+
+## Problem 5: Contrasts
+```{r asm-exam-p5-setup, echo=FALSE, message=FALSE}
+s_data_url_p5 <- file.path(s_data_url_root, "asm_exam_p05.csv")
+tbl_p5 <- readr::read_delim(file = s_data_url_p5, delim = ",")
+```
+
+The dataset shown below is used to fit a fixed linear model with `Methane` as response variable and `Breed` as predictor using different contrasts.
+
+\textit{Der nachfolgende Datensatz wird in einem fixen linearen Modell mit `Methane` als Zielgrösse und `Breed` als unabhängiger Variablen unter Verwendung verschiedener Kontraste verwendet.}
+
+```{r asm-exam-p5-data-tbl, echo=FALSE}
+knitr::kable(tbl_p5,
+             booktabs = TRUE,
+             longtable = TRUE)
+```
+
+```{r asm_exam_p5_data_url, echo=FALSE}
+cat(s_data_url_p5, "\n")
+```
+
+
+\begin{enumerate}
+\item[a)] Fit a fixed linear effects model with `Methane` as response variable and with `Breed` as predictor variable. Use the `treatment` contrast to report the differences in expected levels of `Methane` for the different breeds. Verify your results by setting up the least squares normal equations and show how `treatment` contrasts are computed from these solutions.
+
+\textit{Passen Sie ein fixes lineares Modell an die oben gezeigten Daten an mit `Methane` als Zielgrösse und mit `Breed` als unabhängiger Variable. Verwenden Sie die `treatement` Kontraste um die unterschiedlichen erwarteten Methanwerte für die verschiedenen Rassen anzugeben. Verifizieren Sie Ihre Resultate anhand der Least-Squares Normalgleichungen und berechnen Sie die `treatement` Kontraste aus den Lösungen der Normalgleichungen.}
+
+\end{enumerate}
+\points{`r lPointsQ5$TaskA`}
+
+
+### Solution
+Treatment contrasts are the default setting in `lm()`, hence the fixed linear effects model is fitted as
+
+```{r}
+lm_met_br_p5 <- lm(Methane ~ Breed, data = tbl_p5)
+smry_lm_met_br_p5 <- summary(lm_met_br_p5)
+smry_lm_met_br_p5
+```
+
+The least squares normal equations
+
+```{r}
+vec_y <- tbl_p5$Methane
+mat_X <- model.matrix(lm(Methane ~ 0 + Breed, data = tbl_p5))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+mat_X <- cbind(matrix(rep(1,nrow(mat_X)), ncol = 1), mat_X)
+mat_xtx <- crossprod(mat_X)
+mat_xtx_ginv <- MASS::ginv(mat_xtx)
+mat_xty <- crossprod(mat_X, vec_y)
+mat_b_sol <- crossprod(mat_xtx_ginv, mat_xty)
+mat_b_sol
+```
+
+Contrasts matrix for `treatment` contrasts
+
+```{r}
+fac_breed <- as.factor(tbl_p5$Breed)
+contr_mat_breed_treat <- contrasts(fac_breed)
+contr_mat_breed_treat <- cbind(matrix(rep(1,nrow(contr_mat_breed_treat)), ncol = 1), 
+                               contr_mat_breed_treat)
+est_mat_breed_treat <- solve(contr_mat_breed_treat)
+est_mat_breed_treat
+```
+
+The first row of the above matrix `est_mat_breed_treat` shows how the intercept estimate is computed from the observation means. This means that with the treatment contrasts, the intercept is the mean observation for animals of the `Angus` breed. Hence, we get
+
+```{r}
+library(dplyr)
+tbl_p5_an <- tbl_p5 |>
+  filter(Breed == "Angus" )
+mean(tbl_p5_an$Methane)
+```
+
+Comparing that to the intercept from `lm()`
+
+```{r}
+smry_lm_met_br_p5$coefficients["(Intercept)", "Estimate"]
+```
+
+For the effects estimates, we are looking at the second and the third row of the matrix `est_mat_breed_treat`. We are prepending a column of zeroes to the second and the third row of `est_mat_breed_treat`.
+
+```{r}
+n_nrow_est_mat <- nrow(est_mat_breed_treat)
+mat_q_efun <- cbind(matrix(0, nrow = (nrow(est_mat_breed_treat)-1), ncol = 1),
+                    matrix(est_mat_breed_treat[2:n_nrow_est_mat,], 
+                           nrow = (nrow(est_mat_breed_treat)-1)))
+crossprod(t(mat_q_efun), mat_b_sol) 
+```
+
+These values correspond to the effect estimates from `lm()` 
+
+```{r}
+n_nr_coef_row <- nrow(smry_lm_met_br_p5$coefficients)
+smry_lm_met_br_p5$coefficients[2:n_nr_coef_row, "Estimate"]
+```
+
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Fit a fixed linear effects model with `Methane` as response variable and with `Breed` as predictor variable. Use the `Helmert` contrast to report the differences in expected levels of `Methane` for the different breeds. Verify your results by setting up the least squares normal equations and show how `Helmert` contrasts are computed from these solutions.
+
+\textit{Passen Sie ein fixes lineares Modell an die oben gezeigten Daten an mit `Methane` als Zielgrösse und mit `Breed` als unabhängiger Variable. Verwenden Sie die `Helmert` Kontraste um die unterschiedlichen erwarteten Methanwerte für die verschiedenen Rassen anzugeben. Verifizieren Sie Ihre Resultate anhand der Least-Squares Normalgleichungen und berechnen Sie die `Helmert` Kontraste aus den Lösungen der Normalgleichungen.}
+
+\end{enumerate}
+\points{`r lPointsQ5$TaskB`}
+
+
+### Solution
+
+Helmert contrasts can be specified as argument in `lm()`, hence the fixed linear effects model is fitted as
+
+```{r}
+lm_met_br_p5 <- lm(Methane ~ Breed, data = tbl_p5, contrasts = list(Breed = "contr.helmert"))
+smry_lm_met_br_p5 <- summary(lm_met_br_p5)
+smry_lm_met_br_p5
+```
+
+The least squares normal equations
+
+```{r}
+vec_y <- tbl_p5$Methane
+mat_X <- model.matrix(lm(Methane ~ 0 + Breed, data = tbl_p5))
+attr(mat_X, "assign") <- NULL
+attr(mat_X, "contrasts") <- NULL
+colnames(mat_X) <- NULL
+mat_X <- cbind(matrix(rep(1,nrow(mat_X)), ncol = 1), mat_X)
+mat_xtx <- crossprod(mat_X)
+mat_xtx_ginv <- MASS::ginv(mat_xtx)
+mat_xty <- crossprod(mat_X, vec_y)
+mat_b_sol <- crossprod(mat_xtx_ginv, mat_xty)
+mat_b_sol
+```
+
+Contrasts matrix for `treatment` contrasts
+
+```{r}
+fac_breed <- as.factor(tbl_p5$Breed)
+contr_mat_breed_helm <- contrasts(C(fac_breed, helmert))
+contr_mat_breed_helm <- cbind(matrix(rep(1,nrow(contr_mat_breed_helm)), ncol = 1), 
+                               contr_mat_breed_helm)
+est_mat_breed_helm <- solve(contr_mat_breed_helm)
+est_mat_breed_helm
+```
+
+The first row of the above matrix `est_mat_breed_helm` shows how the intercept estimate is computed from the observation means. This means that with the Helmert contrasts, the intercept is the weighted mean of the mean observation for animals of the different breeds. Hence, we get
+
+```{r}
+library(dplyr)
+tbl_p5_an <- tbl_p5 |>
+  filter(Breed == "Angus" )
+tbl_p5_li <- tbl_p5 |>
+  filter(Breed == "Limousin")
+n_nr_breed <- nlevels(as.factor(tbl_p5$Breed))
+(mean(tbl_p5_an$Methane) + mean(tbl_p5_li$Methane)) / n_nr_breed
+```
+
+Comparing that to the intercept from `lm()`
+
+```{r}
+smry_lm_met_br_p5$coefficients["(Intercept)", "Estimate"]
+```
+
+For the effects estimates, we are looking at the second and the third row of the matrix `est_mat_breed_helm`. We are prepending a column of zeroes to the second and the third row of `est_mat_breed_helm`.
+
+```{r}
+n_nrow_est_mat <- nrow(est_mat_breed_helm)
+mat_q_efun <- cbind(matrix(0, nrow = (nrow(est_mat_breed_helm)-1), ncol = 1),
+                    matrix(est_mat_breed_helm[2:n_nrow_est_mat,], 
+                           nrow = (nrow(est_mat_breed_helm)-1)))
+crossprod(t(mat_q_efun), mat_b_sol) 
+```
+
+These values correspond to the effect estimates from `lm()` 
+
+```{r}
+n_nr_coef_row <- nrow(smry_lm_met_br_p5$coefficients)
+smry_lm_met_br_p5$coefficients[2:n_nr_coef_row, "Estimate"]
+```
+
+
+<!--
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)]
+
+\textit{}
+
+\end{enumerate}
+\points{`r lPointsQ5$TaskC`}
+
+
+### Solution 
+    
+-->

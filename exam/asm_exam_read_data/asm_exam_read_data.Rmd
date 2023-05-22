@@ -1,0 +1,54 @@
+---
+title: "Exam in Applied Statistical Methods"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The following statements can be used to read the datasets for the exam.
+
+
+## Problem 1: Linear Regression
+
+```{r, asm_exam_p1_read_data, eval=TRUE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p1 <- file.path(s_data_url_root, "asm_exam_p01.csv")
+tbl_p1 <- readr::read_delim(file = s_data_url_p1, delim = ",")
+```
+
+
+## Problem 2: 
+
+```{r, asm_exam_p2_read_data, eval=TRUE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p2 <- file.path(s_data_url_root, "asm_exam_p02.csv")
+tbl_p2 <- readr::read_delim(file = s_data_url_p2, delim = ",")
+```
+
+## Problem 3: 
+
+```{r, asm_exam_p3_read_data, eval=TRUE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p3 <- file.path(s_data_url_root, "asm_exam_p03.csv")
+tbl_p3 <- readr::read_delim(file = s_data_url_p3, delim = ",")
+```
+
+
+## Problem 4:
+
+```{r, asm_exam_p4_read_data, eval=TRUE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p4 <- file.path(s_data_url_root, "asm_exam_p04.csv")
+tbl_p4 <- readr::read_delim(file = s_data_url_p4, delim = ",")
+```
+
+
+## Problem 5:
+
+```{r, asm_exam_p5_read_data, eval=TRUE}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p5 <- file.path(s_data_url_root, "asm_exam_p05.csv")
+tbl_p5 <- readr::read_delim(file = s_data_url_p5, delim = ",")
+```

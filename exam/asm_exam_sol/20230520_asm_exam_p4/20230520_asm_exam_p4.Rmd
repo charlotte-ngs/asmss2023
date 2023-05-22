@@ -1,0 +1,147 @@
+---
+title: "ASM Exam Sol Problem 4: Genomic BLUP"
+output: html_notebook
+---
+
+
+Get a seed
+
+```{r}
+# n_seed <- rteachtools::get_seed()
+n_seed <- 3456
+cat("Seed: ", n_seed)
+set.seed(n_seed)
+```
+
+Based on the pedigree simulation, we start with
+
+```{r}
+library(pedSimulate)
+ped_p4 <- simulatePed(
+  F0size = 6,
+  Va0 = 25,
+  Ve = 275,
+  littersize = 1,
+  ngen = 3,
+  overlap.s = 1,
+  m.rate = 0.5,
+  seed = n_seed
+)
+```
+
+
+The simulated pedigree
+
+```{r}
+ped_p4
+```
+
+## Genotypes
+Adding genotypes can be done by
+
+```{r}
+n_nr_SNP <- 5
+AF_p4 <- runif(n_nr_SNP, 0.15, 0.85)
+gen_p4 <- simulateGen(ped  = ped_p4,
+                   AF   = AF_p4,
+                   seed = n_seed)
+```
+
+The genotypes
+
+```{r}
+gen_p4
+```
+
+## Marker Effects
+Marker effects are assumed
+
+```{r}
+vec_mrk_eff_p4 <- c(13.7, 2.1, 9.9, 3.9, 11.5)
+```
+
+Contributions to add
+
+```{r}
+vec_p_to_add_p4 <- gen_p4 %*% vec_mrk_eff_p4
+vec_p_to_add_p4
+```
+
+```{r}
+ped_p4$P <- as.vector(ped_p4$P + vec_p_to_add_p4)
+ped_p4
+```
+
+
+## Preparing data for Output
+
+```{r}
+tbl_gen_p4 <- tibble::as_tibble(gen_p4)
+tbl_gen_p4
+```
+
+A vector of column names
+
+```{r}
+vec_col_names_p4 <- sapply(1:n_nr_SNP, function(x) paste0("SNP", x, collapse = ""), USE.NAMES = FALSE)
+vec_col_names_p4
+```
+
+```{r}
+colnames(tbl_gen_p4) <- vec_col_names_p4
+tbl_gen_p4
+```
+
+Append genotypes to ped
+
+```{r}
+library(dplyr)
+tbl_ped_p4 <- tibble::as_tibble(ped_p4)
+# select relevant columns
+tbl_ped_data_out_p4 <- ped_p4 %>%
+  select(ID, SIRE, DAM, SEX, P)
+# set unknown parents to NA
+tbl_ped_data_out_p4$SIRE[tbl_ped_data_out_p4$SIRE == 0] <- NA
+tbl_ped_data_out_p4$DAM[tbl_ped_data_out_p4$DAM == 0] <- NA
+tbl_gen_data_out_p4 <- tbl_gen_p4[(!is.na(tbl_ped_data_out_p4$SIRE) & !is.na(tbl_ped_data_out_p4$DAM)), ]
+
+tbl_ped_data_out_p4 <- tbl_ped_data_out_p4[(!is.na(tbl_ped_data_out_p4$SIRE) & !is.na(tbl_ped_data_out_p4$DAM)), ]
+
+# remove founder genotypes
+tbl_gen_data_out_p4 <- tbl_ped_data_out_p4 |> 
+  bind_cols(tbl_gen_data_out_p4) |>
+  select(-SIRE, -DAM)
+tbl_gen_data_out_p4
+```
+
+
+Further preparation
+
+```{r}
+# rouding
+tbl_gen_data_out_p4$P <- round(tbl_gen_data_out_p4$P, digits = 1)
+tbl_gen_data_out_p4
+```
+
+
+Write data to a file
+
+```{r}
+s_data_out_path <- file.path(here::here(), "docs", "data", "asm_exam_p04.csv")
+#if (!file.exists(s_data_out_path))
+  readr::write_delim(tbl_gen_data_out_p4, s_data_out_path, delim = ",")
+```
+
+
+Using a regression analysis
+
+
+
+```{r}
+n_nr_snp <- length(grep("SNP", colnames(tbl_gen_data_out_p4), fixed = TRUE))
+s_mod_frm <- paste("P ~ SEX", paste0("SNP", 1:n_nr_snp, collapse = " + "), sep = " + ")
+lm_mrk_eff_p4 <- lm(as.formula(s_mod_frm), data = tbl_gen_data_out_p4)
+smry_lm_mrk_eff_p4 <- summary(lm_mrk_eff_p4)
+smry_lm_mrk_eff_p4
+```
+

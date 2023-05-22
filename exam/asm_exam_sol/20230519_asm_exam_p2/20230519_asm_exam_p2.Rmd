@@ -1,0 +1,100 @@
+---
+title: "ASM Exam Sol Problem 2: Fixed Linear Effects Model"
+output: html_notebook
+---
+
+
+Use data from Problem 1 
+
+```{r}
+s_data_url_root <- "https://charlotte-ngs.github.io/asmss2023/data"
+s_data_url_p1 <- file.path(s_data_url_root, "asm_exam_p01.csv")
+tbl_p1 <- readr::read_delim(file = s_data_url_p1, delim = ",")
+tbl_p1
+```
+
+
+Add breed of cows
+
+```{r}
+tbl_p2 <- tbl_p1
+vec_order <- order(tbl_p2$Acetone)
+n_nr_cow <- nrow(tbl_p2)
+n_nr_an <- 5
+n_nr_li <- n_nr_cow - n_nr_an
+vec_breed <- vector(mode = "character", length = n_nr_cow)
+vec_breed[vec_order[1:n_nr_an]] <- "Angus"
+vec_breed[vec_order[(n_nr_an+1):n_nr_cow]] <- "Limousin"
+tbl_p2$Breed <- vec_breed
+tbl_p2
+```
+
+Write the dataset to a file
+
+```{r}
+s_p02_path <- file.path(here::here(), "docs", "data", "asm_exam_p02.csv")
+readr::write_delim(tbl_p2, file = s_p02_path, delim = ",")
+```
+
+Fixed linear model with both acetone and breed
+
+```{r}
+lm_p2 <- lm(Methane ~ Acetone + Breed, data = tbl_p2)
+smry_lm_p2 <- summary(lm_p2)
+smry_lm_p2
+```
+
+Interaction
+
+```{r}
+lm_p2_inta <- lm(Methane ~ Acetone * Breed, data = tbl_p2)
+smry_lm_p2_inta <- summary(lm_p2_inta)
+smry_lm_p2_inta
+```
+
+Prediction for different cow
+
+```{r}
+n_nr_cow <- nrow(tbl_p2)
+n_nr_cow_added_ace_breed <- 4
+tbl_added_ace_breed <- tibble::tibble(Cow = c((1:n_nr_cow_added_ace_breed)+n_nr_cow),
+                                      Acetone = c(0.0532, 0.012, 0.009, 0.0169),
+                                      Breed = c(rep("Limousin", 2), rep("Angus",2)),
+                                      `Expected Methane without Interaction` = c(rep("",n_nr_cow_added_ace_breed)),
+                                      `Expected Methane with Interaction` = c(rep("",n_nr_cow_added_ace_breed)))
+tbl_added_ace_breed
+```
+
+The computation is done separately per breed
+
+```{r}
+library(dplyr)
+tbl_added_ace_li <- tbl_added_ace_breed |>
+  filter(Breed == "Limousin")
+tbl_added_ace_li$`Expected Methane without Interaction` <- 
+  smry_lm_p2$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2$coefficients["Acetone", "Estimate"] * tbl_added_ace_li$Acetone + 
+  smry_lm_p2$coefficients["BreedLimousin", "Estimate"]
+tbl_added_ace_li$`Expected Methane with Interaction` <- 
+ smry_lm_p2_inta$coefficients["(Intercept)", "Estimate"] + 
+ smry_lm_p2_inta$coefficients["Acetone", "Estimate"] * tbl_added_ace_li$Acetone +
+ smry_lm_p2_inta$coefficients["BreedLimousin", "Estimate"] + 
+ smry_lm_p2_inta$coefficients["Acetone:BreedLimousin", "Estimate"] * tbl_added_ace_li$Acetone
+tbl_added_ace_li
+```
+
+The same for Angus animals
+
+```{r}
+tbl_added_ace_an <- tbl_added_ace_breed |>
+  filter(Breed == "Angus")
+tbl_added_ace_an$`Expected Methane without Interaction` <- 
+  smry_lm_p2$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2$coefficients["Acetone", "Estimate"] * tbl_added_ace_an$Acetone
+tbl_added_ace_an$`Expected Methane with Interaction` <- 
+  smry_lm_p2_inta$coefficients["(Intercept)", "Estimate"] + 
+  smry_lm_p2_inta$coefficients["Acetone", "Estimate"] * tbl_added_ace_an$Acetone
+tbl_added_ace_an
+```
+
+
